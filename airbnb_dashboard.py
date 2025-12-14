@@ -39,12 +39,13 @@ def render_dynamic_grid(data, num_columns, render_item_func):
         cols = st.columns(num_columns)
 
         # Get the current batch of items
-        batch = data[i:i+num_columns]
+        batch = data[i : i + num_columns]
 
         # Render each item in its respective column
         for col, item in zip(cols, batch):
             with col:
                 render_item_func(item)
+
 
 # Custom CSS for better styling
 st.markdown(
@@ -127,9 +128,12 @@ def load_model_and_data():
 if "model_loaded" not in st.session_state:
     with st.spinner("Loading model and data... This may take a moment."):
         try:
-            model, baseline_comp, slopes_analysis, pricing_engine = (
-                load_model_and_data()
-            )
+            (
+                model,
+                baseline_comp,
+                slopes_analysis,
+                pricing_engine,
+            ) = load_model_and_data()
             st.session_state.model = model
             st.session_state.baseline_comp = baseline_comp
             st.session_state.slopes_analysis = slopes_analysis
@@ -172,8 +176,14 @@ st.sidebar.metric("Neighborhoods", f"{len(neighborhoods_list)}")
 st.sidebar.metric("Avg Price", f"${data['price_clean'].mean():.0f}")
 
 # Main title
-st.markdown('<div class="main-header">🏠 Seattle Airbnb Pricing Analyzer</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Powered by Hierarchical Bayesian Modeling</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="main-header">🏠 Seattle Airbnb Pricing Analyzer</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="sub-header">Powered by Hierarchical Bayesian Modeling</div>',
+    unsafe_allow_html=True,
+)
 st.markdown("---")
 
 
@@ -191,7 +201,8 @@ if page == "🏠 Home":
 
     # 1. Apply the Misty Morning Color Palette
     # ---------------------------------------------------------
-    st.markdown("""
+    st.markdown(
+        """
     <style>
         /* Optional: Set the main app background to Beige */
         .stApp {
@@ -229,39 +240,52 @@ if page == "🏠 Home":
             font-size: 0.95rem;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # 2. Define Data for Platform Capabilities
     # ---------------------------------------------------------
     features = [
         {
             "title": "💰 Price Intelligence",
-            "items": ["Bayesian predictions", "Confidence intervals", "Neighborhood benchmarking"]
+            "items": [
+                "Bayesian predictions",
+                "Confidence intervals",
+                "Neighborhood benchmarking",
+            ],
         },
         {
             "title": "📊 Investment Analysis",
-            "items": ["ROI projections", "Risk assessment", "Sensitivity analysis"]
+            "items": ["ROI projections", "Risk assessment", "Sensitivity analysis"],
         },
         {
             "title": "📍 Market Intelligence",
-            "items": ["Neighborhood comparison", "Strategic scoring", "Competitive analysis"]
+            "items": [
+                "Neighborhood comparison",
+                "Strategic scoring",
+                "Competitive analysis",
+            ],
         },
         {
             "title": "⚙️ Feature Impact",
-            "items": ["Amenity valuation", "Upgrade ROI", "Premium features"]
-        }
+            "items": ["Amenity valuation", "Upgrade ROI", "Premium features"],
+        },
     ]
 
     # 3. Define Render Function
     # ---------------------------------------------------------
     def render_card(feature):
-        items_html = "".join([f"<li>{x}</li>" for x in feature['items']])
-        st.markdown(f"""
+        items_html = "".join([f"<li>{x}</li>" for x in feature["items"]])
+        st.markdown(
+            f"""
         <div class="feature-card">
             <h3>{feature['title']}</h3>
             <ul>{items_html}</ul>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
     # 4. Call Dynamic Grid
     # ---------------------------------------------------------
@@ -474,12 +498,12 @@ elif page == "💰 Price Predictor":
                 st.subheader("⚠️ Risk Assessment")
                 risk = recommendation["risk_assessment"]
                 risk_color = (
-                    "success" if risk["level"] == "low" else ("warning" if risk["level"] == "moderate" else "danger")
+                    "success"
+                    if risk["level"] == "low"
+                    else ("warning" if risk["level"] == "moderate" else "danger")
                 )
 
-                st.markdown(
-                    f"**Risk Level**: :{risk_color}[{risk['level'].upper()}]"
-                )
+                st.markdown(f"**Risk Level**: :{risk_color}[{risk['level'].upper()}]")
                 for factor in risk["factors"]:
                     st.markdown(f"- {factor}")
 
@@ -498,9 +522,7 @@ elif page == "💰 Price Predictor":
                         f"${comp_pos['similar_listings_avg']:.0f}",
                     )
                 with col3:
-                    st.metric(
-                        "Number of Competitors", comp_pos["n_similar_listings"]
-                    )
+                    st.metric("Number of Competitors", comp_pos["n_similar_listings"])
 
             else:
                 st.error(recommendation["error"])
@@ -538,7 +560,9 @@ elif page == "📊 Investment Analyzer":
         accommodates = st.slider(
             "Property Capacity (guests)", min_value=1, max_value=10, value=4
         )
-        time_horizon = st.slider("Time Horizon (years)", min_value=1, max_value=10, value=5)
+        time_horizon = st.slider(
+            "Time Horizon (years)", min_value=1, max_value=10, value=5
+        )
 
     # Assumptions
     st.subheader("📋 Investment Assumptions")
@@ -546,7 +570,11 @@ elif page == "📊 Investment Analyzer":
 
     with col1:
         occupancy_rate = st.slider(
-            "Expected Occupancy Rate", min_value=0.3, max_value=0.95, value=0.70, step=0.05
+            "Expected Occupancy Rate",
+            min_value=0.3,
+            max_value=0.95,
+            value=0.70,
+            step=0.05,
         )
     with col2:
         operating_costs_pct = st.slider(
@@ -631,9 +659,10 @@ elif page == "📊 Investment Analyzer":
                 # Cash flow over time
                 years = np.arange(1, time_horizon + 1)
                 cumulative_cash_flow = net_annual_revenue * years
-                cumulative_property_value = investment_amount * (
-                    (1 + property_appreciation) ** years
-                ) - investment_amount
+                cumulative_property_value = (
+                    investment_amount * ((1 + property_appreciation) ** years)
+                    - investment_amount
+                )
 
                 axes[0].plot(
                     years, cumulative_cash_flow, marker="o", label="Rental Income"
@@ -652,7 +681,10 @@ elif page == "📊 Investment Analyzer":
                     label="Total Return",
                 )
                 axes[0].axhline(
-                    investment_amount, color="red", linestyle="--", label="Initial Investment"
+                    investment_amount,
+                    color="red",
+                    linestyle="--",
+                    label="Initial Investment",
                 )
                 axes[0].set_xlabel("Year")
                 axes[0].set_ylabel("Cumulative Return ($)")
@@ -689,9 +721,7 @@ elif page == "📊 Investment Analyzer":
                         "⚠️ Moderate ROI: Returns are positive but consider alternatives"
                     )
                 else:
-                    st.error(
-                        "🛑 Low ROI: Returns below typical market expectations"
-                    )
+                    st.error("🛑 Low ROI: Returns below typical market expectations")
 
                 st.markdown("**Key Risk Factors:**")
                 st.markdown(
@@ -700,9 +730,7 @@ elif page == "📊 Investment Analyzer":
                 st.markdown(
                     f"- Price sensitivity: 10% drop in nightly rate reduces annual revenue by ${gross_annual_revenue * 0.10:,.0f}"
                 )
-                st.markdown(
-                    "- Regulatory risk: Seattle Airbnb regulations may change"
-                )
+                st.markdown("- Regulatory risk: Seattle Airbnb regulations may change")
                 st.markdown(
                     "- Market risk: Tourism demand and competition may fluctuate"
                 )
@@ -730,7 +758,11 @@ elif page == "🗺️ Neighborhood Comparison":
     )
 
     accommodates = st.slider(
-        "Property Capacity (guests)", min_value=1, max_value=10, value=4, key="comp_guests"
+        "Property Capacity (guests)",
+        min_value=1,
+        max_value=10,
+        value=4,
+        key="comp_guests",
     )
 
     if len(selected_neighborhoods) < 2:
@@ -793,14 +825,19 @@ elif page == "🗺️ Neighborhood Comparison":
                 # Price comparison with error bars
                 x_pos = np.arange(len(comparison_df))
                 axes[0, 0].bar(
-                    x_pos, comparison_df["Predicted Price"], alpha=0.7, color="steelblue"
+                    x_pos,
+                    comparison_df["Predicted Price"],
+                    alpha=0.7,
+                    color="steelblue",
                 )
                 axes[0, 0].errorbar(
                     x_pos,
                     comparison_df["Predicted Price"],
                     yerr=[
-                        comparison_df["Predicted Price"] - comparison_df["90% CI Lower"],
-                        comparison_df["90% CI Upper"] - comparison_df["Predicted Price"],
+                        comparison_df["Predicted Price"]
+                        - comparison_df["90% CI Lower"],
+                        comparison_df["90% CI Upper"]
+                        - comparison_df["Predicted Price"],
                     ],
                     fmt="none",
                     ecolor="black",
@@ -837,9 +874,7 @@ elif page == "🗺️ Neighborhood Comparison":
                         linewidth=2,
                         markersize=12,
                     )
-                    axes[1, 0].plot(
-                        row["Predicted Price"], idx, "ro", markersize=8
-                    )
+                    axes[1, 0].plot(row["Predicted Price"], idx, "ro", markersize=8)
                 axes[1, 0].set_yticks(range(len(comparison_df)))
                 axes[1, 0].set_yticklabels(comparison_df["Neighborhood"])
                 axes[1, 0].set_xlabel("Price ($/night)")
@@ -1065,7 +1100,9 @@ elif page == "✅ Model Validation":
                 .values
             )
             axes[1, 1].bar(range(len(coverage_by_bin)), coverage_by_bin, alpha=0.7)
-            axes[1, 1].axhline(0.9, color="red", linestyle="--", linewidth=2, label="Target: 90%")
+            axes[1, 1].axhline(
+                0.9, color="red", linestyle="--", linewidth=2, label="Target: 90%"
+            )
             axes[1, 1].set_xlabel("Price Range")
             axes[1, 1].set_ylabel("CI Coverage")
             axes[1, 1].set_title("Calibration by Price Range")
@@ -1105,7 +1142,9 @@ elif page == "✅ Model Validation":
 # ===========================
 elif page == "⚙️ Feature Impact":
     st.header("⚙️ Feature Impact Calculator")
-    st.markdown("Estimate how different features and amenities affect your pricing power.")
+    st.markdown(
+        "Estimate how different features and amenities affect your pricing power."
+    )
 
     st.info(
         "💡 **Note**: Feature impacts are estimated from industry benchmarks and market research, not from the current model. Use as rough guidelines."
@@ -1197,7 +1236,8 @@ elif page == "⚙️ Feature Impact":
 
             features_list = ["Base"] + selected_features
             prices_list = [base_price] + [
-                base_price + sum([feature_effects[f] for f in selected_features[: i + 1]])
+                base_price
+                + sum([feature_effects[f] for f in selected_features[: i + 1]])
                 for i in range(len(selected_features))
             ]
 
