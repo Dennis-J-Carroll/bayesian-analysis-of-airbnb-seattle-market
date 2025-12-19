@@ -219,13 +219,17 @@ class BusinessStrategyFramework:
             "strategic_potential_score": neighborhood_stats[
                 "strategic_potential_score"
             ],
-            "investment_recommendation": "STRONG BUY"
-            if risk_adjusted_roi > 50
-            else "BUY"
-            if risk_adjusted_roi > 25
-            else "HOLD"
-            if risk_adjusted_roi > 10
-            else "AVOID",
+            "investment_recommendation": (
+                "STRONG BUY"
+                if risk_adjusted_roi > 50
+                else (
+                    "BUY"
+                    if risk_adjusted_roi > 25
+                    else "HOLD"
+                    if risk_adjusted_roi > 10
+                    else "AVOID"
+                )
+            ),
         }
 
     def create_dynamic_pricing_strategy(self, neighborhood_name=None):

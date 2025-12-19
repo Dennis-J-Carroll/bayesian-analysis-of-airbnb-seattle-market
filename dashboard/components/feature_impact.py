@@ -105,9 +105,11 @@ def feature_impact_page():
 
         st.metric(
             "Similar Listings",
-            f"{len(base_properties):,}"
-            if len(base_properties) > 0
-            else "Using neighborhood average",
+            (
+                f"{len(base_properties):,}"
+                if len(base_properties) > 0
+                else "Using neighborhood average"
+            ),
         )
 
     # Feature Categories
@@ -492,15 +494,21 @@ def feature_impact_page():
                             "Feature": feature,
                             "Installation Cost": f"${cost:,}",
                             "Annual Value": f"${annual_value:,.0f}",
-                            "Payback Period": f"{payback_months:.1f} months"
-                            if payback_months < 120
-                            else ">10 years",
+                            "Payback Period": (
+                                f"{payback_months:.1f} months"
+                                if payback_months < 120
+                                else ">10 years"
+                            ),
                             "3-Year ROI": f"{roi_3year:.0%}",
-                            "Recommendation": "High Priority"
-                            if payback_months < 24
-                            else "Medium Priority"
-                            if payback_months < 48
-                            else "Low Priority",
+                            "Recommendation": (
+                                "High Priority"
+                                if payback_months < 24
+                                else (
+                                    "Medium Priority"
+                                    if payback_months < 48
+                                    else "Low Priority"
+                                )
+                            ),
                         }
                     )
 

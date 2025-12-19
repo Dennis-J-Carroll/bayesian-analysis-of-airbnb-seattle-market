@@ -20,24 +20,24 @@ import warnings
 from datetime import datetime
 import json
 
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Set style
-sns.set_style('whitegrid')
-plt.rcParams['figure.figsize'] = (12, 8)
+sns.set_style("whitegrid")
+plt.rcParams["figure.figsize"] = (12, 8)
 
 
 class ModelTester:
     """Comprehensive model testing and validation."""
 
-    def __init__(self, output_dir='outputs/testing'):
+    def __init__(self, output_dir="outputs/testing"):
         """Initialize tester."""
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.results = {}
-        self.timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         print("=" * 70)
         print("VIGOROUS MODEL TESTING AND VALIDATION")
@@ -45,7 +45,7 @@ class ModelTester:
         print(f"Output directory: {self.output_dir}")
         print(f"Timestamp: {self.timestamp}\n")
 
-    def test_data_quality(self, data_path='data/raw/listings.csv'):
+    def test_data_quality(self, data_path="data/raw/listings.csv"):
         """Test 1: Data quality and integrity checks."""
         print("\n" + "=" * 70)
         print("TEST 1: DATA QUALITY AND INTEGRITY")
@@ -76,21 +76,26 @@ class ModelTester:
             print(f"  WARNING: {len(moderate_missing)} columns with >10% missing")
 
         # Price analysis
-        df['price_clean'] = df['price'].str.replace('$', '').str.replace(',', '').astype(float)
-        df_clean = df[(df['price_clean'] >= 10) & (df['price_clean'] <= 1000)]
+        df["price_clean"] = (
+            df["price"].str.replace("$", "").str.replace(",", "").astype(float)
+        )
+        df_clean = df[(df["price_clean"] >= 10) & (df["price_clean"] <= 1000)]
 
         print(f"\n💰 Price Distribution:")
         print(f"  Raw data: {len(df):,} listings")
         print(f"  After filtering ($10-$1000): {len(df_clean):,} listings")
-        print(f"  Removed: {len(df) - len(df_clean):,} ({(len(df) - len(df_clean))/len(df)*100:.1f}%)")
+        print(
+            f"  Removed: {len(df) - len(df_clean):,} ({(len(df) - len(df_clean))/len(df)*100:.1f}%)"
+        )
         print(f"  Mean price: ${df_clean['price_clean'].mean():.2f}")
         print(f"  Median price: ${df_clean['price_clean'].median():.2f}")
         print(f"  Std dev: ${df_clean['price_clean'].std():.2f}")
 
         # Skewness
         from scipy.stats import skew, kurtosis
-        price_skew = skew(df_clean['price_clean'])
-        price_kurt = kurtosis(df_clean['price_clean'])
+
+        price_skew = skew(df_clean["price_clean"])
+        price_kurt = kurtosis(df_clean["price_clean"])
 
         print(f"\n📈 Distribution Properties:")
         print(f"  Skewness: {price_skew:.3f}", end="")
@@ -108,12 +113,16 @@ class ModelTester:
             print(" ⚠ (heavy tails - robust methods recommended)")
 
         # Neighborhood analysis
-        neighborhood_counts = df_clean['neighbourhood_cleansed'].value_counts()
+        neighborhood_counts = df_clean["neighbourhood_cleansed"].value_counts()
 
         print(f"\n🏘️  Neighborhood Distribution:")
         print(f"  Total neighborhoods: {len(neighborhood_counts)}")
-        print(f"  Largest: {neighborhood_counts.index[0]} ({neighborhood_counts.iloc[0]} listings)")
-        print(f"  Smallest: {neighborhood_counts.index[-1]} ({neighborhood_counts.iloc[-1]} listings)")
+        print(
+            f"  Largest: {neighborhood_counts.index[0]} ({neighborhood_counts.iloc[0]} listings)"
+        )
+        print(
+            f"  Smallest: {neighborhood_counts.index[-1]} ({neighborhood_counts.iloc[-1]} listings)"
+        )
 
         sparse_neighborhoods = (neighborhood_counts < 10).sum()
         print(f"  Sparse (<10 listings): {sparse_neighborhoods}", end="")
@@ -122,14 +131,14 @@ class ModelTester:
         else:
             print(" ✓")
 
-        self.results['data_quality'] = {
-            'total_listings': len(df_clean),
-            'mean_price': float(df_clean['price_clean'].mean()),
-            'median_price': float(df_clean['price_clean'].median()),
-            'skewness': float(price_skew),
-            'kurtosis': float(price_kurt),
-            'n_neighborhoods': len(neighborhood_counts),
-            'sparse_neighborhoods': int(sparse_neighborhoods)
+        self.results["data_quality"] = {
+            "total_listings": len(df_clean),
+            "mean_price": float(df_clean["price_clean"].mean()),
+            "median_price": float(df_clean["price_clean"].median()),
+            "skewness": float(price_skew),
+            "kurtosis": float(price_kurt),
+            "n_neighborhoods": len(neighborhood_counts),
+            "sparse_neighborhoods": int(sparse_neighborhoods),
         }
 
         print("\n✅ Data quality test complete\n")
@@ -148,24 +157,32 @@ class ModelTester:
         from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
         # Prepare data
-        df_model = df.dropna(subset=['price_clean', 'accommodates', 'neighbourhood_cleansed'])
+        df_model = df.dropna(
+            subset=["price_clean", "accommodates", "neighbourhood_cleansed"]
+        )
 
         # Create features
-        df_model['log_price'] = np.log(df_model['price_clean'])
-        df_model['is_entire_home'] = (df_model['room_type'] == 'Entire home/apt').astype(int)
+        df_model["log_price"] = np.log(df_model["price_clean"])
+        df_model["is_entire_home"] = (
+            df_model["room_type"] == "Entire home/apt"
+        ).astype(int)
 
         # Simple feature set
-        X = df_model[['accommodates', 'is_entire_home']].values
-        y = df_model['log_price'].values
+        X = df_model[["accommodates", "is_entire_home"]].values
+        y = df_model["log_price"].values
 
         # Train-test split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
 
         print("\n🔬 Testing baseline models...")
 
         models = {
-            'Linear Regression': LinearRegression(),
-            'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42, max_depth=10)
+            "Linear Regression": LinearRegression(),
+            "Random Forest": RandomForestRegressor(
+                n_estimators=100, random_state=42, max_depth=10
+            ),
         }
 
         results = []
@@ -184,13 +201,15 @@ class ModelTester:
             rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
             mae_test = mean_absolute_error(y_test, y_pred_test)
 
-            results.append({
-                'Model': name,
-                'R² (train)': f"{r2_train:.4f}",
-                'R² (test)': f"{r2_test:.4f}",
-                'RMSE': f"{rmse_test:.4f}",
-                'MAE': f"{mae_test:.4f}"
-            })
+            results.append(
+                {
+                    "Model": name,
+                    "R² (train)": f"{r2_train:.4f}",
+                    "R² (test)": f"{r2_test:.4f}",
+                    "RMSE": f"{rmse_test:.4f}",
+                    "MAE": f"{mae_test:.4f}",
+                }
+            )
 
             print(f"\n  {name}:")
             print(f"    R² (train): {r2_train:.4f}")
@@ -198,7 +217,7 @@ class ModelTester:
             print(f"    RMSE: {rmse_test:.4f}")
             print(f"    MAE: {mae_test:.4f}")
 
-        self.results['baseline_models'] = results
+        self.results["baseline_models"] = results
 
         print("\n💡 Baseline comparison establishes minimum performance expectations")
         print("✅ Baseline model test complete\n")
@@ -214,13 +233,13 @@ class ModelTester:
         print("\n📐 Model Structure Checks:")
 
         structure_checks = {
-            'Hierarchical varying intercepts': '✓ Implemented',
-            'Hierarchical varying slopes': '✓ Implemented',
-            'Hyperpriors for partial pooling': '✓ Implemented',
-            'Multiple fixed effects': '✓ Implemented (room type, reviews, etc.)',
-            'Robust likelihood (Student-t)': '✓ Available in enhanced model',
-            'Posterior predictive sampling': '✓ Implemented',
-            'Convergence diagnostics': '✓ Implemented (R-hat, ESS)'
+            "Hierarchical varying intercepts": "✓ Implemented",
+            "Hierarchical varying slopes": "✓ Implemented",
+            "Hyperpriors for partial pooling": "✓ Implemented",
+            "Multiple fixed effects": "✓ Implemented (room type, reviews, etc.)",
+            "Robust likelihood (Student-t)": "✓ Available in enhanced model",
+            "Posterior predictive sampling": "✓ Implemented",
+            "Convergence diagnostics": "✓ Implemented (R-hat, ESS)",
         }
 
         for check, status in structure_checks.items():
@@ -228,23 +247,23 @@ class ModelTester:
 
         print("\n🎯 Model Features:")
         features = {
-            'Accommodates (varying by neighborhood)': 'Hierarchical effect',
-            'Room type (entire home)': 'Fixed effect',
-            'Room type (private room)': 'Fixed effect',
-            'Number of reviews (log transformed)': 'Fixed effect',
-            'Review score (normalized)': 'Fixed effect',
-            'Availability ratio': 'Fixed effect'
+            "Accommodates (varying by neighborhood)": "Hierarchical effect",
+            "Room type (entire home)": "Fixed effect",
+            "Room type (private room)": "Fixed effect",
+            "Number of reviews (log transformed)": "Fixed effect",
+            "Review score (normalized)": "Fixed effect",
+            "Availability ratio": "Fixed effect",
         }
 
         for feature, effect_type in features.items():
             print(f"  {feature}: {effect_type}")
 
-        self.results['model_structure'] = {
-            'type': 'Hierarchical Bayesian',
-            'varying_effects': ['intercepts', 'slopes_accommodates'],
-            'fixed_effects': ['room_type', 'reviews', 'review_score', 'availability'],
-            'likelihood': 'StudentT (robust) or Normal',
-            'inference': 'MCMC (NUTS)'
+        self.results["model_structure"] = {
+            "type": "Hierarchical Bayesian",
+            "varying_effects": ["intercepts", "slopes_accommodates"],
+            "fixed_effects": ["room_type", "reviews", "review_score", "availability"],
+            "likelihood": "StudentT (robust) or Normal",
+            "inference": "MCMC (NUTS)",
         }
 
         print("\n✅ Model structure validation complete\n")
@@ -258,12 +277,12 @@ class ModelTester:
         print("\n📊 Convergence Diagnostics:")
 
         criteria = {
-            'R-hat < 1.01': 'Excellent convergence',
-            'R-hat < 1.05': 'Acceptable convergence',
-            'R-hat > 1.05': 'Poor convergence (re-run with more samples)',
-            'ESS > 1000': 'Excellent effective sample size',
-            'ESS > 400': 'Acceptable effective sample size',
-            'ESS < 400': 'Low ESS (increase sampling)'
+            "R-hat < 1.01": "Excellent convergence",
+            "R-hat < 1.05": "Acceptable convergence",
+            "R-hat > 1.05": "Poor convergence (re-run with more samples)",
+            "ESS > 1000": "Excellent effective sample size",
+            "ESS > 400": "Acceptable effective sample size",
+            "ESS < 400": "Low ESS (increase sampling)",
         }
 
         print("\n  Convergence Criteria:")
@@ -282,7 +301,7 @@ class ModelTester:
         print("    3. Energy plot shows no pathologies")
         print("    4. Posterior distributions are smooth")
 
-        self.results['convergence_criteria'] = criteria
+        self.results["convergence_criteria"] = criteria
 
         print("\n✅ Convergence requirements defined\n")
 
@@ -294,7 +313,7 @@ class ModelTester:
 
         print("\n🔮 PPC Test Statistics:")
 
-        log_price = np.log(df['price_clean'].values)
+        log_price = np.log(df["price_clean"].values)
 
         # Observed statistics
         obs_mean = log_price.mean()
@@ -322,12 +341,12 @@ class ModelTester:
         print(f"    - Std should be within ±{0.1:.3f} of {obs_std:.4f}")
         print(f"    - Distribution shape should match observed")
 
-        self.results['ppc_checks'] = {
-            'observed_mean': float(obs_mean),
-            'observed_std': float(obs_std),
-            'observed_skew': float(obs_skew),
-            'tolerance_mean': 0.1,
-            'tolerance_std': 0.1
+        self.results["ppc_checks"] = {
+            "observed_mean": float(obs_mean),
+            "observed_std": float(obs_std),
+            "observed_skew": float(obs_skew),
+            "tolerance_mean": 0.1,
+            "tolerance_std": 0.1,
         }
 
         print("\n✅ PPC framework defined\n")
@@ -341,26 +360,26 @@ class ModelTester:
         print("\n🎛️  Prior Specifications:")
 
         priors = {
-            'mu_alpha (grand mean intercept)': {
-                'current': 'Normal(4.5, 1)',
-                'alternatives': ['Normal(4.5, 0.5)', 'Normal(4.5, 2)'],
-                'sensitivity': 'Low (lots of data)'
+            "mu_alpha (grand mean intercept)": {
+                "current": "Normal(4.5, 1)",
+                "alternatives": ["Normal(4.5, 0.5)", "Normal(4.5, 2)"],
+                "sensitivity": "Low (lots of data)",
             },
-            'mu_beta (grand mean slope)': {
-                'current': 'Normal(0.2, 0.1)',
-                'alternatives': ['Normal(0.2, 0.05)', 'Normal(0.2, 0.2)'],
-                'sensitivity': 'Low to Medium'
+            "mu_beta (grand mean slope)": {
+                "current": "Normal(0.2, 0.1)",
+                "alternatives": ["Normal(0.2, 0.05)", "Normal(0.2, 0.2)"],
+                "sensitivity": "Low to Medium",
             },
-            'sigma_alpha (neighborhood variation)': {
-                'current': 'HalfNormal(0.5)',
-                'alternatives': ['HalfNormal(0.25)', 'HalfNormal(1.0)'],
-                'sensitivity': 'Medium (affects pooling)'
+            "sigma_alpha (neighborhood variation)": {
+                "current": "HalfNormal(0.5)",
+                "alternatives": ["HalfNormal(0.25)", "HalfNormal(1.0)"],
+                "sensitivity": "Medium (affects pooling)",
             },
-            'nu (degrees of freedom)': {
-                'current': 'Exponential(0.1)',
-                'alternatives': ['Fixed at 4', 'Exponential(0.2)'],
-                'sensitivity': 'High (affects outlier handling)'
-            }
+            "nu (degrees of freedom)": {
+                "current": "Exponential(0.1)",
+                "alternatives": ["Fixed at 4", "Exponential(0.2)"],
+                "sensitivity": "High (affects outlier handling)",
+            },
         }
 
         for param, details in priors.items():
@@ -376,7 +395,7 @@ class ModelTester:
         print("    4. Compare posterior means and CIs")
         print("    5. Assess robustness (changes < 10% indicate robustness)")
 
-        self.results['sensitivity_analysis'] = priors
+        self.results["sensitivity_analysis"] = priors
 
         print("\n✅ Sensitivity analysis framework defined\n")
 
@@ -389,14 +408,14 @@ class ModelTester:
         print("\n🔄 K-Fold Cross-Validation Plan:")
 
         cv_plan = {
-            'n_folds': 5,
-            'stratification': 'By neighborhood (ensure representation)',
-            'metrics': ['RMSE', 'MAE', 'R²', 'Coverage (95% CI)'],
-            'expectations': {
-                'RMSE': '<= $120 on log scale',
-                'R²': '>= 0.40',
-                'Coverage': '>= 0.90 (well-calibrated)'
-            }
+            "n_folds": 5,
+            "stratification": "By neighborhood (ensure representation)",
+            "metrics": ["RMSE", "MAE", "R²", "Coverage (95% CI)"],
+            "expectations": {
+                "RMSE": "<= $120 on log scale",
+                "R²": ">= 0.40",
+                "Coverage": ">= 0.90 (well-calibrated)",
+            },
         }
 
         print(f"\n  Configuration:")
@@ -404,11 +423,11 @@ class ModelTester:
         print(f"    Stratification: {cv_plan['stratification']}")
 
         print(f"\n  Metrics:")
-        for metric in cv_plan['metrics']:
+        for metric in cv_plan["metrics"]:
             print(f"    ✓ {metric}")
 
         print(f"\n  Success Criteria:")
-        for metric, criterion in cv_plan['expectations'].items():
+        for metric, criterion in cv_plan["expectations"].items():
             print(f"    {metric}: {criterion}")
 
         print(f"\n  ⚠️ Computational Note:")
@@ -416,7 +435,7 @@ class ModelTester:
         print(f"    - Use reduced sampling for speed (500 draws, 2 chains)")
         print(f"    - Expected runtime: ~30-60 minutes for full data")
 
-        self.results['cross_validation'] = cv_plan
+        self.results["cross_validation"] = cv_plan
 
         print("\n✅ Cross-validation strategy defined\n")
 
@@ -429,26 +448,26 @@ class ModelTester:
         print("\n🛡️  Robustness Test Plan:")
 
         robustness_tests = {
-            'Outlier resilience': {
-                'test': 'Add synthetic outliers (10% extreme values)',
-                'expected': 'Student-t model handles better than Normal'
+            "Outlier resilience": {
+                "test": "Add synthetic outliers (10% extreme values)",
+                "expected": "Student-t model handles better than Normal",
             },
-            'Missing data': {
-                'test': 'Randomly remove 20% of data',
-                'expected': 'Predictions remain stable'
+            "Missing data": {
+                "test": "Randomly remove 20% of data",
+                "expected": "Predictions remain stable",
             },
-            'Sparse neighborhoods': {
-                'test': 'Test on neighborhoods with <5 listings',
-                'expected': 'Hierarchical pooling provides reasonable estimates'
+            "Sparse neighborhoods": {
+                "test": "Test on neighborhoods with <5 listings",
+                "expected": "Hierarchical pooling provides reasonable estimates",
             },
-            'Feature omission': {
-                'test': 'Remove one feature at a time',
-                'expected': 'Graceful degradation, no crashes'
+            "Feature omission": {
+                "test": "Remove one feature at a time",
+                "expected": "Graceful degradation, no crashes",
             },
-            'Different price ranges': {
-                'test': 'Test on budget (<$100) vs luxury (>$300)',
-                'expected': 'Model performs well across price segments'
-            }
+            "Different price ranges": {
+                "test": "Test on budget (<$100) vs luxury (>$300)",
+                "expected": "Model performs well across price segments",
+            },
         }
 
         for test_name, details in robustness_tests.items():
@@ -456,7 +475,7 @@ class ModelTester:
             print(f"    Test: {details['test']}")
             print(f"    Expected: {details['expected']}")
 
-        self.results['robustness_checks'] = robustness_tests
+        self.results["robustness_checks"] = robustness_tests
 
         print("\n✅ Robustness test plan defined\n")
 
@@ -467,8 +486,8 @@ class ModelTester:
         print("=" * 70)
 
         # Save results to JSON
-        report_path = self.output_dir / f'test_report_{self.timestamp}.json'
-        with open(report_path, 'w') as f:
+        report_path = self.output_dir / f"test_report_{self.timestamp}.json"
+        with open(report_path, "w") as f:
             json.dump(self.results, f, indent=2)
 
         print(f"\n✅ Test report saved to: {report_path}")
@@ -489,11 +508,15 @@ class ModelTester:
         print(f"  8. ✅ Robustness Checks")
 
         print(f"\n🎯 Key Findings:")
-        if 'data_quality' in self.results:
-            dq = self.results['data_quality']
-            print(f"  - Dataset: {dq['total_listings']:,} listings across {dq['n_neighborhoods']} neighborhoods")
+        if "data_quality" in self.results:
+            dq = self.results["data_quality"]
+            print(
+                f"  - Dataset: {dq['total_listings']:,} listings across {dq['n_neighborhoods']} neighborhoods"
+            )
             print(f"  - Mean price: ${dq['mean_price']:.2f}")
-            print(f"  - Sparse neighborhoods: {dq['sparse_neighborhoods']} (hierarchical model needed)")
+            print(
+                f"  - Sparse neighborhoods: {dq['sparse_neighborhoods']} (hierarchical model needed)"
+            )
 
         print(f"\n📋 Recommendations:")
         print(f"  1. Use hierarchical Bayesian model for partial pooling")
@@ -535,4 +558,5 @@ def main():
 
 if __name__ == "__main__":
     from scipy.stats import skew
+
     main()

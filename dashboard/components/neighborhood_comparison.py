@@ -42,9 +42,11 @@ def neighborhood_comparison_page():
         selected_neighborhoods = st.multiselect(
             "Choose 2-4 neighborhoods",
             options=sorted(neighborhoods_list),
-            default=sorted(neighborhoods_list)[:3]
-            if len(neighborhoods_list) >= 3
-            else neighborhoods_list,
+            default=(
+                sorted(neighborhoods_list)[:3]
+                if len(neighborhoods_list) >= 3
+                else neighborhoods_list
+            ),
             max_selections=4,
             help="Select between 2 and 4 neighborhoods for comparison",
         )
@@ -238,9 +240,11 @@ def neighborhood_comparison_page():
         for idx, room_type in enumerate(room_types):
             type_data = property_type_df[property_type_df["Property Type"] == room_type]
             counts = [
-                type_data[type_data["Neighborhood"] == n]["Count"].values[0]
-                if len(type_data[type_data["Neighborhood"] == n]) > 0
-                else 0
+                (
+                    type_data[type_data["Neighborhood"] == n]["Count"].values[0]
+                    if len(type_data[type_data["Neighborhood"] == n]) > 0
+                    else 0
+                )
                 for n in selected_neighborhoods
             ]
 
