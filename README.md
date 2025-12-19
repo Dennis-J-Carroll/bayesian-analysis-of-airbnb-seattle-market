@@ -32,6 +32,7 @@ See [IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md) and [EXPERT_DASHBOARD_REA
 
 ## Table of Contents
 
+- [Results at a Glance](#results-at-a-glance)
 - [Project Overview](#project-overview)
 - [Expert Dashboard](#expert-dashboard)
 - [Key Features](#key-features)
@@ -39,10 +40,93 @@ See [IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md) and [EXPERT_DASHBOARD_REA
 - [Dashboard Components](#dashboard-components)
 - [Model Architecture](#model-architecture)
 - [Results Summary](#results-summary)
+- [AI Safety Relevance](#ai-safety-and-alignment)
 - [Testing](#testing)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
+
+## 🎯 Results at a Glance
+
+### Model Performance
+Our hierarchical Bayesian model achieves strong predictive performance with proper uncertainty quantification:
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| **R² Score** | 0.481 | Explains ~48% of price variation across Seattle neighborhoods |
+| **RMSE** | $100.91 | Root mean squared error on price predictions |
+| **MAE** | $63.22 | Typical prediction error (median absolute deviation) |
+| **Calibration** | ✓ Well-calibrated | 90% of actual prices fall within 90% confidence intervals |
+
+### Live Dashboard Preview
+The interactive dashboard provides enterprise-grade analytics for investment decisions:
+
+![Model Performance Overview](gitpics/model%20Performance%20Overview.png)
+*Comprehensive model validation dashboard showing R² metrics, sample predictions, and residual analysis*
+
+![Investment Analysis](gitpics/Investment%20Analyzer.png)
+*ROI calculator with mortgage financing, operating expenses, and sensitivity analysis*
+
+### Top Strategic Neighborhoods
+
+Based on our composite scoring algorithm (market penetration, price growth potential, supply gaps):
+
+| Rank | Neighborhood | Strategic Score | Avg Price | 3-Year ROI* | Status |
+|------|--------------|----------------|-----------|-------------|---------|
+| 1 | Meadowbrook | 56.8 | $143.56 | 167% | 🎯 Strategic Opportunity |
+| 2 | Georgetown | 54.7 | $164.37 | 854% | 🎯 Strategic Opportunity |
+| 3 | Crown Hill | 51.5 | $139.45 | 1069% | 🎯 Strategic Opportunity |
+| 4 | Broadview | 51.5 | $137.39 | 882% | 🎯 Strategic Opportunity |
+
+*ROI calculated for $50K service investment with risk adjustments
+
+### Uncertainty Quantification in Action
+
+A key strength of the Bayesian approach is **honest uncertainty**—the model explicitly communicates confidence levels:
+
+```python
+# Example prediction with uncertainty
+predict_price(neighborhood="Capitol Hill", accommodates=4)
+>>> Mean: $175.23
+>>> 95% CI: [$142.18, $216.47]
+>>> Recommendation: "High confidence prediction (narrow interval)"
+
+predict_price(neighborhood="Industrial District", accommodates=8)
+>>> Mean: $203.45
+>>> 95% CI: [$98.32, $421.67]
+>>> Recommendation: "Low confidence - limited data for this configuration"
+```
+
+This enables **risk-aware decision making** rather than overconfident point estimates.
+
+### Key Visualizations
+
+<details>
+<summary><b>📊 Neighborhood Comparison Analysis</b></summary>
+
+![Comparison Results](gitpics/Comparison%20Results.png)
+*Side-by-side analysis of multiple neighborhoods with investment opportunity scoring*
+
+![Price Distribution](gitpics/Price%20Distribution.png)
+*Price distribution comparison across selected neighborhoods*
+
+![Property Type Distribution](gitpics/Property%20Type%20Distribution.png)
+*Property type breakdown for neighborhood comparison*
+
+</details>
+
+<details>
+<summary><b>📈 Model Diagnostics</b></summary>
+
+![Residual Analysis](gitpics/Residual%20Analysis.png)
+*Comprehensive residual analysis showing model fit quality*
+
+![Model Performance Pictures](gitpics/Model%20performance%20Pictures.png)
+*Detailed performance metrics across different property segments*
+
+</details>
+
+---
 
 ## Project Overview
 
@@ -263,6 +347,52 @@ Price ~ LogNormal(μ, σ)
 - **Posterior Predictive Checks**: Mean ✓, Std ✓, Min ✗, Max ✓, Skewness ✗
 - **Calibration**: 50% CI ✓, 80% CI ✓, 90% CI ✓, 95% CI ✓
 - **Performance**: Best for mid-range properties ($75-$250/night)
+
+## 🛡️ Relevance to AI Safety and Alignment
+
+This project demonstrates critical principles that are central to AI safety research, particularly in the areas of **calibration, uncertainty quantification, and model interpretability**—core themes in Anthropic's work on building safe, reliable AI systems.
+
+### Uncertainty Quantification and Calibration
+
+The hierarchical Bayesian framework implemented here provides **full uncertainty quantification** for all predictions, addressing the fundamental AI safety challenge articulated in Anthropic's research on "[Language Models (Mostly) Know What They Know](https://www.anthropic.com/research)" (Kadavath et al., 2022). Key parallels include:
+
+- **Well-Calibrated Predictions**: Our model achieves proper calibration (90% of actual prices fall within 90% confidence intervals), mirroring Anthropic's work on ensuring language models express appropriate confidence levels
+- **Honest Uncertainty**: Unlike point estimates, Bayesian posteriors provide full probability distributions, enabling systems to explicitly communicate "I don't know" through wide prediction intervals
+- **Avoiding Overconfidence**: The model naturally expresses greater uncertainty for underrepresented neighborhoods (small sample sizes) through hierarchical partial pooling
+
+### Interpretability and Transparency
+
+The hierarchical structure enables **mechanistic interpretability** similar to Anthropic's research on understanding model internals:
+
+- **Decomposable Parameters**: Neighborhood-specific intercepts (α) and slopes (β) are individually interpretable as baseline price levels and sensitivity to capacity
+- **Causal Structure**: The explicit hierarchical formulation (hyperparameters → neighborhood parameters → predictions) mirrors the kind of compositional understanding needed for safe AI deployment
+- **Auditable Decision-Making**: Every pricing recommendation traces back to interpretable parameters and quantified uncertainty, enabling human oversight
+
+### Implications for Large Language Model Safety
+
+While this project focuses on pricing models, the methodology directly informs LLM safety challenges:
+
+1. **Calibration Under Distribution Shift**: The model maintains calibration across diverse neighborhoods with varying data availability—analogous to LLM calibration across different domains and prompting contexts
+2. **Quantifying Epistemic Uncertainty**: Bayesian posteriors distinguish aleatoric (inherent price variability) from epistemic uncertainty (parameter uncertainty due to limited data)—critical for detecting when LLMs operate outside their training distribution
+3. **Hierarchical Abstraction**: Just as neighborhoods share statistical strength through hyperparameters, LLMs could benefit from hierarchical uncertainty modeling across task types, domains, or reasoning steps
+
+### Connection to Anthropic's Constitutional AI
+
+The business strategy framework (dynamic pricing with risk-adjusted ROI) demonstrates **value alignment** principles:
+
+- Explicit modeling of user preferences (investment risk tolerance, target returns)
+- Transparent trade-offs between competing objectives (price maximization vs. occupancy)
+- Uncertainty-aware recommendations that avoid overconfident or misleading guidance
+
+### Practical Takeaways for AI Safety Practitioners
+
+This repository offers a concrete, accessible demonstration of:
+
+- **Production-ready calibration**: 25+ test suite ensuring prediction interval validity (analogous to LLM safety evaluations)
+- **Human-in-the-loop design**: Dashboard interface enables users to explore uncertainty and override model recommendations
+- **Failure mode analysis**: Explicit documentation of model limitations (poor performance on luxury properties, absence of seasonal patterns)
+
+For researchers working on AI safety, this project provides a **working reference implementation** of uncertainty quantification best practices that scale from pricing models to frontier AI systems.
 
 ## 📁 Project Structure
 
