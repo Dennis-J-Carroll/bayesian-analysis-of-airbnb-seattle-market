@@ -11,14 +11,24 @@ def apply_custom_css():
     st.markdown(
         """
     <style>
-    /* Main app styling */
+    /* Main app styling - Misty Morning theme */
     .main {
-        background-color: #f8f9fa;
+        background-color: #f5f5dc !important;
     }
 
-    /* Header styling */
+    /* Force light background for main content */
+    .stApp {
+        background-color: #f5f5dc !important;
+    }
+
+    /* Main content block */
+    .block-container {
+        background-color: #f5f5dc !important;
+    }
+
+    /* Header styling - Misty Morning theme */
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
@@ -33,23 +43,23 @@ def apply_custom_css():
     }
 
     .main-header .subtitle {
-        color: #e0e7ff;
+        color: #add8e6;
         font-size: 1.1rem;
         margin-top: 0.5rem;
     }
 
-    /* Info boxes */
+    /* Info boxes - Misty Morning theme */
     .info-box {
-        background-color: #e7f3ff;
-        border-left: 4px solid #2196F3;
+        background-color: #add8e6;
+        border-left: 4px solid #2f4f4f;
         padding: 1.5rem;
         border-radius: 5px;
         margin: 1rem 0;
-        color: #0d47a1;
+        color: #1a1a1a;
     }
 
     .info-box h2, .info-box h4 {
-        color: #0d47a1;
+        color: #2f4f4f;
         margin-top: 0;
     }
 
@@ -57,19 +67,19 @@ def apply_custom_css():
         color: #1a1a1a;
     }
 
-    /* Feature cards */
+    /* Feature cards - Misty Morning theme */
     .feature-card {
         background: white;
         padding: 1.5rem;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         height: 100%;
-        border-top: 3px solid #667eea;
+        border-top: 3px solid #77b899;
         color: #1a1a1a;
     }
 
     .feature-card h3 {
-        color: #667eea;
+        color: #2f4f4f;
         margin-top: 0;
         font-size: 1.3rem;
     }
@@ -99,16 +109,16 @@ def apply_custom_css():
         margin-right: 0.5rem;
     }
 
-    /* Metric cards */
+    /* Metric cards - Misty Morning theme */
     div[data-testid="stMetricValue"] {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #667eea;
+        color: #2f4f4f;
     }
 
     div[data-testid="stMetricLabel"] {
         font-size: 1rem;
-        color: #666;
+        color: #333;
         font-weight: 600;
     }
 
@@ -116,9 +126,9 @@ def apply_custom_css():
         font-size: 1rem;
     }
 
-    /* Buttons */
+    /* Buttons - Misty Morning theme */
     .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         color: white;
         border: none;
         border-radius: 5px;
@@ -133,13 +143,13 @@ def apply_custom_css():
         transform: translateY(-2px);
     }
 
-    /* Sidebar styling */
+    /* Sidebar styling - Misty Morning theme */
     .css-1d391kg {
-        background-color: #f8f9fa;
+        background-color: #f5f5dc;
     }
 
     section[data-testid="stSidebar"] {
-        background-color: #1a252f;
+        background-color: #2f4f4f;
         color: #ffffff;
     }
 
@@ -165,13 +175,42 @@ def apply_custom_css():
 
     /* Sidebar text color fix */
     section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-        color: #ffffff;
+        color: #ffffff !important;
+    }
+
+    /* Sidebar metric labels and values - white text */
+    section[data-testid="stSidebar"] div[data-testid="stMetricLabel"] {
+        color: #ffffff !important;
+    }
+
+    section[data-testid="stSidebar"] div[data-testid="stMetricValue"] {
+        color: #add8e6 !important;
     }
 
     /* Warning boxes */
     .stAlert {
         border-radius: 5px;
         padding: 1rem;
+    }
+
+    /* Success box text */
+    .stSuccess {
+        color: #1a1a1a !important;
+    }
+
+    /* Warning box text */
+    .stWarning {
+        color: #1a1a1a !important;
+    }
+
+    /* Error box text */
+    .stError {
+        color: #1a1a1a !important;
+    }
+
+    /* Info box text */
+    .stInfo {
+        color: #1a1a1a !important;
     }
 
     /* Data tables */
@@ -182,7 +221,7 @@ def apply_custom_css():
     }
 
     .dataframe thead tr th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         color: white !important;
         font-weight: 600;
         padding: 0.75rem;
@@ -203,9 +242,20 @@ def apply_custom_css():
         background-color: #f0f2f6;
         border-radius: 5px;
         font-weight: 600;
+        color: #1a1a1a !important;
     }
 
-    /* Tab styling */
+    /* Expander content */
+    .streamlit-expanderContent {
+        color: #1a1a1a !important;
+    }
+
+    /* Expander content paragraphs and lists */
+    .streamlit-expanderContent p, .streamlit-expanderContent li {
+        color: #1a1a1a !important;
+    }
+
+    /* Tab styling - Misty Morning theme */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
     }
@@ -218,13 +268,13 @@ def apply_custom_css():
     }
 
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         color: white;
     }
 
-    /* Slider styling */
+    /* Slider styling - Misty Morning theme */
     .stSlider > div > div > div {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
     }
 
     /* Select box styling */
@@ -246,9 +296,9 @@ def apply_custom_css():
         position: relative;
     }
 
-    /* Loading spinner */
+    /* Loading spinner - Misty Morning theme */
     .stSpinner > div {
-        border-top-color: #667eea !important;
+        border-top-color: #77b899 !important;
     }
 
     /* Charts and plots */
@@ -267,7 +317,7 @@ def apply_custom_css():
         margin-top: 3rem;
     }
 
-    /* Custom card component */
+    /* Custom card component - Misty Morning theme */
     .custom-card {
         background: white;
         padding: 2rem;
@@ -278,14 +328,14 @@ def apply_custom_css():
     }
 
     .custom-card h2 {
-        color: #667eea;
+        color: #2f4f4f;
         margin-top: 0;
     }
 
     .custom-card h3 {
-        color: #667eea;
+        color: #2f4f4f;
         margin-top: 0;
-        border-bottom: 2px solid #667eea;
+        border-bottom: 2px solid #77b899;
         padding-bottom: 0.5rem;
     }
 
@@ -293,9 +343,9 @@ def apply_custom_css():
         color: #333333;
     }
 
-    /* Prediction result box */
+    /* Prediction result box - Misty Morning theme */
     .prediction-result {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         color: white;
         padding: 2rem;
         border-radius: 10px;
@@ -354,7 +404,7 @@ def apply_custom_css():
         color: #856404;
     }
 
-    /* Comparison table */
+    /* Comparison table - Misty Morning theme */
     .comparison-table {
         width: 100%;
         border-collapse: collapse;
@@ -366,7 +416,7 @@ def apply_custom_css():
     }
 
     .comparison-table th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         color: white;
         padding: 1rem;
         text-align: left;
@@ -398,7 +448,7 @@ def apply_custom_css():
         font-weight: bold;
     }
 
-    /* Progress bar */
+    /* Progress bar - Misty Morning theme */
     .progress-bar {
         background-color: #e0e0e0;
         border-radius: 10px;
@@ -409,7 +459,7 @@ def apply_custom_css():
 
     .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2f4f4f 0%, #77b899 100%);
         transition: width 0.3s ease;
     }
 
@@ -427,27 +477,37 @@ def apply_custom_css():
 
     /* Global text color contrast fixes */
     .main .block-container {
-        color: #1a1a1a;
+        color: #1a1a1a !important;
     }
 
     /* Ensure all headings have good contrast */
     h1, h2, h3, h4, h5, h6 {
-        color: #1a1a1a;
+        color: #1a1a1a !important;
     }
 
     /* Ensure all paragraph text has good contrast */
     p {
-        color: #333333;
+        color: #1a1a1a !important;
     }
 
     /* List items */
     li {
-        color: #333333;
+        color: #1a1a1a !important;
+    }
+
+    /* Ordered and unordered lists */
+    ol, ul {
+        color: #1a1a1a !important;
     }
 
     /* Ensure proper contrast for all text elements */
     .stMarkdown {
-        color: #1a1a1a;
+        color: #1a1a1a !important;
+    }
+
+    /* All markdown content */
+    .stMarkdown p, .stMarkdown li, .stMarkdown span, .stMarkdown div {
+        color: #1a1a1a !important;
     }
 
     /* Comparison table text */
@@ -457,7 +517,12 @@ def apply_custom_css():
 
     /* Data table body text */
     .dataframe tbody {
-        color: #1a1a1a;
+        color: #1a1a1a !important;
+    }
+
+    /* Data table cells */
+    .dataframe tbody td {
+        color: #1a1a1a !important;
     }
 
     /* Responsive design */
@@ -508,7 +573,7 @@ def create_metric_card(title, value, subtitle=None, icon=None):
         <div style='display: flex; align-items: center;'>
             {icon_html}
             <div style='flex: 1;'>
-                <h3 style='margin: 0; color: #667eea;'>{title}</h3>
+                <h3 style='margin: 0; color: #2f4f4f;'>{title}</h3>
                 <div style='font-size: 2rem; font-weight: bold; color: #333; margin: 0.5rem 0;'>{value}</div>
                 {subtitle_html}
             </div>
