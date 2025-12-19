@@ -122,11 +122,11 @@ def model_validation_page():
                     "Listings": len(range_data),
                     "Avg Price": f"${avg_price:.0f}",
                     "Std Dev": f"${std_price:.0f}",
-                    "Accuracy": "High"
-                    if avg_price < 200
-                    else "Medium"
-                    if avg_price < 300
-                    else "Low",
+                    "Accuracy": (
+                        "High"
+                        if avg_price < 200
+                        else "Medium" if avg_price < 300 else "Low"
+                    ),
                 }
             )
 

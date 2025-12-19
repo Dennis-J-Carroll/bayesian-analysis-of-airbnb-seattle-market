@@ -24,7 +24,8 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +48,7 @@ class EnhancedBayesianPriceModel:
     def _load_config(self, config_path: str) -> dict:
         """Load configuration from YAML file."""
         if Path(config_path).exists():
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f)
         else:
             logger.warning(f"Config file {config_path} not found, using defaults")
@@ -56,79 +57,93 @@ class EnhancedBayesianPriceModel:
     def _default_config(self) -> dict:
         """Return default configuration."""
         return {
-            'data': {
-                'listings': 'data/raw/listings.csv',
-                'min_price': 10,
-                'max_price': 1000
+            "data": {
+                "listings": "data/raw/listings.csv",
+                "min_price": 10,
+                "max_price": 1000,
             },
-            'model': {
-                'mcmc_samples': 2000,
-                'mcmc_tune': 1000,
-                'mcmc_chains': 4,
-                'random_seed': 42,
-                'use_room_type': True,
-                'use_reviews': True,
-                'use_availability': True
-            }
+            "model": {
+                "mcmc_samples": 2000,
+                "mcmc_tune": 1000,
+                "mcmc_chains": 4,
+                "random_seed": 42,
+                "use_room_type": True,
+                "use_reviews": True,
+                "use_availability": True,
+            },
         }
 
     def load_and_clean_data(self, data_path: Optional[str] = None) -> pd.DataFrame:
         """Load and preprocess Airbnb data with enhanced features."""
         if data_path is None:
-            data_path = self.config['data']['listings']
+            data_path = self.config["data"]["listings"]
 
         logger.info(f"Loading data from {data_path}")
         df = pd.read_csv(data_path)
 
         # Clean price
-        df['price_clean'] = df['price'].str.replace('$', '').str.replace(',', '').astype(float)
+        df["price_clean"] = (
+            df["price"].str.replace("$", "").str.replace(",", "").astype(float)
+        )
 
         # Remove missing values
-        required_cols = ['price_clean', 'accommodates', 'neighbourhood_cleansed']
+        required_cols = ["price_clean", "accommodates", "neighbourhood_cleansed"]
         df = df.dropna(subset=required_cols)
 
         # Filter outliers
-        min_price = self.config['data'].get('min_price', 10)
-        max_price = self.config['data'].get('max_price', 1000)
-        df = df[(df['price_clean'] >= min_price) & (df['price_clean'] <= max_price)]
+        min_price = self.config["data"].get("min_price", 10)
+        max_price = self.config["data"].get("max_price", 1000)
+        df = df[(df["price_clean"] >= min_price) & (df["price_clean"] <= max_price)]
 
         # Create neighborhood index
-        neighborhoods = sorted(df['neighbourhood_cleansed'].unique())
+        neighborhoods = sorted(df["neighbourhood_cleansed"].unique())
         neighborhood_lookup = {name: idx for idx, name in enumerate(neighborhoods)}
-        df['neighborhood_idx'] = df['neighbourhood_cleansed'].map(neighborhood_lookup)
+        df["neighborhood_idx"] = df["neighbourhood_cleansed"].map(neighborhood_lookup)
 
         # Add room type encoding if enabled
-        if self.config['model'].get('use_room_type', True):
-            df['is_entire_home'] = (df['room_type'] == 'Entire home/apt').astype(int)
-            df['is_private_room'] = (df['room_type'] == 'Private room').astype(int)
+        if self.config["model"].get("use_room_type", True):
+            df["is_entire_home"] = (df["room_type"] == "Entire home/apt").astype(int)
+            df["is_private_room"] = (df["room_type"] == "Private room").astype(int)
         else:
-            df['is_entire_home'] = 0
-            df['is_private_room'] = 0
+            df["is_entire_home"] = 0
+            df["is_private_room"] = 0
 
         # Add review features if enabled
-        if self.config['model'].get('use_reviews', True):
-            df['log_reviews'] = np.log1p(df['number_of_reviews'].fillna(0))
-            df['review_score'] = df['review_scores_rating'].fillna(df['review_scores_rating'].median()) / 100
+        if self.config["model"].get("use_reviews", True):
+            df["log_reviews"] = np.log1p(df["number_of_reviews"].fillna(0))
+            df["review_score"] = (
+                df["review_scores_rating"].fillna(df["review_scores_rating"].median())
+                / 100
+            )
         else:
-            df['log_reviews'] = 0
-            df['review_score'] = 0
+            df["log_reviews"] = 0
+            df["review_score"] = 0
 
         # Add availability feature if enabled
-        if self.config['model'].get('use_availability', True):
-            df['availability_ratio'] = df['availability_365'].fillna(0) / 365
+        if self.config["model"].get("use_availability", True):
+            df["availability_ratio"] = df["availability_365"].fillna(0) / 365
         else:
-            df['availability_ratio'] = 0
+            df["availability_ratio"] = 0
 
         # Standardize continuous features
-        continuous_features = ['accommodates', 'log_reviews', 'review_score', 'availability_ratio']
+        continuous_features = [
+            "accommodates",
+            "log_reviews",
+            "review_score",
+            "availability_ratio",
+        ]
         df[continuous_features] = self.scaler.fit_transform(df[continuous_features])
 
         self.data = df
         self.neighborhoods = neighborhoods
         self.n_neighborhoods = len(neighborhoods)
 
-        logger.info(f"Data loaded: {len(df)} listings across {self.n_neighborhoods} neighborhoods")
-        logger.info(f"Price range: ${df['price_clean'].min():.2f} - ${df['price_clean'].max():.2f}")
+        logger.info(
+            f"Data loaded: {len(df)} listings across {self.n_neighborhoods} neighborhoods"
+        )
+        logger.info(
+            f"Price range: ${df['price_clean'].min():.2f} - ${df['price_clean'].max():.2f}"
+        )
         logger.info(f"Features: accommodates, room_type, reviews, availability")
 
         return df
@@ -146,14 +161,14 @@ class EnhancedBayesianPriceModel:
         logger.info("Building enhanced hierarchical Bayesian model")
 
         # Extract features
-        log_price = np.log(self.data['price_clean'].values)
-        accommodates = self.data['accommodates'].values
-        neighborhood_idx = self.data['neighborhood_idx'].values
-        is_entire_home = self.data['is_entire_home'].values
-        is_private_room = self.data['is_private_room'].values
-        log_reviews = self.data['log_reviews'].values
-        review_score = self.data['review_score'].values
-        availability = self.data['availability_ratio'].values
+        log_price = np.log(self.data["price_clean"].values)
+        accommodates = self.data["accommodates"].values
+        neighborhood_idx = self.data["neighborhood_idx"].values
+        is_entire_home = self.data["is_entire_home"].values
+        is_private_room = self.data["is_private_room"].values
+        log_reviews = self.data["log_reviews"].values
+        review_score = self.data["review_score"].values
+        availability = self.data["availability_ratio"].values
 
         with pm.Model() as model:
             # =================================================================
@@ -161,45 +176,52 @@ class EnhancedBayesianPriceModel:
             # =================================================================
 
             # Grand means
-            mu_alpha = pm.Normal('mu_alpha', mu=4.5, sigma=1)
-            mu_beta_acc = pm.Normal('mu_beta_acc', mu=0.2, sigma=0.1)
+            mu_alpha = pm.Normal("mu_alpha", mu=4.5, sigma=1)
+            mu_beta_acc = pm.Normal("mu_beta_acc", mu=0.2, sigma=0.1)
 
             # Standard deviations across neighborhoods
-            sigma_alpha = pm.HalfNormal('sigma_alpha', sigma=0.5)
-            sigma_beta_acc = pm.HalfNormal('sigma_beta_acc', sigma=0.1)
+            sigma_alpha = pm.HalfNormal("sigma_alpha", sigma=0.5)
+            sigma_beta_acc = pm.HalfNormal("sigma_beta_acc", sigma=0.1)
 
             # Varying intercepts and slopes by neighborhood
-            alpha = pm.Normal('alpha', mu=mu_alpha, sigma=sigma_alpha,
-                            shape=self.n_neighborhoods)
-            beta_acc = pm.Normal('beta_acc', mu=mu_beta_acc, sigma=sigma_beta_acc,
-                               shape=self.n_neighborhoods)
+            alpha = pm.Normal(
+                "alpha", mu=mu_alpha, sigma=sigma_alpha, shape=self.n_neighborhoods
+            )
+            beta_acc = pm.Normal(
+                "beta_acc",
+                mu=mu_beta_acc,
+                sigma=sigma_beta_acc,
+                shape=self.n_neighborhoods,
+            )
 
             # =================================================================
             # FIXED EFFECTS: Common across all neighborhoods
             # =================================================================
 
             # Room type effects
-            beta_entire = pm.Normal('beta_entire', mu=0.3, sigma=0.2)
-            beta_private = pm.Normal('beta_private', mu=0.1, sigma=0.2)
+            beta_entire = pm.Normal("beta_entire", mu=0.3, sigma=0.2)
+            beta_private = pm.Normal("beta_private", mu=0.1, sigma=0.2)
 
             # Review effects
-            beta_reviews = pm.Normal('beta_reviews', mu=0.1, sigma=0.1)
-            beta_score = pm.Normal('beta_score', mu=0.2, sigma=0.1)
+            beta_reviews = pm.Normal("beta_reviews", mu=0.1, sigma=0.1)
+            beta_score = pm.Normal("beta_score", mu=0.2, sigma=0.1)
 
             # Availability effect
-            beta_availability = pm.Normal('beta_availability', mu=-0.1, sigma=0.1)
+            beta_availability = pm.Normal("beta_availability", mu=-0.1, sigma=0.1)
 
             # =================================================================
             # LINEAR PREDICTOR
             # =================================================================
 
-            mu = (alpha[neighborhood_idx] +
-                  beta_acc[neighborhood_idx] * accommodates +
-                  beta_entire * is_entire_home +
-                  beta_private * is_private_room +
-                  beta_reviews * log_reviews +
-                  beta_score * review_score +
-                  beta_availability * availability)
+            mu = (
+                alpha[neighborhood_idx]
+                + beta_acc[neighborhood_idx] * accommodates
+                + beta_entire * is_entire_home
+                + beta_private * is_private_room
+                + beta_reviews * log_reviews
+                + beta_score * review_score
+                + beta_availability * availability
+            )
 
             # =================================================================
             # LIKELIHOOD
@@ -207,39 +229,39 @@ class EnhancedBayesianPriceModel:
 
             if use_robust_likelihood:
                 # Robust Student-t likelihood (handles outliers better)
-                nu = pm.Exponential('nu', lam=1/10)  # Degrees of freedom
-                sigma = pm.HalfNormal('sigma', sigma=0.5)
+                nu = pm.Exponential("nu", lam=1 / 10)  # Degrees of freedom
+                sigma = pm.HalfNormal("sigma", sigma=0.5)
 
-                log_price_obs = pm.StudentT('log_price_obs',
-                                            nu=nu,
-                                            mu=mu,
-                                            sigma=sigma,
-                                            observed=log_price)
+                log_price_obs = pm.StudentT(
+                    "log_price_obs", nu=nu, mu=mu, sigma=sigma, observed=log_price
+                )
                 logger.info("Using robust Student-t likelihood")
             else:
                 # Standard normal likelihood
-                sigma = pm.HalfNormal('sigma', sigma=0.5)
+                sigma = pm.HalfNormal("sigma", sigma=0.5)
 
-                log_price_obs = pm.Normal('log_price_obs',
-                                         mu=mu,
-                                         sigma=sigma,
-                                         observed=log_price)
+                log_price_obs = pm.Normal(
+                    "log_price_obs", mu=mu, sigma=sigma, observed=log_price
+                )
                 logger.info("Using normal likelihood")
 
         self.model = model
         logger.info("Model built successfully")
         return model
 
-    def fit_model(self, samples: Optional[int] = None,
-                  tune: Optional[int] = None,
-                  chains: Optional[int] = None) -> az.InferenceData:
+    def fit_model(
+        self,
+        samples: Optional[int] = None,
+        tune: Optional[int] = None,
+        chains: Optional[int] = None,
+    ) -> az.InferenceData:
         """Fit the model using MCMC sampling."""
 
         # Use config defaults if not specified
-        samples = samples or self.config['model'].get('mcmc_samples', 2000)
-        tune = tune or self.config['model'].get('mcmc_tune', 1000)
-        chains = chains or self.config['model'].get('mcmc_chains', 4)
-        seed = self.config['model'].get('random_seed', 42)
+        samples = samples or self.config["model"].get("mcmc_samples", 2000)
+        tune = tune or self.config["model"].get("mcmc_tune", 1000)
+        chains = chains or self.config["model"].get("mcmc_chains", 4)
+        seed = self.config["model"].get("random_seed", 42)
 
         logger.info(f"Fitting model: {samples} samples, {tune} tuning, {chains} chains")
 
@@ -250,7 +272,7 @@ class EnhancedBayesianPriceModel:
                 chains=chains,
                 return_inferencedata=True,
                 random_seed=seed,
-                target_accept=0.95  # Higher acceptance for better convergence
+                target_accept=0.95,  # Higher acceptance for better convergence
             )
 
             # Add posterior predictive samples
@@ -273,38 +295,47 @@ class EnhancedBayesianPriceModel:
         rhat_values = rhat.to_array().values
         ess_values = ess.to_array().values
 
-        diagnostics['max_rhat'] = float(np.nanmax(rhat_values))
-        diagnostics['min_ess'] = float(np.nanmin(ess_values))
+        diagnostics["max_rhat"] = float(np.nanmax(rhat_values))
+        diagnostics["min_ess"] = float(np.nanmin(ess_values))
 
         # Summary statistics
-        summary = az.summary(self.trace,
-                            var_names=['mu_alpha', 'mu_beta_acc', 'beta_entire',
-                                     'beta_private', 'beta_reviews', 'beta_score',
-                                     'beta_availability', 'sigma'])
+        summary = az.summary(
+            self.trace,
+            var_names=[
+                "mu_alpha",
+                "mu_beta_acc",
+                "beta_entire",
+                "beta_private",
+                "beta_reviews",
+                "beta_score",
+                "beta_availability",
+                "sigma",
+            ],
+        )
 
-        diagnostics['summary'] = summary
+        diagnostics["summary"] = summary
 
         # Posterior predictive checks
-        ppc_data = self.trace.posterior_predictive['log_price_obs'].values
-        observed_data = np.log(self.data['price_clean'].values)
+        ppc_data = self.trace.posterior_predictive["log_price_obs"].values
+        observed_data = np.log(self.data["price_clean"].values)
 
-        diagnostics['ppc_mean_diff'] = abs(ppc_data.mean() - observed_data.mean())
-        diagnostics['ppc_std_diff'] = abs(ppc_data.std() - observed_data.std())
+        diagnostics["ppc_mean_diff"] = abs(ppc_data.mean() - observed_data.mean())
+        diagnostics["ppc_std_diff"] = abs(ppc_data.std() - observed_data.std())
 
         # Print diagnostics
         print("\n=== MODEL DIAGNOSTICS ===")
         print(f"Max R-hat: {diagnostics['max_rhat']:.4f}")
-        if diagnostics['max_rhat'] < 1.01:
+        if diagnostics["max_rhat"] < 1.01:
             print("✓ Excellent convergence (R-hat < 1.01)")
-        elif diagnostics['max_rhat'] < 1.05:
+        elif diagnostics["max_rhat"] < 1.05:
             print("✓ Good convergence (R-hat < 1.05)")
         else:
             print("⚠ Convergence issues (R-hat > 1.05)")
 
         print(f"Min ESS: {diagnostics['min_ess']:.0f}")
-        if diagnostics['min_ess'] > 1000:
+        if diagnostics["min_ess"] > 1000:
             print("✓ Excellent effective sample size")
-        elif diagnostics['min_ess'] > 400:
+        elif diagnostics["min_ess"] > 400:
             print("✓ Good effective sample size")
         else:
             print("⚠ Low effective sample size")
@@ -340,53 +371,61 @@ class EnhancedBayesianPriceModel:
             test_predictions = self._predict_on_data(test_data)
 
             # Calculate metrics
-            test_actual = np.log(test_data['price_clean'].values)
+            test_actual = np.log(test_data["price_clean"].values)
             rmse = np.sqrt(np.mean((test_predictions - test_actual) ** 2))
             mae = np.mean(np.abs(test_predictions - test_actual))
-            r2 = 1 - np.sum((test_actual - test_predictions) ** 2) / np.sum((test_actual - test_actual.mean()) ** 2)
+            r2 = 1 - np.sum((test_actual - test_predictions) ** 2) / np.sum(
+                (test_actual - test_actual.mean()) ** 2
+            )
 
-            cv_results.append({
-                'fold': fold + 1,
-                'rmse': rmse,
-                'mae': mae,
-                'r2': r2
-            })
+            cv_results.append({"fold": fold + 1, "rmse": rmse, "mae": mae, "r2": r2})
 
             # Restore original data
             self.data = original_data
 
         cv_df = pd.DataFrame(cv_results)
-        logger.info(f"CV Results: RMSE={cv_df['rmse'].mean():.4f}, R²={cv_df['r2'].mean():.4f}")
+        logger.info(
+            f"CV Results: RMSE={cv_df['rmse'].mean():.4f}, R²={cv_df['r2'].mean():.4f}"
+        )
 
         return cv_df
 
     def _predict_on_data(self, data: pd.DataFrame) -> np.ndarray:
         """Make predictions on new data."""
         # Extract posterior means
-        alpha_mean = self.trace.posterior['alpha'].mean(dim=['chain', 'draw']).values
-        beta_acc_mean = self.trace.posterior['beta_acc'].mean(dim=['chain', 'draw']).values
-        beta_entire_mean = self.trace.posterior['beta_entire'].mean().values
-        beta_private_mean = self.trace.posterior['beta_private'].mean().values
-        beta_reviews_mean = self.trace.posterior['beta_reviews'].mean().values
-        beta_score_mean = self.trace.posterior['beta_score'].mean().values
-        beta_availability_mean = self.trace.posterior['beta_availability'].mean().values
+        alpha_mean = self.trace.posterior["alpha"].mean(dim=["chain", "draw"]).values
+        beta_acc_mean = (
+            self.trace.posterior["beta_acc"].mean(dim=["chain", "draw"]).values
+        )
+        beta_entire_mean = self.trace.posterior["beta_entire"].mean().values
+        beta_private_mean = self.trace.posterior["beta_private"].mean().values
+        beta_reviews_mean = self.trace.posterior["beta_reviews"].mean().values
+        beta_score_mean = self.trace.posterior["beta_score"].mean().values
+        beta_availability_mean = self.trace.posterior["beta_availability"].mean().values
 
         # Make predictions
-        neighborhood_idx = data['neighborhood_idx'].values
-        predictions = (alpha_mean[neighborhood_idx] +
-                      beta_acc_mean[neighborhood_idx] * data['accommodates'].values +
-                      beta_entire_mean * data['is_entire_home'].values +
-                      beta_private_mean * data['is_private_room'].values +
-                      beta_reviews_mean * data['log_reviews'].values +
-                      beta_score_mean * data['review_score'].values +
-                      beta_availability_mean * data['availability_ratio'].values)
+        neighborhood_idx = data["neighborhood_idx"].values
+        predictions = (
+            alpha_mean[neighborhood_idx]
+            + beta_acc_mean[neighborhood_idx] * data["accommodates"].values
+            + beta_entire_mean * data["is_entire_home"].values
+            + beta_private_mean * data["is_private_room"].values
+            + beta_reviews_mean * data["log_reviews"].values
+            + beta_score_mean * data["review_score"].values
+            + beta_availability_mean * data["availability_ratio"].values
+        )
 
         return predictions
 
-    def predict_price(self, neighborhood: str, accommodates: int,
-                     room_type: str = 'Entire home/apt',
-                     n_reviews: int = 10, review_score: float = 90,
-                     availability: int = 200) -> Dict:
+    def predict_price(
+        self,
+        neighborhood: str,
+        accommodates: int,
+        room_type: str = "Entire home/apt",
+        n_reviews: int = 10,
+        review_score: float = 90,
+        availability: int = 200,
+    ) -> Dict:
         """
         Predict price with uncertainty for specific listing characteristics.
 
@@ -409,67 +448,91 @@ class EnhancedBayesianPriceModel:
         neighborhood_idx = self.neighborhoods.index(neighborhood)
 
         # Encode features (need to standardize like training data)
-        is_entire = 1 if room_type == 'Entire home/apt' else 0
-        is_private = 1 if room_type == 'Private room' else 0
+        is_entire = 1 if room_type == "Entire home/apt" else 0
+        is_private = 1 if room_type == "Private room" else 0
 
         # Standardize features using fitted scaler
-        features = np.array([[accommodates, np.log1p(n_reviews),
-                            review_score / 100, availability / 365]])
+        features = np.array(
+            [
+                [
+                    accommodates,
+                    np.log1p(n_reviews),
+                    review_score / 100,
+                    availability / 365,
+                ]
+            ]
+        )
         features_scaled = self.scaler.transform(features)[0]
 
         # Extract posterior samples
-        alpha_samples = self.trace.posterior['alpha'].values.reshape(-1, self.n_neighborhoods)[:, neighborhood_idx]
-        beta_acc_samples = self.trace.posterior['beta_acc'].values.reshape(-1, self.n_neighborhoods)[:, neighborhood_idx]
-        beta_entire_samples = self.trace.posterior['beta_entire'].values.flatten()
-        beta_private_samples = self.trace.posterior['beta_private'].values.flatten()
-        beta_reviews_samples = self.trace.posterior['beta_reviews'].values.flatten()
-        beta_score_samples = self.trace.posterior['beta_score'].values.flatten()
-        beta_availability_samples = self.trace.posterior['beta_availability'].values.flatten()
+        alpha_samples = self.trace.posterior["alpha"].values.reshape(
+            -1, self.n_neighborhoods
+        )[:, neighborhood_idx]
+        beta_acc_samples = self.trace.posterior["beta_acc"].values.reshape(
+            -1, self.n_neighborhoods
+        )[:, neighborhood_idx]
+        beta_entire_samples = self.trace.posterior["beta_entire"].values.flatten()
+        beta_private_samples = self.trace.posterior["beta_private"].values.flatten()
+        beta_reviews_samples = self.trace.posterior["beta_reviews"].values.flatten()
+        beta_score_samples = self.trace.posterior["beta_score"].values.flatten()
+        beta_availability_samples = self.trace.posterior[
+            "beta_availability"
+        ].values.flatten()
 
         # Predict log price
-        log_price_pred = (alpha_samples +
-                         beta_acc_samples * features_scaled[0] +
-                         beta_entire_samples * is_entire +
-                         beta_private_samples * is_private +
-                         beta_reviews_samples * features_scaled[1] +
-                         beta_score_samples * features_scaled[2] +
-                         beta_availability_samples * features_scaled[3])
+        log_price_pred = (
+            alpha_samples
+            + beta_acc_samples * features_scaled[0]
+            + beta_entire_samples * is_entire
+            + beta_private_samples * is_private
+            + beta_reviews_samples * features_scaled[1]
+            + beta_score_samples * features_scaled[2]
+            + beta_availability_samples * features_scaled[3]
+        )
 
         # Convert to price scale
         price_pred = np.exp(log_price_pred)
 
         return {
-            'mean': price_pred.mean(),
-            'median': np.median(price_pred),
-            'std': price_pred.std(),
-            'ci_50': np.percentile(price_pred, [25, 75]),
-            'ci_80': np.percentile(price_pred, [10, 90]),
-            'ci_95': np.percentile(price_pred, [2.5, 97.5]),
-            'min': price_pred.min(),
-            'max': price_pred.max()
+            "mean": price_pred.mean(),
+            "median": np.median(price_pred),
+            "std": price_pred.std(),
+            "ci_50": np.percentile(price_pred, [25, 75]),
+            "ci_80": np.percentile(price_pred, [10, 90]),
+            "ci_95": np.percentile(price_pred, [2.5, 97.5]),
+            "min": price_pred.min(),
+            "max": price_pred.max(),
         }
 
     def get_feature_importance(self) -> pd.DataFrame:
         """Analyze feature importance based on posterior distributions."""
         logger.info("Calculating feature importance")
 
-        features = ['beta_acc', 'beta_entire', 'beta_private',
-                   'beta_reviews', 'beta_score', 'beta_availability']
+        features = [
+            "beta_acc",
+            "beta_entire",
+            "beta_private",
+            "beta_reviews",
+            "beta_score",
+            "beta_availability",
+        ]
 
         importance = []
         for feat in features:
             if feat in self.trace.posterior:
                 samples = self.trace.posterior[feat].values.flatten()
-                importance.append({
-                    'feature': feat.replace('beta_', ''),
-                    'mean': samples.mean(),
-                    'std': samples.std(),
-                    'ci_95_lower': np.percentile(samples, 2.5),
-                    'ci_95_upper': np.percentile(samples, 97.5),
-                    'prob_positive': (samples > 0).mean()
-                })
+                importance.append(
+                    {
+                        "feature": feat.replace("beta_", ""),
+                        "mean": samples.mean(),
+                        "std": samples.std(),
+                        "ci_95_lower": np.percentile(samples, 2.5),
+                        "ci_95_upper": np.percentile(samples, 97.5),
+                        "prob_positive": (samples > 0).mean(),
+                    }
+                )
 
-        return pd.DataFrame(importance).sort_values('mean', key=abs, ascending=False)
+        return pd.DataFrame(importance).sort_values("mean", key=abs, ascending=False)
 
 
 def main():
@@ -493,12 +556,12 @@ def main():
 
     # Example prediction
     prediction = model.predict_price(
-        neighborhood='Capitol Hill',
+        neighborhood="Capitol Hill",
         accommodates=4,
-        room_type='Entire home/apt',
+        room_type="Entire home/apt",
         n_reviews=25,
         review_score=95,
-        availability=300
+        availability=300,
     )
 
     if prediction:

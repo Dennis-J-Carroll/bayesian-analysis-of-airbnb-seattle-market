@@ -34,13 +34,13 @@ class HierarchicalBayesianPriceModel:
     def _add_property_type_feature(self, df):
         """Add property type as categorical feature"""
         property_type_map = {
-            'Private room': 0,
-            'Entire home/apt': 1,
-            'Shared room': 2,
-            'Hotel room': 3
+            "Private room": 0,
+            "Entire home/apt": 1,
+            "Shared room": 2,
+            "Hotel room": 3,
         }
-        df['property_type_idx'] = df['room_type'].map(property_type_map)
-        df['property_type_idx'].fillna(1, inplace=True)  # Default to entire home
+        df["property_type_idx"] = df["room_type"].map(property_type_map)
+        df["property_type_idx"].fillna(1, inplace=True)  # Default to entire home
         return df
 
     def _calculate_amenity_score(self, df):
@@ -51,27 +51,33 @@ class HierarchicalBayesianPriceModel:
             if pd.isna(amenity_str):
                 return []
             # Remove brackets and quotes, split by comma
-            amenity_str = str(amenity_str).replace('[', '').replace(']', '').replace('"', '').replace("'", '')
-            return [a.strip().lower() for a in amenity_str.split(',')]
+            amenity_str = (
+                str(amenity_str)
+                .replace("[", "")
+                .replace("]", "")
+                .replace('"', "")
+                .replace("'", "")
+            )
+            return [a.strip().lower() for a in amenity_str.split(",")]
 
-        df['amenity_list'] = df['amenities'].apply(parse_amenities)
+        df["amenity_list"] = df["amenities"].apply(parse_amenities)
 
         # High-value amenities with impact weights
         amenity_weights = {
-            'wifi': 1.0,
-            'kitchen': 2.0,
-            'free parking': 2.0,
-            'parking': 1.5,
-            'air conditioning': 1.5,
-            'washer': 1.5,
-            'dryer': 1.5,
-            'hot tub': 3.0,
-            'pool': 3.0,
-            'gym': 2.0,
-            'elevator': 1.0,
-            'dishwasher': 1.0,
-            'heating': 1.0,
-            'tv': 0.5,
+            "wifi": 1.0,
+            "kitchen": 2.0,
+            "free parking": 2.0,
+            "parking": 1.5,
+            "air conditioning": 1.5,
+            "washer": 1.5,
+            "dryer": 1.5,
+            "hot tub": 3.0,
+            "pool": 3.0,
+            "gym": 2.0,
+            "elevator": 1.0,
+            "dishwasher": 1.0,
+            "heating": 1.0,
+            "tv": 0.5,
         }
 
         def calculate_score(amenity_list):
@@ -81,7 +87,7 @@ class HierarchicalBayesianPriceModel:
                     score += weight
             return score
 
-        return df['amenity_list'].apply(calculate_score)
+        return df["amenity_list"].apply(calculate_score)
 
     def _standardize_features(self, df):
         """Standardize continuous features for better MCMC convergence"""
@@ -89,20 +95,16 @@ class HierarchicalBayesianPriceModel:
 
         # Standardize accommodates
         scaler_accommodates = StandardScaler()
-        df['accommodates_std'] = scaler_accommodates.fit_transform(
-            df[['accommodates']]
-        )
+        df["accommodates_std"] = scaler_accommodates.fit_transform(df[["accommodates"]])
 
         # Standardize amenity score
         scaler_amenities = StandardScaler()
-        df['amenity_score_std'] = scaler_amenities.fit_transform(
-            df[['amenity_score']]
-        )
+        df["amenity_score_std"] = scaler_amenities.fit_transform(df[["amenity_score"]])
 
         # Store scalers for inverse transform during prediction
         self.scalers = {
-            'accommodates': scaler_accommodates,
-            'amenity_score': scaler_amenities
+            "accommodates": scaler_accommodates,
+            "amenity_score": scaler_amenities,
         }
 
         return df
@@ -135,16 +137,16 @@ class HierarchicalBayesianPriceModel:
         df = self._add_property_type_feature(df)
 
         # NEW: Add amenity score (handle missing amenities column gracefully)
-        if 'amenities' in df.columns:
-            df['amenity_score'] = self._calculate_amenity_score(df)
+        if "amenities" in df.columns:
+            df["amenity_score"] = self._calculate_amenity_score(df)
         else:
             print("Warning: 'amenities' column not found. Setting amenity_score to 0.")
-            df['amenity_score'] = 0
+            df["amenity_score"] = 0
 
         # Ensure number_of_reviews exists
-        if 'number_of_reviews' not in df.columns:
+        if "number_of_reviews" not in df.columns:
             print("Warning: 'number_of_reviews' column not found. Setting to 0.")
-            df['number_of_reviews'] = 0
+            df["number_of_reviews"] = 0
 
         # NEW: Standardize features
         df = self._standardize_features(df)
@@ -247,70 +249,63 @@ class HierarchicalBayesianPriceModel:
         """
 
         # Prepare indices
-        neighborhood_idx = self.data['neighborhood_idx'].values
-        property_type_idx = self.data['property_type_idx'].values.astype(int)
+        neighborhood_idx = self.data["neighborhood_idx"].values
+        property_type_idx = self.data["property_type_idx"].values.astype(int)
         n_neighborhoods = self.n_neighborhoods
         n_property_types = 4
 
         # Prepare predictors
-        accommodates = self.data['accommodates_std'].values
-        amenity_score = self.data['amenity_score_std'].values
-        log_reviews = np.log1p(self.data['number_of_reviews'].fillna(0).values)
+        accommodates = self.data["accommodates_std"].values
+        amenity_score = self.data["amenity_score_std"].values
+        log_reviews = np.log1p(self.data["number_of_reviews"].fillna(0).values)
 
         # Target
-        log_price = np.log(self.data['price_clean'].values)
+        log_price = np.log(self.data["price_clean"].values)
 
         with pm.Model() as hierarchical_model:
 
             # === Hyperpriors ===
-            μ_α = pm.Normal('μ_α', mu=4.5, sigma=1.0)
-            σ_α_neighborhood = pm.HalfNormal('σ_α_neighborhood', sigma=0.3)
-            σ_α_property = pm.HalfNormal('σ_α_property', sigma=0.5)
+            μ_α = pm.Normal("μ_α", mu=4.5, sigma=1.0)
+            σ_α_neighborhood = pm.HalfNormal("σ_α_neighborhood", sigma=0.3)
+            σ_α_property = pm.HalfNormal("σ_α_property", sigma=0.5)
 
-            μ_β_accommodates = pm.Normal('μ_β_accommodates', mu=0.2, sigma=0.1)
-            σ_β_accommodates = pm.HalfNormal('σ_β_accommodates', sigma=0.1)
+            μ_β_accommodates = pm.Normal("μ_β_accommodates", mu=0.2, sigma=0.1)
+            σ_β_accommodates = pm.HalfNormal("σ_β_accommodates", sigma=0.1)
 
             # === Varying Effects ===
             α_neighborhood = pm.Normal(
-                'α_neighborhood',
-                mu=0,
-                sigma=σ_α_neighborhood,
-                shape=n_neighborhoods
+                "α_neighborhood", mu=0, sigma=σ_α_neighborhood, shape=n_neighborhoods
             )
 
             α_property = pm.Normal(
-                'α_property',
-                mu=0,
-                sigma=σ_α_property,
-                shape=n_property_types
+                "α_property", mu=0, sigma=σ_α_property, shape=n_property_types
             )
 
             β_accommodates = pm.Normal(
-                'β_accommodates',
+                "β_accommodates",
                 mu=μ_β_accommodates,
                 sigma=σ_β_accommodates,
-                shape=n_neighborhoods
+                shape=n_neighborhoods,
             )
 
             # === Global Coefficients ===
-            β_amenities = pm.Normal('β_amenities', mu=0.15, sigma=0.05)
-            β_reviews = pm.Normal('β_reviews', mu=0.05, sigma=0.02)
+            β_amenities = pm.Normal("β_amenities", mu=0.15, sigma=0.05)
+            β_reviews = pm.Normal("β_reviews", mu=0.05, sigma=0.02)
 
             # === Likelihood ===
-            μ = (μ_α
-                 + α_neighborhood[neighborhood_idx]
-                 + α_property[property_type_idx]
-                 + β_accommodates[neighborhood_idx] * accommodates
-                 + β_amenities * amenity_score
-                 + β_reviews * log_reviews)
+            μ = (
+                μ_α
+                + α_neighborhood[neighborhood_idx]
+                + α_property[property_type_idx]
+                + β_accommodates[neighborhood_idx] * accommodates
+                + β_amenities * amenity_score
+                + β_reviews * log_reviews
+            )
 
-            σ = pm.HalfNormal('σ', sigma=0.5)
+            σ = pm.HalfNormal("σ", sigma=0.5)
 
             log_price_obs = pm.Normal(
-                'log_price_obs',
-                mu=μ,
-                sigma=σ,
-                observed=log_price
+                "log_price_obs", mu=μ, sigma=σ, observed=log_price
             )
 
             self.model = hierarchical_model
@@ -321,9 +316,9 @@ class HierarchicalBayesianPriceModel:
     def fit_model_with_diagnostics(self, draws=2000, tune=1000, chains=4):
         """Fit model with comprehensive diagnostics"""
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FITTING ENHANCED BAYESIAN MODEL")
-        print("="*60)
+        print("=" * 60)
 
         with self.model:
             print("\n⏳ Sampling (this may take 10-15 minutes)...")
@@ -333,16 +328,16 @@ class HierarchicalBayesianPriceModel:
                 chains=chains,
                 target_accept=0.95,
                 return_inferencedata=True,
-                random_seed=42
+                random_seed=42,
             )
 
             print("\n⏳ Generating posterior predictive samples...")
             self.trace.extend(pm.sample_posterior_predictive(self.trace))
 
         # Diagnostic checks
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("CONVERGENCE DIAGNOSTICS")
-        print("="*60)
+        print("=" * 60)
 
         r_hat = az.rhat(self.trace)
         max_rhat = float(r_hat.max())
@@ -355,7 +350,7 @@ class HierarchicalBayesianPriceModel:
         divergences = self.trace.sample_stats.diverging.sum().values
         print(f"Divergences: {divergences} {'✓' if divergences == 0 else '✗ WARNING'}")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
 
         return self
 

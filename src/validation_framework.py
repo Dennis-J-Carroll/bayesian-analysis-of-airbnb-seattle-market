@@ -1,7 +1,7 @@
 """
 Comprehensive Validation Framework for Hierarchical Bayesian Price Model
 - Posterior predictive checks
-- Cross-validation across neighborhoods  
+- Cross-validation across neighborhoods
 - Model calibration monitoring
 - Performance metrics and diagnostics
 """
