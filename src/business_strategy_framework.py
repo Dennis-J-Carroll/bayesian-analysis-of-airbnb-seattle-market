@@ -225,7 +225,9 @@ class BusinessStrategyFramework:
                 else (
                     "BUY"
                     if risk_adjusted_roi > 25
-                    else "HOLD" if risk_adjusted_roi > 10 else "AVOID"
+                    else "HOLD"
+                    if risk_adjusted_roi > 10
+                    else "AVOID"
                 )
             ),
         }

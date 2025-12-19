@@ -125,7 +125,9 @@ def model_validation_page():
                     "Accuracy": (
                         "High"
                         if avg_price < 200
-                        else "Medium" if avg_price < 300 else "Low"
+                        else "Medium"
+                        if avg_price < 300
+                        else "Low"
                     ),
                 }
             )

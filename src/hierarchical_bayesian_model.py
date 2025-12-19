@@ -263,7 +263,6 @@ class HierarchicalBayesianPriceModel:
         log_price = np.log(self.data["price_clean"].values)
 
         with pm.Model() as hierarchical_model:
-
             # === Hyperpriors ===
             μ_α = pm.Normal("μ_α", mu=4.5, sigma=1.0)
             σ_α_neighborhood = pm.HalfNormal("σ_α_neighborhood", sigma=0.3)
