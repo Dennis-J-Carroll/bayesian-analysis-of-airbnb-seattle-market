@@ -3,4 +3,5 @@ repos:
   rev: 23.7.0
   hooks:
     - id: black
+      exclude: ^(src/enhanced_bayesian_model\.py|tests/test_hierarchical_model\.py|expert_dashboard\.py|vigorous_model_testing\.py)$
 
