@@ -7,16 +7,39 @@ A comprehensive hierarchical Bayesian framework for analyzing Airbnb pricing dyn
 
 ![Dashboard Home](gitpics/Home%20screen%20pick.png)
 
+## 🚀 New: Expert-Level Dashboard & Enhanced Model!
+
+**Latest Updates (2025-11-21)**:
+- ✅ **Expert-Level Streamlit Dashboard** - 6-page interactive analytics platform
+- ✅ **Enhanced Bayesian Model** - Multiple predictors with robust Student-t likelihood
+- ✅ **Comprehensive Test Suite** - 25+ test cases for production readiness
+- ✅ **Vigorous Model Testing** - Automated validation framework
+- ✅ **Configuration Management** - YAML-based flexible configuration
+- ✅ **Complete Documentation** - Usage guides, API docs, and examples
+
+**Quick Start**:
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch Expert Dashboard
+./run_expert_dashboard.sh
+# or
+streamlit run expert_dashboard.py
+```
+
+See [IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md) and [EXPERT_DASHBOARD_README.md](EXPERT_DASHBOARD_README.md) for details.
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Interactive Dashboard](#interactive-dashboard)
+- [Expert Dashboard](#expert-dashboard)
 - [Key Features](#key-features)
 - [Quick Start](#quick-start)
 - [Dashboard Components](#dashboard-components)
 - [Model Architecture](#model-architecture)
 - [Results Summary](#results-summary)
-- [Project Structure](#project-structure)
+- [Testing](#testing)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
@@ -25,11 +48,33 @@ A comprehensive hierarchical Bayesian framework for analyzing Airbnb pricing dyn
 
 This project implements a sophisticated Bayesian modeling approach to understand and predict Airbnb pricing patterns across Seattle neighborhoods, featuring:
 
-- **Hierarchical Bayesian Price Modeling**: Log-normal likelihood with varying intercepts and slopes by neighborhood
-- **Interactive Streamlit Dashboard**: Enterprise-grade analytics platform with beautiful Misty Morning theme
+- **Hierarchical Bayesian Price Modeling**: Enhanced model with robust Student-t likelihood and multiple predictors
+- **Expert-Level Interactive Dashboard**: 6-page Streamlit application with advanced analytics
 - **Business Strategy Framework**: Investment opportunity identification and ROI analysis
 - **Validation Framework**: Comprehensive model validation with posterior predictive checks
-- **Dynamic Pricing System**: Real-time pricing recommendations based on neighborhood effects
+- **Production-Ready Testing**: 25+ test cases ensuring reliability and correctness
+- **Dynamic Pricing System**: Real-time pricing recommendations with full uncertainty quantification
+
+## Expert Dashboard
+
+The new expert dashboard (`expert_dashboard.py`) provides a comprehensive analytics platform:
+
+### Dashboard Pages:
+1. **🏠 Overview** - Market-wide statistics and key metrics
+2. **🔍 Neighborhood Analysis** - Deep-dive into specific areas
+3. **💰 Price Prediction** - Bayesian inference with uncertainty quantification
+4. **📈 Market Intelligence** - Advanced analytics and trends
+5. **🎯 Business Strategy** - ROI analysis and investment opportunities
+6. **🔬 Model Insights** - Technical details and model diagnostics
+
+### Features:
+- Interactive Plotly visualizations
+- Real-time filtering and exploration
+- Business intelligence with ROI calculations
+- Full uncertainty quantification
+- Professional styling and UX
+
+See [EXPERT_DASHBOARD_README.md](EXPERT_DASHBOARD_README.md) for complete documentation.
 
 ## Interactive Dashboard
 

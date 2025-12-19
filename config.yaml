@@ -1,0 +1,69 @@
+# Configuration file for Airbnb Bayesian Analysis
+
+# Data paths
+data:
+  listings: "data/raw/listings.csv"
+  calendar: "data/raw/calendar.csv"
+  neighbourhoods: "data/raw/neighbourhoods.csv"
+  geojson: "data/raw/neighbourhoods.geojson"
+  output_dir: "outputs"
+
+# Model hyperparameters
+model:
+  # Price filtering
+  min_price: 10
+  max_price: 1000
+
+  # MCMC sampling
+  mcmc_samples: 2000
+  mcmc_tune: 1000
+  mcmc_chains: 4
+  random_seed: 42
+
+  # Priors
+  priors:
+    mu_alpha:
+      mu: 4.5
+      sigma: 1.0
+    mu_beta:
+      mu: 0.2
+      sigma: 0.1
+    sigma_alpha: 0.5
+    sigma_beta: 0.1
+    sigma: 0.5
+
+  # Model features
+  use_room_type: true
+  use_reviews: true
+  use_amenities: false
+  use_availability: true
+
+# Validation
+validation:
+  n_folds: 5
+  test_size: 0.2
+  confidence_levels: [0.5, 0.8, 0.9, 0.95]
+
+# Business strategy
+business:
+  investment_amounts: [50000, 100000, 200000, 500000]
+  expected_occupancy: 0.7
+  operating_cost_ratio: 0.3
+  risk_adjustment: 0.3
+
+# Dashboard
+dashboard:
+  title: "Seattle Airbnb Bayesian Price Intelligence Dashboard"
+  theme: "dark"
+  page_icon: "🏠"
+  layout: "wide"
+
+  # Visualization settings
+  plot_height: 400
+  plot_width: 600
+  color_scheme: "viridis"
+
+  # Default values
+  default_neighborhood: "Capitol Hill"
+  default_accommodates: 4
+  default_room_type: "Entire home/apt"
