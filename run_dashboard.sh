@@ -8,8 +8,8 @@ echo "================================================"
 echo ""
 
 # Check if we're in the right directory
-if [ ! -f "airbnb_dashboard.py" ]; then
-    echo "❌ Error: airbnb_dashboard.py not found!"
+if [ ! -f "dashboard/app.py" ]; then
+    echo "❌ Error: dashboard/app.py not found!"
     echo "Please run this script from the project root directory."
     exit 1
 fi
@@ -51,4 +51,4 @@ echo "   Subsequent launches will be instant (cached)."
 echo ""
 
 # Launch Streamlit
-streamlit run airbnb_dashboard.py
+streamlit run dashboard/app.py

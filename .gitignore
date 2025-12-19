@@ -117,8 +117,9 @@ cython_debug/
 *.jpeg
 *.pdf
 
-# Documentation images: allow PNGs in docs/images
+# Documentation images: allow PNGs in docs/images and gitpics
 !docs/images/*.png
+!gitpics/*.png
 
 # Logs
 *.log
@@ -138,6 +139,9 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Claude Code working directory
+.claude/
 
 # Temporary files
 *.tmp
