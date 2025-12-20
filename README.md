@@ -110,6 +110,55 @@ print(f"95% CI: [${prediction[4]['ci_95'][0]:.2f}, ${prediction[4]['ci_95'][1]:.
 
 ---
 
+## Dashboard Gallery
+
+### Model Performance & Validation
+
+<div align="center">
+
+![Model Performance Overview](gitpics/model%20Performance%20Overview.png)
+*Comprehensive model validation dashboard showing R² metrics, convergence diagnostics, and performance across neighborhoods*
+
+![Model Performance Details](gitpics/Model%20performance%20Pictures.png)
+*Detailed performance metrics including residual analysis and prediction quality*
+
+![Residual Analysis](gitpics/Residual%20Analysis.png)
+*Model diagnostics: residual plots, Q-Q plots, and heteroscedasticity checks*
+
+</div>
+
+### Business Intelligence & Investment Analysis
+
+<div align="center">
+
+![Investment Analyzer](gitpics/Investment%20Analyzer.png)
+*ROI calculator with mortgage financing, operating expenses, and sensitivity analysis*
+
+![Investment Opportunity Scoring](gitpics/Investment%20Opportunity%20Score.png)
+*Strategic neighborhood identification using composite scoring methodology*
+
+![Investment Analysis Results](gitpics/Investment%20Analysis%20Results.png)
+*Detailed investment analysis with 3-year projections and risk metrics*
+
+</div>
+
+### Market Intelligence
+
+<div align="center">
+
+![Comparison Results](gitpics/Comparison%20Results.png)
+*Side-by-side neighborhood comparison with key metrics and investment scores*
+
+![Price Distribution](gitpics/Price%20Distribution.png)
+*Price distribution analysis across neighborhoods and property types*
+
+![Property Type Distribution](gitpics/Property%20Type%20Distribution.png)
+*Market composition by property type across selected neighborhoods*
+
+</div>
+
+---
+
 ## Project Highlights
 
 ### What Makes This Different
