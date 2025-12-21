@@ -3,6 +3,9 @@
 [![CI](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml/badge.svg)](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Dashboard](https://img.shields.io/badge/Dashboard-Coming%20Soon-orange)](https://github.com/Dennis-J-Carroll/bayesian-analysis-of-airbnb-seattle-market)
+
+**🚀 Live Dashboard Coming Soon**
 
 A production-ready hierarchical Bayesian framework for Airbnb pricing analysis, featuring enhanced predictive models with uncertainty quantification and an interactive Streamlit dashboard for investment analysis and pricing optimization.
 
