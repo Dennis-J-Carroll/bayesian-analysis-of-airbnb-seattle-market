@@ -116,7 +116,7 @@ def main():
         st.sidebar.metric("Listings", f"{len(st.session_state.data):,}")
         st.sidebar.metric("Neighborhoods", len(st.session_state.neighborhoods_list))
         st.sidebar.metric(
-            "Model R²", f"{st.session_state.model_metadata.get('r_squared', 0.481):.3f}"
+            "Model R²", f"{st.session_state.model_metadata.get('r_squared', 0.687):.3f}"
         )
 
     st.sidebar.markdown("---")
@@ -168,8 +168,8 @@ def main():
 
         **Model Information**:
         - Built with hierarchical Bayesian modeling (PyMC)
-        - R² = 0.481 (explains 48% of variance)
-        - RMSE = $101, MAE = $63
+        - R² = 0.687 (explains 69% of variance)
+        - RMSE = $74, MAE = $45
         - Best for mid-range entire homes ($50-$300)
 
         **Limitations**:
@@ -330,28 +330,28 @@ def show_home_page():
     with col1:
         st.metric(
             "R² Score",
-            f"{metadata.get('r_squared', 0.481):.3f}",
+            f"{metadata.get('r_squared', 0.687):.3f}",
             help="Proportion of variance explained (higher is better)",
         )
 
     with col2:
         st.metric(
             "RMSE",
-            f"${metadata.get('rmse', 101):.0f}",
+            f"${metadata.get('rmse', 74):.0f}",
             help="Root Mean Squared Error in dollars",
         )
 
     with col3:
         st.metric(
             "MAE",
-            f"${metadata.get('mae', 63):.0f}",
+            f"${metadata.get('mae', 45):.0f}",
             help="Mean Absolute Error in dollars",
         )
 
     with col4:
         st.metric(
             "Calibration",
-            f"{metadata.get('calibration', 90):.0f}%",
+            f"{metadata.get('calibration', 89):.0f}%",
             help="Percentage of actual prices within confidence intervals",
         )
 
