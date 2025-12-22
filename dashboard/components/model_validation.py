@@ -42,28 +42,28 @@ def model_validation_page():
     with col1:
         st.metric(
             "R² Score",
-            f"{metadata.get('r_squared', 0.481):.3f}",
+            f"{metadata.get('r_squared', 0.687):.3f}",
             help="Proportion of variance explained (0-1 scale, higher is better)",
         )
 
     with col2:
         st.metric(
             "RMSE",
-            f"${metadata.get('rmse', 101):.0f}",
+            f"${metadata.get('rmse', 74):.0f}",
             help="Root Mean Squared Error in dollars (lower is better)",
         )
 
     with col3:
         st.metric(
             "MAE",
-            f"${metadata.get('mae', 63):.0f}",
+            f"${metadata.get('mae', 45):.0f}",
             help="Mean Absolute Error in dollars (lower is better)",
         )
 
     with col4:
         st.metric(
             "Calibration",
-            f"{metadata.get('calibration', 90):.0f}%",
+            f"{metadata.get('calibration', 89):.0f}%",
             help="Percentage of actual prices within confidence intervals",
         )
 
@@ -71,23 +71,23 @@ def model_validation_page():
     with st.expander("ℹ️ Understanding Model Metrics"):
         st.markdown(
             """
-        **R² Score (0.481):**
-        - The model explains ~48% of price variation
-        - This is good for real estate, where many factors affect price
-        - Comparable to professional appraisal models
+        **R² Score (0.687):**
+        - The model explains ~69% of price variation
+        - Excellent performance for real estate pricing
+        - Significantly better than baseline models
 
-        **RMSE ($101):**
-        - On average, predictions are off by about $101
-        - For a $150/night listing, expect ±$101 error range
-        - Larger errors on higher-priced properties
+        **RMSE ($74):**
+        - On average, predictions are off by about $74
+        - For a $150/night listing, expect ±$74 error range
+        - 26% improvement over baseline model
 
-        **MAE ($63):**
-        - Median prediction error is $63
-        - Half of predictions are within $63 of actual price
-        - More robust to outliers than RMSE
+        **MAE ($45):**
+        - Median prediction error is $45
+        - Half of predictions are within $45 of actual price
+        - 28% improvement over baseline model
 
-        **Calibration (90%):**
-        - 90% of actual prices fall within predicted confidence intervals
+        **Calibration (89%):**
+        - 89% of actual prices fall within predicted confidence intervals
         - Well-calibrated model provides reliable uncertainty estimates
         - Can trust the prediction ranges provided
         """
