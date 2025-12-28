@@ -3,7 +3,7 @@
 [![CI](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml/badge.svg)](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Dashboard](https://img.shields.io/badge/Dashboard-Coming%20Soon-orange)](https://github.com/Dennis-J-Carroll/bayesian-analysis-of-airbnb-seattle-market)
+[![Live Dashboard](https://img.shields.io/website?down_color=red&down_message=down&up_color=green&up_message=live&url=https://bayesian-analysis-dashboard.streamlit.app/)](https://bayesian-analysis-dashboard.streamlit.app/)
 
 **🚀 Live Dashboard: https://bayesian-analysis-dashboard.streamlit.app/**
 
