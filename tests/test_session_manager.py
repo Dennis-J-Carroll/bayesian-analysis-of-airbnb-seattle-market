@@ -69,3 +69,24 @@ def test_get_active_df_handles_corrupted_upload(monkeypatch):
     # Should reset to default and return default_df
     assert mock_st.session_state[AppState.DATA_SOURCE] == "default"
     assert result.equals(default_df)
+
+
+def test_reset_to_default(monkeypatch):
+    """reset_to_default() clears upload state and triggers rerun."""
+    mock_st = MagicMock()
+    mock_st.session_state = {
+        AppState.DATA_SOURCE: "uploaded",
+        AppState.UPLOADED_DF: pd.DataFrame({"price": [100]}),
+        AppState.COLUMN_MAP: {"some": "map"},
+    }
+    monkeypatch.setattr("dashboard.utils.session_manager.st", mock_st)
+
+    AppState.reset_to_default()
+
+    # Verify upload keys removed
+    assert AppState.UPLOADED_DF not in mock_st.session_state
+    assert AppState.COLUMN_MAP not in mock_st.session_state
+    # Verify DATA_SOURCE set to default
+    assert mock_st.session_state[AppState.DATA_SOURCE] == "default"
+    # Verify rerun called
+    mock_st.rerun.assert_called_once()

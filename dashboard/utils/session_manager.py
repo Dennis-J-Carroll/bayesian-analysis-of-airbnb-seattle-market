@@ -1,6 +1,5 @@
 """Type-safe session state management."""
 from dataclasses import dataclass
-from typing import Optional
 import streamlit as st
 import pandas as pd
 
