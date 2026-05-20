@@ -46,9 +46,6 @@ st.set_page_config(
     },
 )
 
-# Apply custom styling
-inject_minimal_theme()  # Phase 1: Minimal white background + sage green
-apply_custom_css()
 
 # Initialize session state
 if "data_loaded" not in st.session_state:
@@ -69,6 +66,9 @@ def initialize_app():
 # Main application
 def main():
     """Main application entry point"""
+
+    # Apply Phase 1 minimal theme
+    inject_minimal_theme()
 
     # Header
     st.markdown(
