@@ -106,6 +106,7 @@ def load_model_trace(project_root):
 
     # Try multiple possible locations
     trace_paths = [
+        project_root / "outputs" / "model_trace.nc",
         project_root / "models" / "hierarchical_model_trace.nc",
         project_root / "hierarchical_model_trace.nc",
         project_root / "trace.nc",
