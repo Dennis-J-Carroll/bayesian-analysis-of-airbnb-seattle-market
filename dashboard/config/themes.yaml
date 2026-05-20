@@ -1,0 +1,44 @@
+# dashboard/config/themes.yaml
+modern_neutral:
+  name: "Modern Neutral"
+  is_dark: false
+  colors:
+    bg_primary: "#ffffff"
+    bg_secondary: "#f8f9fa"
+    bg_sidebar: "#f1f3f5"
+    bg_card: "#ffffff"
+    text_primary: "#212529"
+    text_secondary: "#6c757d"
+    text_muted: "#adb5bd"
+    accent: "#77b899"
+    accent_hover: "#5fa081"
+    success: "#198754"
+    warning: "#ffc107"
+    danger: "#dc3545"
+    border: "#dee2e6"
+    shadow: "0 1px 3px rgba(0,0,0,0.12)"
+  chart:
+    template: "plotly_white"
+    palette: ["#77b899", "#0d6efd", "#fd7e14", "#6f42c1", "#d63384"]
+
+deep_forest:
+  name: "Deep Forest"
+  is_dark: true
+  colors:
+    bg_primary: "#1a1a2e"
+    bg_secondary: "#16213e"
+    bg_sidebar: "#0f1419"
+    bg_card: "#16213e"
+    text_primary: "#e0e0e0"
+    text_secondary: "#a0a0a0"
+    text_muted: "#6c757d"
+    accent: "#77b899"
+    accent_hover: "#8fd4ae"
+    success: "#198754"
+    warning: "#ffc107"
+    danger: "#dc3545"
+    border: "#2d2d44"
+    shadow: "0 2px 8px rgba(0,0,0,0.4)"
+  chart:
+    template: "plotly_dark"
+    palette: ["#77b899", "#8ecae6", "#ff9f40", "#a78bfa", "#f472b6"]
