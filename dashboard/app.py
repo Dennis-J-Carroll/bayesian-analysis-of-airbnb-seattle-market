@@ -23,7 +23,7 @@ from dashboard.components.neighborhood_comparison import neighborhood_comparison
 from dashboard.components.model_validation import model_validation_page
 from dashboard.components.feature_impact import feature_impact_page
 from dashboard.utils.data_loader import load_data_and_model
-from dashboard.utils.styling import apply_custom_css
+from dashboard.utils.styling import apply_custom_css, inject_minimal_theme
 
 # Page configuration
 st.set_page_config(
@@ -47,6 +47,7 @@ st.set_page_config(
 )
 
 # Apply custom styling
+inject_minimal_theme()  # Phase 1: Minimal white background + sage green
 apply_custom_css()
 
 # Initialize session state

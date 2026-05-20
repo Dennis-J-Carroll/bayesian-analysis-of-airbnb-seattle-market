@@ -5,6 +5,45 @@ Custom CSS styling for enterprise-grade dashboard
 import streamlit as st
 
 
+def inject_minimal_theme():
+    """Phase 1 minimal theme - white background + sage green accents."""
+    st.markdown(
+        """
+    <style>
+    /* Phase 1: Minimal Modern Neutral theme */
+    .main {
+        background-color: #ffffff !important;
+    }
+
+    .stApp {
+        background-color: #ffffff !important;
+    }
+
+    .block-container {
+        background-color: #ffffff !important;
+    }
+
+    .stMetric {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 3px solid #77b899;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .insight-box {
+        background: #f0fdf7;
+        border-left: 3px solid #77b899;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
+
+
 def apply_custom_css():
     """Apply custom CSS styling to the Streamlit app"""
 
