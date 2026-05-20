@@ -23,7 +23,7 @@ from dashboard.components.neighborhood_comparison import neighborhood_comparison
 from dashboard.components.model_validation import model_validation_page
 from dashboard.components.feature_impact import feature_impact_page
 from dashboard.utils.data_loader import load_data_and_model
-from dashboard.utils.styling import apply_custom_css, inject_minimal_theme
+from dashboard.utils.styling import inject_minimal_theme
 
 # Page configuration
 st.set_page_config(
