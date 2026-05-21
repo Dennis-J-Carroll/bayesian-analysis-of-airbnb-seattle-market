@@ -830,8 +830,74 @@ def apply_theme(theme_name: str = "modern_neutral"):
         box-shadow: var(--shadow);
     }}
 
-    h1, h2, h3 {{
+    h1, h2, h3, h4, h5, h6 {{
+        color: var(--text-primary) !important;
+    }}
+
+    p, li, span, div {{
         color: var(--text-primary);
+    }}
+
+    .stMarkdown {{
+        color: var(--text-primary);
+    }}
+
+    label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Slider labels and values */
+    .stSlider label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Input labels */
+    .stTextInput label,
+    .stNumberInput label,
+    .stSelectbox label,
+    .stMultiSelect label,
+    .stDateInput label,
+    .stTimeInput label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Radio and checkbox labels */
+    .stRadio label,
+    .stCheckbox label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Caption text */
+    .stCaption {{
+        color: var(--text-secondary) !important;
+    }}
+
+    /* Info/warning/error/success boxes */
+    .stAlert {{
+        border-radius: 0.375rem;
+    }}
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {{
+        color: var(--text-primary);
+    }}
+
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] h5,
+    section[data-testid="stSidebar"] h6 {{
+        color: var(--text-primary) !important;
+    }}
+
+    section[data-testid="stSidebar"] label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Subheader */
+    .stSubheader {{
+        color: var(--text-primary) !important;
     }}
     </style>
     """

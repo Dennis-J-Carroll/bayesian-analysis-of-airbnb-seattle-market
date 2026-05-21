@@ -14,6 +14,8 @@ Features:
 import streamlit as st
 import pandas as pd
 import numpy as np
+import arviz as az
+from scipy import stats
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -69,9 +71,9 @@ st.markdown(
 )
 
 
-@st.cache_data
-def load_data():
-    """Load and cache the Airbnb data."""
+@st.cache_data(ttl=3600)
+def load_listings_data():
+    """Load and cache the listings data"""
     try:
         df = pd.read_csv("data/raw/listings.csv")
 
@@ -90,6 +92,35 @@ def load_data():
     except Exception as e:
         st.error(f"Error loading data: {e}")
         return None
+
+
+@st.cache_resource
+def load_trained_model():
+    """Load pre-trained model"""
+    try:
+        return az.from_netcdf('outputs/model_trace.nc')
+    except Exception as e:
+        st.warning(f"Model not available: {e}")
+        return None
+
+
+@st.cache_data
+def compute_neighborhood_stats(_data):
+    """Pre-compute expensive aggregations"""
+    stats = _data.groupby('neighbourhood_cleansed').agg({
+        'price_clean': ['mean', 'median', 'std', 'count'],
+        'accommodates': 'mean',
+        'number_of_reviews': 'mean',
+        'review_scores_rating': 'mean',
+        'availability_365': 'mean'
+    }).reset_index()
+    return stats
+
+
+@st.cache_data
+def load_data():
+    """Legacy function - calls load_listings_data() for compatibility"""
+    return load_listings_data()
 
 
 @st.cache_data

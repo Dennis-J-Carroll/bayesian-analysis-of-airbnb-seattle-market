@@ -86,9 +86,10 @@ def predict_from_idata(
         Dict with median, ci_lower, ci_upper, samples
     """
     # Extract posterior samples as numpy arrays
+    # Model is hierarchical - use global means (mu_alpha, mu_beta)
     posterior_samples = {
-        "intercept": idata.posterior["intercept"].values.flatten(),
-        "beta_accommodates": idata.posterior["beta_accommodates"].values.flatten(),
+        "intercept": idata.posterior["mu_alpha"].values.flatten(),
+        "beta_accommodates": idata.posterior["mu_beta"].values.flatten(),
     }
 
     return predict_price(inputs, posterior_samples, scaler_params)

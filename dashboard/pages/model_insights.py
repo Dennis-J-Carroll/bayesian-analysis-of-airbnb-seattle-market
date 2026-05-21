@@ -39,33 +39,31 @@ def render():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.metric(
-            "R-hat (intercept)",
-            f"{az.rhat(idata, var_names=['intercept']).to_array().values[0]:.3f}",
-        )
+        rhat_val = float(az.rhat(idata, var_names=["mu_alpha"])["mu_alpha"].values)
+        st.metric("R-hat (mu_alpha)", f"{rhat_val:.3f}")
         st.caption("R-hat < 1.01 indicates good convergence")
 
     with col2:
-        ess = az.ess(idata, var_names=["intercept"]).to_array().values[0]
-        st.metric("Effective Sample Size", f"{ess:.0f}")
+        ess_val = float(az.ess(idata, var_names=["mu_alpha"])["mu_alpha"].values)
+        st.metric("Effective Sample Size", f"{ess_val:.0f}")
         st.caption("Higher is better (>1000 ideal)")
 
     # Posterior distributions
-    st.subheader("Posterior Distributions")
+    st.subheader("Posterior Distributions (Global Means)")
 
-    # Intercept posterior
-    intercept_samples = idata.posterior["intercept"].values.flatten()
+    # Intercept posterior (mu_alpha)
+    intercept_samples = idata.posterior["mu_alpha"].values.flatten()
 
     fig = go.Figure()
     fig.add_trace(
         go.Histogram(
-            x=intercept_samples, nbinsx=50, marker_color=palette[0], name="Intercept"
+            x=intercept_samples, nbinsx=50, marker_color=palette[0], name="mu_alpha"
         )
     )
 
     fig.update_layout(
-        title="Posterior: Intercept (Log-Price Baseline)",
-        xaxis_title="Log(Price)",
+        title="Posterior: Global Intercept (mu_alpha)",
+        xaxis_title="Log(Price) Baseline",
         yaxis_title="Frequency",
         template=template,
         showlegend=False,
@@ -73,9 +71,9 @@ def render():
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # Beta accommodates posterior
-    if "beta_accommodates" in idata.posterior:
-        beta_samples = idata.posterior["beta_accommodates"].values.flatten()
+    # Beta accommodates posterior (mu_beta)
+    if "mu_beta" in idata.posterior:
+        beta_samples = idata.posterior["mu_beta"].values.flatten()
 
         fig = go.Figure()
         fig.add_trace(
@@ -83,12 +81,12 @@ def render():
                 x=beta_samples,
                 nbinsx=50,
                 marker_color=palette[1],
-                name="Beta Accommodates",
+                name="mu_beta",
             )
         )
 
         fig.update_layout(
-            title="Posterior: Accommodates Effect",
+            title="Posterior: Global Accommodates Effect (mu_beta)",
             xaxis_title="Coefficient",
             yaxis_title="Frequency",
             template=template,
@@ -97,9 +95,9 @@ def render():
 
         st.plotly_chart(fig, use_container_width=True)
 
-        median_effect = beta_samples.median()
+        median_effect = float(beta_samples.mean())
         st.info(
-            f"Each additional guest increases log-price by {median_effect:.3f} (median estimate)"
+            f"Each additional guest increases log-price by {median_effect:.3f} (mean estimate)"
         )
 
     # Feature importance (TODO: expand in Phase 5)
