@@ -58,3 +58,59 @@ review_scores_rating:
   - review_score
   - review_rating
   - score
+
+validation_rules:
+  required_columns:
+    - price
+    - neighbourhood_cleansed
+    - room_type
+    - accommodates
+
+  optional_columns:
+    - bedrooms
+    - bathrooms
+    - beds
+    - availability_365
+    - review_scores_rating
+
+  numeric_columns:
+    - price
+    - accommodates
+    - bedrooms
+    - bathrooms
+    - beds
+    - availability_365
+    - review_scores_rating
+
+  integer_columns:
+    - accommodates
+    - bedrooms
+    - beds
+    - availability_365
+
+  categorical_columns:
+    - neighbourhood_cleansed
+    - room_type
+
+  bounds:
+    price:
+      min: 0
+      max: null  # No upper limit (NYC/SF can exceed $1000)
+    accommodates:
+      min: 1
+      max: 16
+    bedrooms:
+      min: 0
+      max: 10
+    bathrooms:
+      min: 0
+      max: 8
+    beds:
+      min: 0
+      max: 16
+    availability_365:
+      min: 0
+      max: 365
+    review_scores_rating:
+      min: 0
+      max: 5
