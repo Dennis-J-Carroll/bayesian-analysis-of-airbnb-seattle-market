@@ -1,5 +1,6 @@
 """Type-safe session state management."""
 from dataclasses import dataclass
+from pathlib import Path
 import streamlit as st
 import pandas as pd
 
@@ -19,6 +20,9 @@ class AppState:
     @staticmethod
     def init():
         """Initialize session state with defaults."""
+        if "default_df" not in st.session_state:
+            st.session_state["default_df"] = load_default_data()
+
         defaults = {
             AppState.DATA_SOURCE: "default",
             AppState.THEME: "modern_neutral",
@@ -47,3 +51,30 @@ class AppState:
             st.session_state.pop(key, None)
         st.session_state[AppState.DATA_SOURCE] = "default"
         st.rerun()
+
+
+def load_default_data() -> pd.DataFrame:
+    """Load default Seattle Airbnb dataset.
+
+    Returns:
+        Seattle listing data with required columns
+    """
+    data_path = Path(__file__).parent.parent.parent / "data" / "seattle_listings.csv"
+
+    if not data_path.exists():
+        # Fallback: generate minimal synthetic data for development
+        return pd.DataFrame(
+            {
+                "price": [100, 150, 200] * 100,
+                "neighbourhood_cleansed": ["Capitol Hill", "Ballard", "Fremont"] * 100,
+                "room_type": ["Entire home/apt", "Private room", "Shared room"] * 100,
+                "accommodates": [2, 4, 1] * 100,
+                "bedrooms": [1, 2, 0] * 100,
+                "bathrooms": [1, 1.5, 1] * 100,
+                "beds": [1, 2, 1] * 100,
+                "availability_365": [100, 200, 50] * 100,
+                "review_scores_rating": [4.5, 4.8, 4.2] * 100,
+            }
+        )
+
+    return pd.read_csv(data_path)
