@@ -2,12 +2,14 @@
 """Neighborhood comparison page."""
 import streamlit as st
 from ..utils.session_manager import AppState
+from ..components.charts import price_distribution
 
 
 def render():
     """Render neighborhood analysis page."""
     st.title("Neighborhood Analysis")
     df = AppState.get_active_df()
+    theme = st.session_state.get(AppState.THEME, "modern_neutral")
 
     neighborhoods = sorted(df["neighbourhood_cleansed"].unique())
     selected = st.selectbox("Select Neighborhood", neighborhoods)
@@ -25,4 +27,6 @@ def render():
             f"${subset['price'].min():.0f} - ${subset['price'].max():.0f}",
         )
 
-    st.info("Neighborhood page extracted — charts in Task 2.7")
+    st.subheader(f"Price Distribution - {selected}")
+    fig = price_distribution(subset, theme_name=theme)
+    st.plotly_chart(fig, use_container_width=True)
