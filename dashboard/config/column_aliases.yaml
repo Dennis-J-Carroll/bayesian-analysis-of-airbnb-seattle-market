@@ -1,0 +1,60 @@
+# dashboard/config/column_aliases.yaml
+# Fuzzy matching aliases for schema detection
+# Each standard column lists common variations seen in CSV uploads
+
+price:
+  - price
+  - price_per_night
+  - nightly_price
+  - cost
+  - rate
+  - amount
+
+neighbourhood_cleansed:
+  - neighbourhood_cleansed
+  - neighborhood
+  - neighbourhood
+  - area
+  - district
+  - location
+
+room_type:
+  - room_type
+  - property_type
+  - listing_type
+  - type
+
+accommodates:
+  - accommodates
+  - max_guests
+  - capacity
+  - guests
+  - sleeps
+
+bedrooms:
+  - bedrooms
+  - bedroom_count
+  - num_bedrooms
+
+bathrooms:
+  - bathrooms
+  - bathroom_count
+  - num_bathrooms
+
+beds:
+  - beds
+  - bed_count
+  - num_beds
+
+availability_365:
+  - availability_365
+  - available_days
+  - availability
+  - days_available
+
+review_scores_rating:
+  - review_scores_rating
+  - rating
+  - review_score
+  - review_rating
+  - score
