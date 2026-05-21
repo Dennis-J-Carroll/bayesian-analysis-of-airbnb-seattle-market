@@ -12,6 +12,7 @@ from dashboard.pages import (
     market_intel,
     business_strategy,
     model_insights,
+    upload,
 )
 
 # Page configuration
@@ -30,6 +31,7 @@ PAGE_REGISTRY = {
     "Market Intelligence": market_intel.render,
     "Business Strategy": business_strategy.render,
     "Model Insights": model_insights.render,
+    "Upload Data": upload.render,
 }
 
 
