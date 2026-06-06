@@ -1,8 +1,6 @@
 # dashboard/utils/bayesian_predictor.py
 """Real Bayesian predictions from PyMC posterior samples."""
 import numpy as np
-import arviz as az
-from typing import Optional
 
 
 def standardize_feature(value: float, mean: float, std: float) -> float:
@@ -72,9 +70,7 @@ def predict_price(
     }
 
 
-def predict_from_idata(
-    inputs: dict, idata: az.InferenceData, scaler_params: dict
-) -> dict:
+def predict_from_idata(inputs: dict, idata, scaler_params: dict) -> dict:
     """Wrapper to predict from InferenceData object.
 
     Args:
@@ -85,6 +81,8 @@ def predict_from_idata(
     Returns:
         Dict with median, ci_lower, ci_upper, samples
     """
+    import arviz as az  # lazy — only needed when real model is used
+
     # Extract posterior samples as numpy arrays
     # Model is hierarchical - use global means (mu_alpha, mu_beta)
     posterior_samples = {

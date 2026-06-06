@@ -2,7 +2,6 @@
 """Bayesian model insights with posterior diagnostics."""
 import streamlit as st
 import plotly.graph_objects as go
-import arviz as az
 from ..utils.model_loader import load_trained_model
 from ..utils.styling import get_chart_template, get_chart_palette
 from ..utils.session_manager import AppState
@@ -10,6 +9,8 @@ from ..utils.session_manager import AppState
 
 def render():
     """Render model insights page with real posteriors."""
+    import arviz as az  # lazy — only needed when rendering diagnostics
+
     st.title("Model Insights")
 
     idata = load_trained_model()

@@ -1,14 +1,13 @@
 # dashboard/utils/model_loader.py
 """Model loading with caching for PyMC InferenceData."""
 import streamlit as st
-import arviz as az
 import json
 from pathlib import Path
 from typing import Optional
 
 
 @st.cache_resource
-def load_trained_model() -> Optional[az.InferenceData]:
+def load_trained_model():
     """Load trained PyMC model (InferenceData with posterior samples).
 
     Returns:
@@ -22,6 +21,8 @@ def load_trained_model() -> Optional[az.InferenceData]:
 
     if not model_path.exists():
         return None
+
+    import arviz as az  # lazy — only needed when model file actually exists
 
     try:
         return az.from_netcdf(model_path)
