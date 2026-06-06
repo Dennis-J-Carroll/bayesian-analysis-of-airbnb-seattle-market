@@ -3,6 +3,47 @@ Custom CSS styling for enterprise-grade dashboard
 """
 
 import streamlit as st
+import yaml
+from pathlib import Path
+
+
+def inject_minimal_theme():
+    """Phase 1 minimal theme - white background + sage green accents."""
+    st.markdown(
+        """
+    <style>
+    /* Phase 1: Minimal Modern Neutral theme */
+    .main {
+        background-color: #ffffff !important;
+    }
+
+    .stApp {
+        background-color: #ffffff !important;
+    }
+
+    .block-container {
+        background-color: #ffffff !important;
+    }
+
+    .stMetric {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 3px solid #77b899;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .insight-box {
+        background: #f0fdf7;
+        border-left: 3px solid #77b899;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def apply_custom_css():
@@ -687,3 +728,190 @@ def create_progress_bar(value, max_value=100, label=None):
     </div>
     <p style='margin: 0.25rem 0; color: #666; font-size: 0.9rem;'>{value} / {max_value}</p>
     """
+
+
+def load_theme_config(theme_name: str) -> dict:
+    """Load theme configuration from YAML."""
+    config_path = Path(__file__).parent.parent / "config" / "themes.yaml"
+    with open(config_path) as f:
+        themes = yaml.safe_load(f)
+    return themes.get(theme_name, themes["modern_neutral"])
+
+
+def apply_theme(theme_name: str = "modern_neutral"):
+    """Apply CSS theme via st.markdown."""
+    theme = load_theme_config(theme_name)
+    colors = theme["colors"]
+
+    css = f"""
+    <style>
+    /* WARNING: Targets Streamlit 1.38.0 internal DOM */
+    :root {{
+        --bg-primary: {colors['bg_primary']};
+        --bg-secondary: {colors['bg_secondary']};
+        --bg-sidebar: {colors['bg_sidebar']};
+        --bg-card: {colors['bg_card']};
+        --text-primary: {colors['text_primary']};
+        --text-secondary: {colors['text_secondary']};
+        --text-muted: {colors['text_muted']};
+        --accent: {colors['accent']};
+        --accent-hover: {colors['accent_hover']};
+        --success: {colors['success']};
+        --warning: {colors['warning']};
+        --danger: {colors['danger']};
+        --border: {colors['border']};
+        --shadow: {colors['shadow']};
+    }}
+
+    .stApp {{
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }}
+
+    section[data-testid="stSidebar"] {{
+        background-color: var(--bg-sidebar);
+    }}
+
+    div[data-testid="stMetric"] {{
+        background: var(--bg-card);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 3px solid var(--accent);
+        box-shadow: var(--shadow);
+    }}
+
+    div[data-testid="stMetricLabel"] {{
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }}
+
+    div[data-testid="stMetricValue"] {{
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+    }}
+
+    .insight-box {{
+        background: {colors['bg_secondary']};
+        border-left: 3px solid var(--accent);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }}
+
+    .insight-box-title {{
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }}
+
+    .insight-box-content {{
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+        line-height: 1.5;
+    }}
+
+    .stButton > button {{
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }}
+
+    .stButton > button:hover {{
+        background-color: var(--accent-hover);
+        box-shadow: var(--shadow);
+    }}
+
+    h1, h2, h3, h4, h5, h6 {{
+        color: var(--text-primary) !important;
+    }}
+
+    p, li, span, div {{
+        color: var(--text-primary);
+    }}
+
+    .stMarkdown {{
+        color: var(--text-primary);
+    }}
+
+    label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Slider labels and values */
+    .stSlider label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Input labels */
+    .stTextInput label,
+    .stNumberInput label,
+    .stSelectbox label,
+    .stMultiSelect label,
+    .stDateInput label,
+    .stTimeInput label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Radio and checkbox labels */
+    .stRadio label,
+    .stCheckbox label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Caption text */
+    .stCaption {{
+        color: var(--text-secondary) !important;
+    }}
+
+    /* Info/warning/error/success boxes */
+    .stAlert {{
+        border-radius: 0.375rem;
+    }}
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {{
+        color: var(--text-primary);
+    }}
+
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] h5,
+    section[data-testid="stSidebar"] h6 {{
+        color: var(--text-primary) !important;
+    }}
+
+    section[data-testid="stSidebar"] label {{
+        color: var(--text-primary) !important;
+    }}
+
+    /* Subheader */
+    .stSubheader {{
+        color: var(--text-primary) !important;
+    }}
+    </style>
+    """
+
+    st.markdown(css, unsafe_allow_html=True)
+
+
+def get_chart_template(theme_name: str = "modern_neutral") -> str:
+    """Get Plotly template name for current theme."""
+    theme = load_theme_config(theme_name)
+    return theme["chart"]["template"]
+
+
+def get_chart_palette(theme_name: str = "modern_neutral") -> list[str]:
+    """Get color palette for charts."""
+    theme = load_theme_config(theme_name)
+    return theme["chart"]["palette"]

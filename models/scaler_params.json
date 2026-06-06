@@ -1,0 +1,5 @@
+{
+  "accommodates_mean": 3.2,
+  "accommodates_std": 2.1,
+  "description": "Training data statistics for feature standardization. Replace with actual values from model training script."
+}

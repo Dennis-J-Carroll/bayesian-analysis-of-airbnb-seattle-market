@@ -1,0 +1,3 @@
+build-essential
+libblas-dev
+liblapack-dev

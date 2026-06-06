@@ -1,3 +1,14 @@
+---
+title: Bayesian Airbnb Price Intelligence
+emoji: 🏠
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.38.0
+app_file: app.py
+pinned: false
+---
+
 # Bayesian Analysis of Airbnb Seattle Market
 
 [![CI](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml/badge.svg)](https://github.com/Dennis-J-Carroll/Bayesian-Analysis-of-Airbnb-Seattle-Market/actions/workflows/ci.yml)
@@ -6,6 +17,13 @@
 [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://bayesian-analysis-dashboard.streamlit.app/)
 
 **🚀 Live Dashboard: https://bayesian-analysis-dashboard.streamlit.app/**
+
+Enterprise-grade hierarchical Bayesian analytics with uncertainty quantification.
+
+- 6,144 listings across 88 neighborhoods
+- PyMC hierarchical Bayesian model (R²=0.687)
+- Real-time filtering and ROI analysis
+- CSV upload for custom datasets
 
 A production-ready hierarchical Bayesian framework for Airbnb pricing analysis, featuring enhanced predictive models with uncertainty quantification and an interactive Streamlit dashboard for investment analysis and pricing optimization.
 
