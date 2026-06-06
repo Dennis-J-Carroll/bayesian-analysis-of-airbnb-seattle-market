@@ -7,6 +7,7 @@ from ..utils.session_manager import AppState
 from ..utils.styling import get_chart_template, get_chart_palette
 
 
+@st.cache_data
 def _compute_revenue_potential(df: pd.DataFrame) -> pd.DataFrame:
     """Estimate annual revenue potential per neighborhood.
 
@@ -18,7 +19,9 @@ def _compute_revenue_potential(df: pd.DataFrame) -> pd.DataFrame:
         avg_availability=("availability_365", "mean"),
         listing_count=("price", "count"),
     )
-    grouped["occupied_days"] = (365 - grouped["avg_availability"]).clip(lower=0)
+    grouped["occupied_days"] = (365 - grouped["avg_availability"].fillna(0)).clip(
+        lower=0
+    )
     grouped["revenue_potential"] = grouped["avg_price"] * grouped["occupied_days"]
     return grouped.reset_index().sort_values("revenue_potential", ascending=False)
 
@@ -26,7 +29,7 @@ def _compute_revenue_potential(df: pd.DataFrame) -> pd.DataFrame:
 def _compute_room_type_multipliers(df: pd.DataFrame) -> pd.DataFrame:
     """Price multiplier vs market median per room type."""
     median_price = df["price"].median()
-    if median_price == 0:
+    if not pd.notna(median_price) or median_price == 0:
         median_price = 1.0
     room_stats = (
         df.groupby("room_type")["price"]
@@ -69,11 +72,13 @@ def _kpi_section(df: pd.DataFrame):
     nbhd_avg = df.groupby("neighbourhood_cleansed")["price"].mean()
     top_avg = nbhd_avg.nlargest(3).mean() if len(nbhd_avg) >= 3 else nbhd_avg.max()
     bot_avg = nbhd_avg.nsmallest(3).mean() if len(nbhd_avg) >= 3 else nbhd_avg.min()
-    premium = top_avg / bot_avg if bot_avg > 0 else 1.0
+    premium = top_avg / bot_avg if (pd.notna(bot_avg) and bot_avg > 0) else 1.0
 
     entire_avg = df[df["room_type"] == "Entire home/apt"]["price"].mean()
     private_avg = df[df["room_type"] == "Private room"]["price"].mean()
-    multiplier = entire_avg / private_avg if private_avg > 0 else 1.0
+    multiplier = (
+        entire_avg / private_avg if (pd.notna(private_avg) and private_avg > 0) else 1.0
+    )
 
     bedroom_roi = _compute_bedroom_roi(df)
     best_br = (
@@ -135,7 +140,7 @@ def _revenue_section(df: pd.DataFrame, theme: str):
             orientation="h",
             marker=dict(
                 color=revenue_df["revenue_potential"],
-                colorscale=[[0, palette[2]], [1, palette[0]]],
+                colorscale=[[0, palette[min(2, len(palette) - 1)]], [1, palette[0]]],
                 showscale=False,
             ),
             text=revenue_df["revenue_potential"].apply(lambda x: f"${x:,.0f}"),
@@ -205,6 +210,12 @@ def _bedroom_roi_section(df: pd.DataFrame, theme: str):
 
     template = get_chart_template(theme)
     palette = get_chart_palette(theme)
+
+    entire_homes = df[df["room_type"] == "Entire home/apt"]
+    if entire_homes.empty:
+        st.caption(
+            "No entire-home listings in current filter — showing all room types."
+        )
     br_df = _compute_bedroom_roi(df)
 
     if not br_df.empty:
