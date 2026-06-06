@@ -59,7 +59,10 @@ def load_default_data() -> pd.DataFrame:
     Returns:
         Seattle listing data with required columns
     """
-    data_path = Path(__file__).parent.parent.parent / "data" / "seattle_listings.csv"
+    root = Path(__file__).parent.parent.parent
+    data_path = root / "data" / "seattle_listings.csv"
+    if not data_path.exists():
+        data_path = root / "data" / "raw" / "listings.csv"
 
     if not data_path.exists():
         # Fallback: generate minimal synthetic data for development
