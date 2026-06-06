@@ -1,12 +1,11 @@
 [theme]
-primaryColor = "#77b899"           # Sage green (keep)
-backgroundColor = "#ffffff"         # White (was beige)
-secondaryBackgroundColor = "#f8f9fa" # Light gray cards
-textColor = "#212529"              # Dark text
+primaryColor = "#77b899"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#1A1C24"
+textColor = "#E0E0E0"
 font = "sans serif"
-base = "light"
 
 [server]
 headless = true
-port = 7860  # HF Spaces default
+port = 7860
 enableCORS = false
