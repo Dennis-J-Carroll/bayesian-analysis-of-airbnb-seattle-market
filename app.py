@@ -15,13 +15,6 @@ from dashboard.pages import (
     upload,
 )
 
-st.set_page_config(
-    page_title="Bayesian Dashboard for Recruiters",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
 # Kept for test compatibility (test_app_router checks this)
 PAGE_REGISTRY = {
     "Market Overview": overview.render,
@@ -165,6 +158,12 @@ hr {
 
 def main():
     """Main application entry point."""
+    st.set_page_config(
+        page_title="Bayesian Dashboard for Recruiters",
+        page_icon="📊",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
     AppState.init()
 
     # ── Theme toggle (replaces sidebar radio) ──────────────────────
