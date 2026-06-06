@@ -29,7 +29,9 @@ def _price_distribution_section(df: pd.DataFrame, theme: str):
     p99 = df["price"].quantile(0.99)
     df_filtered = df[df["price"] <= p99]
 
-    st.plotly_chart(price_distribution(df_filtered, theme), use_container_width=True)
+    st.plotly_chart(
+        price_distribution(df_filtered, theme_name=theme), use_container_width=True
+    )
 
 
 @st.fragment
@@ -47,7 +49,7 @@ def _neighborhood_section(df: pd.DataFrame, theme: str):
 
     # Filter neighborhoods with enough listings
     counts = df["neighbourhood_cleansed"].value_counts()
-    valid = counts[counts >= 5].index
+    valid = counts[counts >= 5].index.tolist()
     df_filtered = df[df["neighbourhood_cleansed"].isin(valid)]
 
     top_n = st.slider(
@@ -106,9 +108,8 @@ def _availability_section(df: pd.DataFrame, theme: str):
     room_types = sorted(df["room_type"].dropna().unique())
     fig = go.Figure()
     for i, rt in enumerate(room_types):
-        subset = df[df["room_type"] == rt].sample(
-            min(len(df[df["room_type"] == rt]), 500), random_state=42
-        )
+        subset = df[df["room_type"] == rt]
+        subset = subset.sample(min(len(subset), 500), random_state=42)
         fig.add_trace(
             go.Scatter(
                 x=subset["availability_365"],

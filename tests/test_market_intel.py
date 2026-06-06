@@ -70,18 +70,18 @@ def test_market_intel_no_placeholder_info():
     assert "extracted" not in source.lower()
 
 
-def test_market_intel_has_four_fragment_sections():
-    """Module exports four @st.fragment-decorated section functions."""
+def test_market_intel_has_four_section_functions():
+    """Module exports four callable section functions used by render()."""
     from dashboard.pages import market_intel
 
-    fragments = [
+    sections = [
         "_price_distribution_section",
         "_neighborhood_section",
         "_room_type_section",
         "_availability_section",
     ]
-    for name in fragments:
-        assert hasattr(market_intel, name), f"Missing fragment: {name}"
+    for name in sections:
+        assert hasattr(market_intel, name), f"Missing section: {name}"
         assert callable(getattr(market_intel, name)), f"Not callable: {name}"
 
 
