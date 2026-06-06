@@ -178,16 +178,18 @@ def main():
         st.session_state[AppState.THEME] = new_theme
         st.rerun()
 
-    # ── Apply CSS (theme + glassmorphism) ──────────────────────────
-    inject_global_css()
+    # ── Apply CSS: theme first, glassmorphism on top ───────────────
+    # Order matters: apply_theme() sets CSS vars, inject_global_css()
+    # augments with glassmorphism — avoids !important specificity conflicts.
     apply_theme(st.session_state[AppState.THEME])
+    inject_global_css()
 
     # ── Data source indicator ──────────────────────────────────────
     st.sidebar.markdown("---")
     if st.session_state[AppState.DATA_SOURCE] == "uploaded":
         st.sidebar.info("📁 Using uploaded CSV")
         if st.sidebar.button("↩ Reset to Seattle Data"):
-            AppState.reset_to_default()
+            AppState.reset_to_default()  # calls st.rerun() internally
     else:
         st.sidebar.info("🏙 Using Seattle dataset")
 
