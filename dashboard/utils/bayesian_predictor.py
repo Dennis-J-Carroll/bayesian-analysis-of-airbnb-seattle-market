@@ -81,8 +81,6 @@ def predict_from_idata(inputs: dict, idata, scaler_params: dict) -> dict:
     Returns:
         Dict with median, ci_lower, ci_upper, samples
     """
-    import arviz as az  # lazy — only needed when real model is used
-
     # Extract posterior samples as numpy arrays
     # Model is hierarchical - use global means (mu_alpha, mu_beta)
     posterior_samples = {

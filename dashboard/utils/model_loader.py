@@ -3,7 +3,6 @@
 import streamlit as st
 import json
 from pathlib import Path
-from typing import Optional
 
 
 @st.cache_resource
