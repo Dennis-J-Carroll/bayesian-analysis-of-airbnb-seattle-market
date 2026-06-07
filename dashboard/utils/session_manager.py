@@ -80,4 +80,9 @@ def load_default_data() -> pd.DataFrame:
             }
         )
 
-    return pd.read_csv(data_path)
+    df = pd.read_csv(data_path)
+    if "price" in df.columns and df["price"].dtype == object:
+        df["price"] = pd.to_numeric(
+            df["price"].str.replace(r"[\$,]", "", regex=True), errors="coerce"
+        )
+    return df[df["price"].notna()].reset_index(drop=True)
