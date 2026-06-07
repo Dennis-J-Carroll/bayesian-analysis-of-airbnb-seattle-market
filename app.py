@@ -198,13 +198,40 @@ def main():
     # ── Native multi-page navigation ──────────────────────────────
     pg = st.navigation(
         [
-            st.Page(overview.render, title="Market Overview", icon="📊"),
-            st.Page(neighborhood.render, title="Neighborhood Analysis", icon="📍"),
-            st.Page(prediction.render, title="Price Prediction", icon="💰"),
-            st.Page(market_intel.render, title="Market Intelligence", icon="🔍"),
-            st.Page(business_strategy.render, title="Business Strategy", icon="💼"),
-            st.Page(model_insights.render, title="Model Insights", icon="🧠"),
-            st.Page(upload.render, title="Upload Data", icon="📤"),
+            st.Page(
+                overview.render, title="Market Overview", icon="📊", url_path="overview"
+            ),
+            st.Page(
+                neighborhood.render,
+                title="Neighborhood Analysis",
+                icon="📍",
+                url_path="neighborhood",
+            ),
+            st.Page(
+                prediction.render,
+                title="Price Prediction",
+                icon="💰",
+                url_path="prediction",
+            ),
+            st.Page(
+                market_intel.render,
+                title="Market Intelligence",
+                icon="🔍",
+                url_path="market-intel",
+            ),
+            st.Page(
+                business_strategy.render,
+                title="Business Strategy",
+                icon="💼",
+                url_path="business-strategy",
+            ),
+            st.Page(
+                model_insights.render,
+                title="Model Insights",
+                icon="🧠",
+                url_path="model-insights",
+            ),
+            st.Page(upload.render, title="Upload Data", icon="📤", url_path="upload"),
         ],
         position="sidebar",
     )
