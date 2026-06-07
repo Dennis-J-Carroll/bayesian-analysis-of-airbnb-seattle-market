@@ -899,6 +899,44 @@ def apply_theme(theme_name: str = "modern_neutral"):
     .stSubheader {{
         color: var(--text-primary) !important;
     }}
+
+    /* ── Selectbox / multiselect dropdown popup ──
+       BaseWeb portals render outside .stApp, so CSS vars must be
+       re-applied explicitly here. Covers both light and dark themes. */
+    [data-baseweb="popover"] {{
+        background-color: var(--bg-secondary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        box-shadow: var(--shadow) !important;
+    }}
+
+    [data-baseweb="menu"] {{
+        background-color: var(--bg-secondary) !important;
+    }}
+
+    [data-baseweb="option"] {{
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+    }}
+
+    [data-baseweb="option"]:hover {{
+        background-color: var(--accent) !important;
+        color: #ffffff !important;
+        cursor: pointer;
+    }}
+
+    /* Multiselect tag chips */
+    [data-baseweb="tag"] {{
+        background-color: var(--accent) !important;
+        color: #ffffff !important;
+        border-radius: 4px !important;
+    }}
+
+    /* Input inside selectbox */
+    [data-baseweb="select"] input {{
+        color: var(--text-primary) !important;
+        background-color: transparent !important;
+    }}
     </style>
     """
 
