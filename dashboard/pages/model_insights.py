@@ -17,7 +17,7 @@ def render():
 
     if idata is None:
         st.warning(
-            "Trained model not found. Run training script to generate `models/trained_model.nc`"
+            "Trained model not found. Run training script to generate `outputs/model_trace.nc`"
         )
         return
 
