@@ -1,6 +1,5 @@
 """Fidelity of committed artifacts against the real LFS posterior trace."""
 
-import json
 import sys
 from pathlib import Path
 
@@ -47,6 +46,34 @@ def test_cleaned_data_reproduces_observed_data(idata):
     np.testing.assert_allclose(np.log(price), observed, rtol=0, atol=1e-12)
     assert np.array_equal(np.round(np.exp(observed), 6), price)
     assert len(neighborhood_order(clean)) == idata.posterior["alpha"].shape[-1]
+
+
+def _residuals(idata, clean, names):
+    a = idata.posterior["alpha"].mean(("chain", "draw")).values
+    b = idata.posterior["beta"].mean(("chain", "draw")).values
+    pos = {n: i for i, n in enumerate(names)}
+    idx = clean["neighbourhood_cleansed"].map(pos).to_numpy()
+    g = clean["accommodates"].to_numpy()
+    return np.log(clean["price"].to_numpy()) - (a[idx] + b[idx] * g)
+
+
+def test_neighborhood_index_order_matches_trace(idata):
+    clean, _ = clean_listings(pd.read_csv(LISTINGS_PATH))
+    names = neighborhood_order(clean)
+    res = _residuals(idata, clean, names)
+
+    def per_nb(r):
+        return np.abs(pd.Series(r).groupby(clean["neighbourhood_cleansed"]).mean())
+
+    # Mean absolute per-neighborhood residual; measured 0.015 when aligned.
+    assert per_nb(res).mean() < 0.05
+    # Negative control: alphabetical order (measured 0.26) must fail the bound.
+    wrong = _residuals(idata, clean, sorted(names))
+    assert per_nb(wrong).mean() > 0.05
+    # Raw accommodates: residual SD matches posterior sigma within 5%
+    # (standardized accommodates would give about 0.459 vs sigma 0.38).
+    sigma = float(idata.posterior["sigma"].mean())
+    assert abs(res.std() / sigma - 1) < 0.05
 
 
 def test_draws_are_faithful_subsample(idata):
