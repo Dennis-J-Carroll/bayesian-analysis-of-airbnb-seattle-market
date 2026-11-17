@@ -77,8 +77,8 @@ def render() -> None:
     st.subheader("Do the chains agree?")
     st.caption(
         "Rank plots: each chain's draws are ranked among all chains together. "
-        "If the chains explore the same distribution, every chain's bars are "
-        "flat along the dashed expected count. A tilt or a hump would flag "
+        "If the chains explore the same distribution, every chain's outline "
+        "runs flat along the dashed expected count. A tilt or a hump would flag "
         "trouble."
     )
     for name in RANK_PARAMS:
@@ -94,9 +94,10 @@ def render() -> None:
     fig = ppc_plot(d["ppc"], theme)
     st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG, theme=None)
     st.caption(
-        "Posterior predictive check: bars are the observed price counts, the "
-        "band is where simulated listings from the fitted model land (94%). "
-        "Observed bars inside the band mean the model reproduces the overall "
+        "Posterior predictive check: the stepped ink outline is the observed "
+        "price counts, the shaded band is where simulated listings from the "
+        "fitted model land (94%), the dotted line their mean. An outline inside "
+        "the band means the model reproduces the overall "
         "price shape. It uses the same data the model was fitted on, so it is "
         "an in-sample check. " + fig.layout.meta["note"].replace("$", "\\$")
     )
