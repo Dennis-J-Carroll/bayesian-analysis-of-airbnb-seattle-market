@@ -196,6 +196,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
   scrollbar-width: thin;
   scrollbar-color: var(--rule) transparent;
 }
+.scroll-hint { display: none; }
 .grid::-webkit-scrollbar { width: 6px; }
 .grid::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
 .cell {
@@ -261,6 +262,10 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
   .controls { grid-template-columns: 1fr; row-gap: 16px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px 8px; }
   .cell .pc, .legend .key-pc { display: none; }
+  /* The grid scrolls inside the frame (it fills the space below the header
+     band); say so, and keep the scrollbar visible. */
+  .scroll-hint { display: block; }
+  .grid { scrollbar-width: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cell .curve, .cell .fill, .cell .clip { transition: none; }
@@ -308,6 +313,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
   <section class="board" aria-label="Posterior price curves for every neighborhood">
     <div class="board-head">
       <p class="lab">__COUNT__ neighborhoods, priciest first at __ORDER_GUESTS__</p>
+      <p class="lab scroll-hint" data-testid="specimen-scroll-hint">Scroll for all __COUNT__ neighborhoods</p>
       <div class="legend lab">
         <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><path class="key-axis" d="M0.5 2 V8 M0.5 5 H21.5 M21.5 2 V8"/></svg>$20 to $1,000, log scale</span>
         <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><path class="key-band" d="M6 10 C8 10 9 1 11 1 C13 1 14 10 16 10 Z"/><path class="key-curve" d="M0 10 C6 10 7 1 11 1 C15 1 16 10 22 10"/></svg>94% range</span>

@@ -82,6 +82,8 @@ def test_slider_moves_every_curve(page, app_url):
     assert len(after) == len(before)
     assert all(a != b for a, b in zip(after, before)), "a curve did not move"
     assert frame.locator("[data-testid=specimen-guests]").inner_text().strip() == "6"
+    # Desktop layout has no scroll hint.
+    assert frame.locator("[data-testid=specimen-scroll-hint]").is_hidden()
     assert frame.locator("[data-testid=specimen-price]").inner_text() != price_before
 
 
@@ -165,19 +167,26 @@ def test_phone_width_no_horizontal_scroll(browser, app_url):
         ctx.close()
 
 
-@pytest.mark.xfail(strict=True, reason="phone grid clipped — see task-11-report")
 def test_phone_grid_bottom_is_reachable(browser, app_url):
     ctx = browser.new_context(viewport={"width": 390, "height": 844})
     try:
         pg = ctx.new_page()
         frame = open_specimen(pg, app_url)
-        frame.locator("[data-testid^=specimen-cell-]").last.wait_for()
-        # The iframe has a fixed height and no page-level scroll for its
-        # content, so the last cell must end inside the frame's viewport.
-        gap = frame.locator("[data-testid^=specimen-cell-]").last.evaluate(
-            "el => window.innerHeight - el.getBoundingClientRect().bottom"
+        hint = frame.locator("[data-testid=specimen-scroll-hint]")
+        assert hint.is_visible()
+        assert "88 neighborhoods" in hint.text_content()
+        last = frame.locator("[data-testid^=specimen-cell-]").last
+        last.scroll_into_view_if_needed()
+        # Inside the frame's viewport, and inside the visible grid scroller.
+        inside = last.evaluate(
+            """el => {
+              const r = el.getBoundingClientRect();
+              const g = el.closest('.grid').getBoundingClientRect();
+              return r.top >= g.top - 1 && r.bottom <= g.bottom + 1 &&
+                     r.bottom <= window.innerHeight;
+            }"""
         )
-        assert gap >= 0, f"last cell is clipped by {-gap:.0f}px"
+        assert inside
     finally:
         ctx.close()
 
