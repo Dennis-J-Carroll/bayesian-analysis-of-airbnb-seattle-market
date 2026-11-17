@@ -84,6 +84,8 @@ def test_cleaning_report_counts(art):
         )
     )
     assert got == (6862, 635, 0, 0, 83, 6144)
+    assert c["above_max_hotel_rooms"] == 29
+    assert c["above_max_10k_plus"] == 37
     assert c["scraped_from"] == "2025-06-21"
     assert c["scraped_to"] == "2025-06-30"
 

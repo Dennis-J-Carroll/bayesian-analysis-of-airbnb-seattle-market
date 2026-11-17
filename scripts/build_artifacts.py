@@ -20,8 +20,10 @@ if str(ROOT) not in sys.path:
 from dashboard.utils import posterior as P  # noqa: E402
 from dashboard.utils.data_loader import (  # noqa: E402
     LISTINGS_PATH,
+    PRICE_MAX,
     clean_listings,
     neighborhood_order,
+    parse_price,
 )
 
 HYPER_PARAMS = ("mu_alpha", "mu_beta", "sigma_alpha", "sigma_beta", "sigma")
@@ -197,6 +199,16 @@ def _diagnostics(idata, draws, clean, names) -> dict:
     }
 
 
+def _over_max_detail(raw: pd.DataFrame) -> dict:
+    """What the listings priced over the cap are: hotel rooms, placeholders."""
+    price = parse_price(raw["price"])
+    over = raw[price > PRICE_MAX]
+    return {
+        "above_max_hotel_rooms": int((over["room_type"] == "Hotel room").sum()),
+        "above_max_10k_plus": int((price[over.index] >= 10_000).sum()),
+    }
+
+
 def build(trace_path: Path, listings_path: Path, out_dir: Path) -> None:
     import arviz as az
 
@@ -219,6 +231,7 @@ def build(trace_path: Path, listings_path: Path, out_dir: Path) -> None:
         out_dir / "cleaning.json",
         {
             **asdict(report),
+            **_over_max_detail(raw),
             "scraped_from": scraped.min().strftime("%Y-%m-%d"),
             "scraped_to": scraped.max().strftime("%Y-%m-%d"),
         },

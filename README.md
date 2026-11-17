@@ -57,7 +57,7 @@ Source: [Inside Airbnb](http://insideairbnb.com/get-the-data/), Seattle listings
 
 1. 6,862 raw rows.
 2. Drop 635 rows with no price (none were missing guest count or neighborhood): 6,227 remain.
-3. Drop 83 rows priced over $1,000, which include placeholder prices and hotel rooms. No rows were under $10.
+3. Drop 83 rows priced over $1,000. Of these, 29 are hotel-room listings and 37 are priced at $10,000 or more ($40,000 to $50,034 a night), which look like placeholders. No rows were under $10.
 4. 6,144 listings kept (price between $10 and $1,000).
 
 The app's Data notes page states the same decisions.
@@ -103,7 +103,7 @@ This rewrites `outputs/app_artifacts/` (JSON summaries and a 1,000-draw subsampl
 
 ## Deploy
 
-The live app runs on Streamlit Community Cloud: repository `Dennis-J-Carroll/bayesian-analysis-of-airbnb-seattle-market`, branch `master`, main file `expert_dashboard.py` (a thin entry that calls `app.main`), Python 3.11 or 3.12. Cloud installs `requirements.txt` only; it never fits the model.
+The live app runs on Streamlit Community Cloud: repository `Dennis-J-Carroll/bayesian-analysis-of-airbnb-seattle-market`, branch `master`, main file `expert_dashboard.py` (a thin entry that calls `app.main`), tested on Python 3.11. Cloud installs `requirements.txt` only; it never fits the model.
 
 ## Project layout
 
@@ -113,7 +113,7 @@ expert_dashboard.py     Streamlit Cloud entry point
 dashboard/              pages, components, posterior and artifact utilities
 scripts/build_artifacts.py   trace -> committed artifacts
 outputs/app_artifacts/  numbers the app and this README use
-src/                    model code
+src/                    legacy modeling and EDA scripts; the deployed model is fitted by src/hierarchical_bayesian_model.py
 notebooks/              exploratory analysis (not the source of the numbers above)
 tests/                  fast, slow, trace and e2e tests
 ```
