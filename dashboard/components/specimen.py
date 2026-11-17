@@ -28,11 +28,11 @@ ORDER_GUESTS = 2
 WIDTH, HEIGHT, TOP = 100, 44, 2
 
 # components.html cannot size itself to its content in Streamlit 1.38 (the
-# iframe ignores streamlit:setFrameHeight), so the height is fixed. 1340 shows
+# iframe ignores streamlit:setFrameHeight), so the height is fixed. 1390 shows
 # the whole grid, worst-case extrapolation note included, in the 942px iframe
 # that layout="wide" gives at a 1440px viewport. Narrower iframes fall back to
-# scrolling the grid inside the frame. Measured worst case: 1327px.
-DEFAULT_HEIGHT = 1340
+# scrolling the grid inside the frame. Measured worst case: 1380px.
+DEFAULT_HEIGHT = 1390
 
 # Fewer listings than this: the curve is drawn tentatively (thin, dashed, no
 # band fill), so partial pooling toward the city reads at a glance.
@@ -91,10 +91,13 @@ def specimen_payload(
 def _per_log(row: list, grid: list) -> list[float]:
     """Stored curves are per-dollar densities. On the log price axis the
     honest shape is density per log-dollar (pdf x price), whose peak sits at
-    the median rather than the lower mode. Rescaled to peak 1 for display."""
+    the median rather than the lower mode. Rescaled to peak 1 and rounded to 2 decimals, the precision
+    a 44px-tall curve can show, to keep the payload small."""
     scaled = [0.0 if _missing(d) else d * x for d, x in zip(row, grid)]
     top = max(scaled) or 1.0
-    return [round(v / top, 3) for v in scaled]
+    out = [round(v / top, 2) for v in scaled]
+    # Whole values (most of the tails are 0) serialise as "0", not "0.0".
+    return [int(v) if v == int(v) else v for v in out]
 
 
 # Formatting. Mirrored exactly by fmtDollars / fmtNum in the template script,
@@ -206,10 +209,10 @@ def _cells_html(payload: dict, g: int, selected: str) -> str:
             f'<span class="plot">'
             f'<svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none" '
             f'aria-hidden="true" focusable="false">'
-            f'<clipPath id="band-{c["index"]}"><rect class="clip" x="{band_x}" '
+            f'<clipPath id="fill-{c["index"]}"><rect class="clip" x="{band_x}" '
             f'y="0" width="{band_w}" height="{HEIGHT}"/></clipPath>'
             f'<line class="city" x1="{city_x}" x2="{city_x}" y1="0" y2="{HEIGHT}"/>'
-            f'<path class="band" clip-path="url(#band-{c["index"]})" d="{d}"/>'
+            f'<path class="fill" clip-path="url(#fill-{c["index"]})" d="{d}"/>'
             f'<path class="curve" data-testid="curve" d="{d}"/>'
             f"</svg>"
             f'<span class="raw" data-testid="raw-dot" style="left:{raw_x}%"'

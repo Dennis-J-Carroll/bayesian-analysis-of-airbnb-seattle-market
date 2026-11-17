@@ -53,7 +53,9 @@ def test_css_keeps_header_and_hides_footer(theme):
     hidden = [sel for sel, body in rules if re.search(r"display:\s*none", body)]
     assert any("footer" in sel for sel in hidden)
     assert any("stMainMenu" in sel for sel in hidden)
-    assert not any("stHeader" in sel or "header" in sel.split(",") for sel in hidden)
+    for sel in hidden:
+        items = [item.strip() for item in sel.split(",")]
+        assert "header" not in items and not any("stHeader" in i for i in items), sel
 
 
 @pytest.mark.parametrize("theme", THEMES)
