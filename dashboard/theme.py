@@ -35,13 +35,26 @@ MONO_FONT = "'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace"
 
 # Text-only selectors: a broad selector such as [class*="st-"] also hits
 # Streamlit's icon font and turns every icon into its ligature name.
-_HEADINGS = "h1, h2, h3, h4, h5, h6"
+# Streamlit 1.50 styles headings through their wrapper, so a bare h1..h6
+# selector loses on specificity; scope through the wrapper and .stApp.
+_HEADINGS = ", ".join(
+    f'.stApp [data-testid="stHeadingWithActionElements"] h{k}, .stApp h{k}'
+    for k in range(1, 7)
+)
 _BODY = "p, li, .stMarkdown"
+# Tracked uppercase is for short labels only. Captions carry explanatory
+# prose and notation ("listing i sits in neighborhood n[i]"), so they keep
+# their case.
 _SMALL_LABELS = (
-    "label, "
-    '[data-testid="stMetricLabel"], '
-    '[data-testid="stCaptionContainer"], '
-    '[data-testid="stSidebarNav"] span'
+    "label, " '[data-testid="stMetricLabel"], ' '[data-testid="stSidebarNav"] span'
+)
+_CAPTIONS = (
+    '.stApp [data-testid="stCaptionContainer"], '
+    '.stApp [data-testid="stCaptionContainer"] p'
+)
+_PROSE = (
+    '.stApp [data-testid="stMain"] [data-testid="stMarkdownContainer"] p, '
+    '.stApp [data-testid="stMain"] [data-testid="stMarkdownContainer"] li'
 )
 
 
@@ -60,12 +73,23 @@ def css(theme: str) -> str:
   border-right: 1px solid {t["ink"]};
 }}
 
+/* Trim Streamlit's ~6rem top band; phones keep room for the fixed header
+   and its sidebar chevron. */
+.stApp [data-testid="stMainBlockContainer"] {{ padding-top: 2rem; }}
+@media (max-width: 640px) {{
+  .stApp [data-testid="stMainBlockContainer"] {{ padding-top: 4rem; }}
+}}
+
 {_HEADINGS} {{
   font-family: {DISPLAY_FONT};
   color: {t["ink"]};
   letter-spacing: -0.02em;
 }}
-h1 {{ font-weight: 800; }}
+.stApp [data-testid="stHeadingWithActionElements"] h1, .stApp h1 {{ font-weight: 800; }}
+[data-baseweb="select"] div[value] {{
+  font-family: {DISPLAY_FONT};
+  color: {t["ink"]};
+}}
 
 {_BODY} {{
   font-family: {MONO_FONT};
@@ -78,8 +102,26 @@ h1 {{ font-weight: 800; }}
   text-transform: uppercase;
   color: {t["muted"]};
 }}
+{_CAPTIONS} {{
+  font-family: {MONO_FONT};
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: {t["muted"]};
+}}
+{_PROSE} {{ max-width: 72ch; }}
 [data-testid="stSidebarNav"] span {{ font-size: 12px; color: {t["ink"]}; }}
-[data-testid="stSidebarNav"] a[aria-current="page"] span {{ color: {t["accent"]}; }}
+/* Active page: ink, heavier weight and a rule-toned pill; vermilion stays
+   on the selection, the slider and primary actions. */
+[data-testid="stSidebarNav"] a[aria-current="page"] {{
+  background: {t["rule"]};
+  border-radius: 2px;
+}}
+[data-testid="stSidebarNav"] a[aria-current="page"] span {{
+  color: {t["ink"]};
+  font-weight: 600;
+}}
 [data-testid="stMetricValue"] {{
   font-family: {DISPLAY_FONT};
   font-weight: 800;
@@ -144,14 +186,37 @@ hr {{ border: none; border-top: 1px solid {t["rule"]}; }}
   border-color: {t["accent"]};
   color: #FFFFFF;
 }}
+/* Toggle: ink track when on, ground knob, so the Dark switch never borrows
+   the accent from config.toml's primaryColor. */
+[data-baseweb="checkbox"]:has(input[aria-checked="true"]) > div:first-child {{
+  background: {t["ink"]};
+}}
+[data-baseweb="checkbox"]:has(input[aria-checked="true"]) > div:first-child > div {{
+  background: {t["ground"]};
+}}
 [data-testid="stSlider"] [role="slider"] {{
   background: {t["accent"]};
   box-shadow: none;
 }}
+/* The value reads like the specimen's tick readout: mono ink, not a
+   floating vermilion number; the accent stays on the track and thumb. */
+.stApp [data-testid="stSliderThumbValue"] {{
+  font-family: {MONO_FONT};
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: {t["ink"]};
+}}
+.stApp [data-testid="stSliderTickBar"] span {{
+  font-family: {MONO_FONT};
+  font-size: 11px;
+  color: {t["muted"]};
+}}
 
 [data-testid="stHeader"] button,
-[data-testid="stSidebarCollapsedControl"] button,
-[data-testid="stSidebarCollapseButton"] button {{
+[data-testid="stExpandSidebarButton"],
+[data-testid="stExpandSidebarButton"] [data-testid="stIconMaterial"],
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebarCollapseButton"] [data-testid="stIconMaterial"] {{
   color: {t["ink"]};
 }}
 

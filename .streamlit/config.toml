@@ -5,6 +5,7 @@ backgroundColor = "#FBFBFA"
 secondaryBackgroundColor = "#F0F0EE"
 textColor = "#111111"
 font = "sans serif"
+headingFont = "Archivo:https://fonts.googleapis.com/css2?family=Archivo:wght@400;800&display=swap"
 
 [server]
 headless = true
