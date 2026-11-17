@@ -101,6 +101,44 @@ hr {{ border: none; border-top: 1px solid {t["rule"]}; }}
   border-radius: 2px;
   box-shadow: none;
 }}
+/* Streamlit's own theme is light; give native widgets the active ground and
+   ink so the Dark toggle never leaves a pale field with pale text. */
+[data-baseweb="input"], [data-baseweb="input"] > div,
+[data-baseweb="textarea"], [data-baseweb="select"] > div,
+[data-testid="stNumberInputContainer"] {{
+  background: {t["ground"]};
+  color: {t["ink"]};
+}}
+[data-baseweb="input"] input, [data-baseweb="textarea"] textarea,
+[data-baseweb="select"] input, [data-baseweb="select"] div {{
+  color: {t["ink"]};
+}}
+[data-testid="stNumberInput"] button {{
+  background: {t["ground"]};
+  color: {t["ink"]};
+}}
+[data-baseweb="popover"] [data-baseweb="menu"], [data-baseweb="popover"] ul {{
+  background: {t["ground"]};
+  color: {t["ink"]};
+}}
+[data-baseweb="popover"] li, [data-baseweb="popover"] li * {{
+  color: {t["ink"]};
+}}
+[data-baseweb="select"] svg, [data-testid="stNumberInput"] svg {{
+  fill: {t["ink"]};
+  color: {t["ink"]};
+}}
+[data-baseweb="popover"] li:hover, [data-baseweb="popover"] li[aria-selected="true"] {{
+  background: {t["rule"]};
+}}
+.stButton button, .stDownloadButton button {{
+  background: {t["ground"]};
+  color: {t["ink"]};
+}}
+[data-baseweb="checkbox"] > span, [data-baseweb="radio"] > div:first-child {{
+  border-color: {t["ink"]};
+}}
+.stButton button[kind="primary"] p {{ color: #FFFFFF; }}
 .stButton button[kind="primary"] {{
   background: {t["accent"]};
   border-color: {t["accent"]};
@@ -118,7 +156,10 @@ hr {{ border: none; border-top: 1px solid {t["rule"]}; }}
 }}
 
 ::selection {{ background: {t["ink"]}; color: {t["ground"]}; }}
-a {{ color: {t["ink"]}; text-underline-offset: 3px; }}
+a, .stApp [data-testid="stMarkdownContainer"] a {{
+  color: {t["ink"]};
+  text-underline-offset: 3px;
+}}
 
 footer, #MainMenu, [data-testid="stMainMenu"], [data-testid="stDecoration"] {{
   display: none;
