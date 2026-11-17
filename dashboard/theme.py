@@ -109,6 +109,8 @@ def css(theme: str) -> str:
   letter-spacing: 0;
   text-transform: none;
   color: {t["muted"]};
+  opacity: 1;  /* Streamlit fades captions to 0.6, under AA */
+  max-width: 80ch;
 }}
 {_PROSE} {{ max-width: 72ch; }}
 [data-testid="stSidebarNav"] span {{ font-size: 12px; color: {t["ink"]}; }}

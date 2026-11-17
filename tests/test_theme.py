@@ -147,6 +147,8 @@ def test_captions_are_not_uppercased(theme):
     for sel, body in _rules(theme):
         if "stCaptionContainer" in sel:
             assert "uppercase" not in body, sel
+            # Streamlit's own 0.6 opacity would take muted text under 4.5:1.
+            assert "opacity: 1" in body, sel
 
 
 @pytest.mark.parametrize("theme", THEMES)
