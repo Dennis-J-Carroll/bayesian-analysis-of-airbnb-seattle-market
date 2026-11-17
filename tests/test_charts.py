@@ -162,3 +162,10 @@ def test_forest_range_holds_every_interval_and_no_title(nb, theme):
     assert fig.layout.title.text == ""
     rows = {s.y0 for s in fig.layout.shapes if isinstance(s.y0, str)}
     assert len(rows) == 88  # one interval line per neighborhood row
+
+
+def test_forest_y_range_has_no_dead_band(nb):
+    ns = nb["neighborhoods"]
+    fig = charts.forest_plot(ns, 4, "Broadway", "light", 150.0)
+    assert list(fig.layout.yaxis.range) == [-0.5, len(ns) - 0.5]
+    assert fig.layout.height == 17 * len(ns)

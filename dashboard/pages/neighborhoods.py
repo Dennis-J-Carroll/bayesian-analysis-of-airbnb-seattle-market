@@ -129,12 +129,12 @@ def render() -> None:
         "line is the city."
     )
     st.plotly_chart(
-        forest_plot(nbhds, guests, selected, theme, city),
+        forest_plot(nbhds, guests, selected, theme, city_median=city),
         use_container_width=True,
         config=CHART_CONFIG,
     )
 
     st.subheader("Raw medians against the model")
-    fig = shrinkage_plot(nbhds, guests, theme, city)
+    fig = shrinkage_plot(nbhds, guests, theme, city_median=city)
     st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG)
     st.caption(_shrinkage_caption(art, guests, fig.layout.meta["omitted"]))

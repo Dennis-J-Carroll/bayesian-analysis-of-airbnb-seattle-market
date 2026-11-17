@@ -19,7 +19,7 @@ from dashboard.theme import MONO_FONT, TOKENS, plotly_template
 
 SPARSE_BELOW = 10
 _MONO = MONO_FONT.replace("'", "")
-_PRICE_TICKS = [25, 50, 100, 200, 400, 800, 1600]
+_PRICE_TICKS = [25, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600]
 
 
 def _money(v: float) -> str:
@@ -120,7 +120,7 @@ def forest_plot(
 
     if city_median is not None:
         fig.add_vline(x=city_median, line=dict(color=t["muted"], width=1))
-    _base(fig, theme, max(360, 17 * len(rows) + 60))
+    _base(fig, theme, 17 * len(rows))
     # Shapes do not count toward autorange, so pad the range to hold every interval.
     lo_all = min(n["typical"]["lo"][i] for n in rows)
     hi_all = max(n["typical"]["hi"][i] for n in rows)
@@ -136,6 +136,7 @@ def forest_plot(
         type="category",
         categoryorder="array",
         categoryarray=names,
+        range=[-0.5, len(rows) - 0.5],  # first category is at the bottom
         tickfont=dict(family=_MONO, size=11, color=t["ink"]),
     )
     return fig
