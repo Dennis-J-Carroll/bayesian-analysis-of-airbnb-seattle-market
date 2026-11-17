@@ -25,13 +25,42 @@ def hyper():
 
 
 @pytest.fixture(scope="module")
+def curves():
+    return json.loads((ART / "curves.json").read_text())
+
+
+def _nb(nb, name):
+    return next(n for n in nb["neighborhoods"] if n["name"] == name)
+
+
+def _lead(nb, curves, name, guests, prices, theme="light"):
+    n = _nb(nb, name)
+    return charts.neighborhood_lead(
+        n,
+        curves["density"][n["index"]][guests - 1],
+        curves["grid"],
+        prices,
+        guests,
+        theme,
+        city_median=nb["city"]["typical"]["median"][guests - 1],
+    )
+
+
+@pytest.fixture(scope="module")
 def diag():
     return json.loads((ART / "diagnostics.json").read_text())
 
 
 def _all_figures(nb, hyper, diag, theme, guests=4):
     ns = nb["neighborhoods"]
+    curves = json.loads((ART / "curves.json").read_text())
     return {
+        "lead": _lead(
+            nb, curves, "Broadway", guests, pd.Series([90.0, 150.0, np.nan]), theme
+        ),
+        "lead_empty": _lead(
+            nb, curves, "Industrial District", guests, pd.Series([], dtype=float), theme
+        ),
         "forest": charts.forest_plot(ns, guests, "Broadway", theme, 150.0),
         "shrinkage": charts.shrinkage_plot(ns, guests, theme, 150.0),
         "price": charts.price_histogram(
@@ -199,3 +228,44 @@ def test_forest_y_range_has_no_dead_band(nb):
     fig = charts.forest_plot(ns, 4, "Broadway", "light", 150.0)
     assert list(fig.layout.yaxis.range) == [-0.5, len(ns) - 0.5]
     assert fig.layout.height == 17 * len(ns)
+
+
+def _named(fig, name):
+    return [t for t in fig.data if t.name == name]
+
+
+def test_lead_curve_is_ink_with_predictive_band(nb, curves):
+    fig = _lead(nb, curves, "Broadway", 2, pd.Series([100.0, 160.0, 200.0]))
+    ink = TOKENS["light"]["ink"]
+    (curve,) = _named(fig, "curve")
+    assert curve.line.color == ink and curve.line.dash in (None, "solid")
+    assert max(curve.y) == pytest.approx(1.0)  # per-log density, peak 1
+    (band,) = _named(fig, "band")
+    q = _nb(nb, "Broadway")["predictive"]
+    assert band.x[0] == pytest.approx(q["q03"][1])
+    assert band.x[-1] == pytest.approx(q["q97"][1])
+    assert band.fill == "tozeroy"
+    accent = TOKENS["light"]["accent"]
+    assert accent not in json.dumps(fig.to_plotly_json(), default=str)
+
+
+def test_lead_raw_prices_are_a_step_outline_of_every_listing(nb, curves):
+    prices = pd.Series([12.0, 100.0, 160.0, 161.0, 990.0])
+    fig = _lead(nb, curves, "Broadway", 2, prices)
+    (step,) = _named(fig, "listings")
+    assert step.line.shape == "hv"
+    counts = [c[0] for c in step.customdata[1:-2]]
+    assert sum(counts) == 5
+    assert max(step.y) == pytest.approx(1.0)
+    (dot,) = _named(fig, "raw median")
+    assert list(dot.x) == [
+        pytest.approx(_nb(nb, "Broadway")["raw_median_by_guests"]["2"])
+    ]
+    assert dot.marker.color == TOKENS["light"]["ground"]
+
+
+def test_lead_sparse_curve_is_dashed_and_empty_size_has_no_marks(nb, curves):
+    fig = _lead(nb, curves, "Industrial District", 5, pd.Series([], dtype=float))
+    (curve,) = _named(fig, "curve")
+    assert curve.line.dash == "dash"
+    assert not _named(fig, "listings") and not _named(fig, "raw median")

@@ -1,6 +1,9 @@
-"""Mono readouts on the Live Specimen look: tracked uppercase label, Archivo
-display numeral, a hairline rule above. Shared by pages that need a row of
-numbers; Streamlit's metric tiles are not used."""
+"""Mono readouts on the Live Specimen look.
+
+`readout_html` is a row of tracked uppercase labels over Archivo display
+numerals, a hairline rule above each. `readout_line` folds a few numbers into
+one mono line under an ink rule, for pages whose lead is a chart, not tiles.
+Streamlit's metric tiles are not used."""
 
 import html
 from dataclasses import dataclass
@@ -47,3 +50,41 @@ def readout_html(items: list[Readout], theme: str) -> str:
 
 def render_readouts(items: list[Readout], theme: str) -> None:
     st.markdown(readout_html(items, theme), unsafe_allow_html=True)
+
+
+@dataclass(frozen=True)
+class Fact:
+    """One clause of a readout line: `before` VALUE `after`."""
+
+    value: str
+    before: str = ""
+    after: str = ""
+    key: str = ""  # CSS class on the value, so tests and CSS can find it
+
+
+def readout_line_html(facts: list[Fact], theme: str) -> str:
+    """One mono line of facts; values in ink, words in muted. A div, not a
+    paragraph, so the prose measure does not wrap it early."""
+    t = TOKENS[theme]
+    css = (
+        f".rl{{display:flex;flex-wrap:wrap;gap:4px 28px;margin:2px 0 4px;"
+        f"padding-top:10px;border-top:1px solid {t['ink']};font-family:{MONO_FONT};"
+        f"font-size:13px;line-height:1.5;color:{t['muted']};font-variant-numeric:tabular-nums;}}"
+        f".rl b{{font-weight:600;color:{t['ink']};}}"
+    )
+
+    def clause(f: Fact) -> str:
+        before = f"{html.escape(f.before)} " if f.before else ""
+        after = f" {html.escape(f.after)}" if f.after else ""
+        return (
+            f'<span>{before}<b class="{html.escape(f.key)}">{html.escape(f.value)}</b>'
+            f"{after}</span>"
+        )
+
+    return (
+        f'<style>{css}</style><div class="rl">{"".join(clause(f) for f in facts)}</div>'
+    )
+
+
+def render_readout_line(facts: list[Fact], theme: str) -> None:
+    st.markdown(readout_line_html(facts, theme), unsafe_allow_html=True)

@@ -16,6 +16,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from dashboard.components.specimen import _per_log  # R17: one definition
 from dashboard.theme import MONO_FONT, TOKENS, plotly_template
 
 SPARSE_BELOW = 10
@@ -441,3 +442,138 @@ def _rgba(hex_color: str, alpha: float) -> str:
     h = hex_color.lstrip("#")
     r, g, b = (int(h[k : k + 2], 16) for k in (0, 2, 4))
     return f"rgba({r},{g},{b},{alpha})"
+
+
+# Raw listing prices are binned on the same log axis as the curve: 16 bins a
+# decade from $10 (the training floor) to $1,000 (the ceiling).
+_LEAD_EDGES = np.geomspace(10, 1000, 33)
+_LEAD_TICKS = [10, 20, 50, 100, 200, 500, 1000]
+
+
+def neighborhood_lead(
+    nbhd: dict,
+    density_row: list,
+    grid: list,
+    prices: pd.Series,
+    guests: int,
+    theme: str,
+    city_median: float | None = None,
+) -> go.Figure:
+    """One neighborhood at `guests`, drawn the way a specimen cell is.
+
+    The ink curve is the predictive density of one listing per log-dollar
+    (R17), peak 1, with its 94% band filled beneath it; dashed and thinner
+    when the neighborhood has fewer than 10 listings. The listings that
+    actually sleep `guests` are a muted step outline on the same log bins,
+    scaled to the same peak, with a hollow dot at their raw median on the
+    baseline. A muted vertical marks the city's typical price.
+    """
+    t = TOKENS[theme]
+    i = guests - 1
+    xs = [float(x) for x in grid]
+    ys = [float(y) for y in _per_log(density_row, xs)]
+    sparse = nbhd["n_listings"] < SPARSE_BELOW
+    lo, hi = nbhd["predictive"]["q03"][i], nbhd["predictive"]["q97"][i]
+    fig = go.Figure()
+
+    # 94% band: the curve between lo and hi, interpolated at both ends.
+    log_x = np.log(xs)
+    inner = [(x, y) for x, y in zip(xs, ys) if lo < x < hi]
+    band_x = [lo, *(x for x, _ in inner), hi]
+    band_y = [
+        float(np.interp(math.log(lo), log_x, ys)),
+        *(y for _, y in inner),
+        float(np.interp(math.log(hi), log_x, ys)),
+    ]
+    fig.add_trace(
+        go.Scatter(
+            x=band_x,
+            y=band_y,
+            name="band",
+            mode="lines",
+            line=dict(width=0),
+            fill="tozeroy",
+            fillcolor=_rgba(t["ink"], 0.1),
+            hoverinfo="skip",
+        )
+    )
+
+    values = pd.to_numeric(prices, errors="coerce").dropna().to_numpy(dtype=float)
+    if values.size:
+        counts, edges = np.histogram(values, bins=_LEAD_EDGES)
+        top = float(counts.max())
+        x, y = _step(edges, counts / top)
+        _, raw_counts = _step(edges, counts)
+        fig.add_trace(
+            go.Scatter(
+                x=x,
+                y=y,
+                name="listings",
+                mode="lines",
+                line=dict(color=t["muted"], width=1, shape="hv"),
+                customdata=[[int(c)] for c in raw_counts],
+                hovertemplate="from $%{x:,.0f}<br>%{customdata[0]} listings"
+                "<extra></extra>",
+            )
+        )
+
+    fig.add_trace(
+        go.Scatter(
+            x=xs,
+            y=ys,
+            name="curve",
+            mode="lines",
+            line=dict(
+                color=t["ink"],
+                width=1 if sparse else 1.5,
+                dash="dash" if sparse else "solid",
+            ),
+            hoverinfo="skip",
+        )
+    )
+
+    if city_median is not None:
+        _line(fig, city_median, 0, city_median, 1.06, t["muted"], xref="x", yref="y")
+        fig.add_annotation(
+            x=math.log10(city_median),
+            y=1.06,
+            xref="x",
+            yref="y",
+            text=f"city {_money(city_median)}",
+            showarrow=False,
+            xanchor="right",
+            yanchor="bottom",
+            font=dict(family=_MONO, size=11, color=t["muted"]),
+        )
+
+    raw = nbhd["raw_median_by_guests"].get(str(guests))
+    if raw is not None and values.size:
+        fig.add_trace(
+            go.Scatter(
+                x=[float(raw)],
+                y=[0.0],
+                name="raw median",
+                mode="markers",
+                marker=dict(
+                    color=t["ground"], size=9, line=dict(color=t["ink"], width=1.25)
+                ),
+                cliponaxis=False,
+                hovertemplate="raw median $%{x:,.0f}<extra></extra>",
+            )
+        )
+
+    _base(fig, theme, 280)
+    fig.update_xaxes(
+        type="log",
+        range=[1.0, 3.0],
+        tickvals=_LEAD_TICKS,
+        ticktext=[_money(v) for v in _LEAD_TICKS],
+        showline=True,
+        linecolor=t["ink"],
+        linewidth=1,
+        title_text=f"Nightly price at {guests} guests, log scale",
+        title_font=dict(family=_MONO, size=11, color=t["muted"]),
+    )
+    fig.update_yaxes(visible=False, range=[-0.06, 1.12])
+    fig.update_layout(margin=dict(l=8, r=8, t=8, b=8), hovermode="closest")
+    return fig

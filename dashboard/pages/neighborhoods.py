@@ -1,10 +1,11 @@
-"""Neighborhoods: 88 estimates with intervals, and how pooling moves them."""
+"""Neighborhoods: the selected neighborhood drawn as a specimen, then all 88
+estimates with intervals, and how pooling moves them."""
 
 import pandas as pd
 import streamlit as st
 
-from dashboard.components.charts import forest_plot, price_histogram, shrinkage_plot
-from dashboard.components.readouts import MISSING, Readout, render_readouts
+from dashboard.components.charts import forest_plot, neighborhood_lead, shrinkage_plot
+from dashboard.components.readouts import MISSING, Fact, render_readout_line
 from dashboard.utils.artifacts import load_artifacts, neighborhood_by_name
 from dashboard.utils.data_loader import load_listings
 from dashboard.utils.session_manager import AppState
@@ -16,9 +17,12 @@ SHOWCASE = "Holly Park"  # two listings: the clearest case of pooling
 
 
 @st.cache_data(show_spinner=False)
-def _prices(name: str) -> pd.Series:
+def _prices(name: str, guests: int) -> pd.Series:
+    """Cleaned nightly prices of the listings in `name` that sleep `guests`:
+    the same rows behind the artifact's raw_median_by_guests."""
     df = load_listings()
-    return df.loc[df["neighbourhood_cleansed"] == name, "price"].reset_index(drop=True)
+    rows = (df["neighbourhood_cleansed"] == name) & (df["accommodates"] == guests)
+    return df.loc[rows, "price"].reset_index(drop=True)
 
 
 def _money(v: float | None) -> str:
@@ -81,45 +85,66 @@ def render() -> None:
     n = neighborhood_by_name(art, selected)
     city = art.neighborhoods["city"]["typical"]["median"][i]
     typ = n["typical"]
+    pred = n["predictive"]
     raw = n["raw_median_by_guests"].get(str(guests))
 
     st.subheader(selected)
-    render_readouts(
+    render_readout_line(
         [
-            Readout("Listings", f"{n['n_listings']:,}", "after cleaning", "listings"),
-            Readout(
-                "Typical price",
+            Fact(f"{n['n_listings']:,}", after="listings", key="listings"),
+            Fact(
                 _money(typ["median"][i]),
-                f"94% range {_money(typ['lo'][i])} to {_money(typ['hi'][i])}",
-                "typical-price",
+                before="typical",
+                after=f"(94% {_money(typ['lo'][i])}–{_money(typ['hi'][i])})",
+                key="typical-price",
+            ),
+            Fact(
+                f"{_money(pred['q03'][i])}–{_money(pred['q97'][i])}",
+                before="one listing",
+                key="predictive",
             ),
             (
-                Readout("Raw median", _money(raw), f"{guests} guests", "raw-median")
+                Fact(
+                    _money(raw),
+                    before="raw median",
+                    key="raw-median",
+                )
                 if raw is not None
-                else Readout(
-                    "Raw median",
+                else Fact(
                     "no listings at this size",
-                    f"{guests} guests",
-                    "raw-median",
-                    quiet=True,
+                    before="raw median:",
+                    key="raw-median",
                 )
             ),
-            Readout(
-                "Vs city",
+            Fact(
                 f"{typ['median'][i] / city:.2f}x",
-                f"city typical {_money(city)}",
-                "premium",
+                after=f"city ({_money(city)})",
+                key="premium",
             ),
         ],
         theme,
     )
-
-    prices = _prices(selected)
     st.plotly_chart(
-        price_histogram(prices, theme, "Nightly price, all sizes"),
+        neighborhood_lead(
+            n,
+            art.curves["density"][n["index"]][i],
+            art.curves["grid"],
+            _prices(selected, guests),
+            guests,
+            theme,
+            city_median=city,
+        ),
         use_container_width=True,
         config=CHART_CONFIG,
         theme=None,
+        key="nbhd_lead",
+    )
+    st.caption(
+        "The curve is the model's price for one listing of this size, its "
+        "shaded part the 94% range; dashed when the neighborhood has fewer "
+        "than 10 listings. The stepped outline is the listings that sleep "
+        "this many guests, the hollow dot their raw median, the vertical "
+        "line the city's typical price."
     )
 
     st.subheader(f"Typical price at {guests} guests, all {len(nbhds)} neighborhoods")

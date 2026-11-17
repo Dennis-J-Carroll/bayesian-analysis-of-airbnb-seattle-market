@@ -102,3 +102,28 @@ def test_holly_park_without_raw_median_omits_raw_number():
     text = _text(at)
     assert "Holly Park" in text
     assert "None" not in text and "nan" not in text.lower().replace("neighborhood", "")
+
+
+def test_lead_is_the_selected_curve_not_a_tile_row():
+    at = _run()
+    text = _text(at)
+    assert "rd-row" not in text  # no KPI tile row
+    first = at.get("plotly_chart")[0]
+    import json as _json
+
+    fig = _json.loads(first.proto.spec)
+    names = [t.get("name") for t in fig["data"]]
+    assert {"curve", "band", "listings", "raw median"} <= set(names)
+
+
+def test_readout_line_carries_listings_median_and_ratio_from_artifacts():
+    at = _run(guests=4)
+    art = load_artifacts()
+    b = neighborhood_by_name(art, "Broadway")
+    city = art.neighborhoods["city"]["typical"]["median"][3]
+    text = _text(at)
+    assert f">{b['n_listings']}<" in text
+    assert f"raw-median\">${b['raw_median_by_guests']['4']:,.0f}<" in text
+    assert f"{b['typical']['median'][3] / city:.2f}x" in text
+    lo, hi = b["predictive"]["q03"][3], b["predictive"]["q97"][3]
+    assert f"${lo:,.0f}" in text and f"${hi:,.0f}" in text
