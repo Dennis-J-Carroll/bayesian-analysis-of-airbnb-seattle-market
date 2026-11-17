@@ -1,0 +1,11 @@
+id,price,accommodates,neighbourhood_cleansed
+1,"$1,234.00",2,Zeta Hood
+2,$45.00,2,Zeta Hood
+3,,2,Alpha Hood
+4,$9.00,2,Alpha Hood
+5,"$50,000.00",4,Alpha Hood
+6,$120.00,4,
+7,$80.00,3,Alpha Hood
+8,$200.00,,Zeta Hood
+9,$300.00,6,Zeta Hood
+10,"$1,000.00",2,Alpha Hood
