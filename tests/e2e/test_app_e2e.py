@@ -211,11 +211,6 @@ def test_dark_toggle_switches_component(page, app_url):
     assert seen == rgb(TOKENS["dark"]["ground"])
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Streamlit 1.38 sends page_not_found to the first session of a fresh "
-    "server (PagesManager starts on the V1 strategy) — see task-11-report",
-)
 def test_cold_deep_link_has_no_page_not_found(browser, cold_app_url):
     ctx = browser.new_context(viewport={"width": 1440, "height": 900})
     try:
