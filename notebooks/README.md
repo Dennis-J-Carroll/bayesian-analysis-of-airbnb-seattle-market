@@ -65,11 +65,7 @@ This directory contains comprehensive Jupyter notebooks documenting the complete
 - Business-relevant prediction examples
 - Final validation report
 
-**Key Results:**
-- R² ≈ 0.48 (explains 48% of price variation)
-- RMSE ≈ $101, MAE ≈ $63
-- Well-calibrated uncertainty (90% CI coverage ≈ 90%) ✓
-- Production-ready for deployment ✓
+**Note:** These notebooks are exploratory. Their metrics are not the numbers shown in the app or the top-level README, which come from `outputs/app_artifacts/`.
 
 ---
 
