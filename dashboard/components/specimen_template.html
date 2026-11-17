@@ -416,8 +416,9 @@ __CELLS__
     if (!el) return;
     var top = el.offsetTop - grid.offsetTop;
     var bottom = top + el.offsetHeight;
-    if (top < grid.scrollTop) grid.scrollTop = top;
-    else if (bottom > grid.scrollTop + grid.clientHeight) grid.scrollTop = bottom - grid.clientHeight + 8;
+    // Out of view: bring its row to the top of the grid, where it lands
+    // inside the host page's first viewport rather than at the iframe's foot.
+    if (top < grid.scrollTop || bottom > grid.scrollTop + grid.clientHeight) grid.scrollTop = top;
   }
 
   function setGuests(v) {
@@ -425,6 +426,7 @@ __CELLS__
     if (Number.isNaN(g) || g === state.guests) return;
     state.guests = Math.min(Math.max(g, gMin), gMax);
     render();
+    revealSelected();
   }
   function setSelected(name) {
     if (!cellsByName[name] || name === state.selected) return;

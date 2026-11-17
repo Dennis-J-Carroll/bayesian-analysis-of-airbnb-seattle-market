@@ -65,10 +65,11 @@ def css(theme: str) -> str:
   color: {t["ink"]};
   letter-spacing: -0.02em;
 }}
-h1 {{ font-weight: 800; letter-spacing: -0.03em; }}
+h1 {{ font-weight: 800; }}
 
 {_BODY} {{
   font-family: {MONO_FONT};
+  color: {t["ink"]};
 }}
 {_SMALL_LABELS} {{
   font-family: {MONO_FONT};
@@ -87,8 +88,7 @@ h1 {{ font-weight: 800; letter-spacing: -0.03em; }}
 }}
 
 hr {{ border: none; border-top: 1px solid {t["rule"]}; }}
-[data-testid="stExpander"] details,
-[data-testid="stVerticalBlockBorderWrapper"] {{
+[data-testid="stExpander"] details {{
   border: 1px solid {t["rule"]};
   border-radius: 2px;
   box-shadow: none;
@@ -111,10 +111,18 @@ hr {{ border: none; border-top: 1px solid {t["rule"]}; }}
   box-shadow: none;
 }}
 
+[data-testid="stHeader"] button,
+[data-testid="stSidebarCollapsedControl"] button,
+[data-testid="stSidebarCollapseButton"] button {{
+  color: {t["ink"]};
+}}
+
 ::selection {{ background: {t["ink"]}; color: {t["ground"]}; }}
 a {{ color: {t["ink"]}; text-underline-offset: 3px; }}
 
-footer, #MainMenu, [data-testid="stMainMenu"] {{ display: none; }}
+footer, #MainMenu, [data-testid="stMainMenu"], [data-testid="stDecoration"] {{
+  display: none;
+}}
 """
 
 

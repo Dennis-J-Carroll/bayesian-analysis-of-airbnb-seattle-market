@@ -56,6 +56,22 @@ def test_css_keeps_header_and_hides_footer(theme):
     assert not any("stHeader" in sel or "header" in sel.split(",") for sel in hidden)
 
 
+@pytest.mark.parametrize("theme", THEMES)
+def test_css_does_not_box_every_block(theme):
+    # Streamlit 1.38 wraps every vertical block in this element, bordered or not.
+    assert "stVerticalBlockBorderWrapper" not in css(theme)
+
+
+@pytest.mark.parametrize("theme", THEMES)
+def test_css_sets_ink_on_body_text_and_header_controls(theme):
+    # config.toml is light; without these, dark text and icons are ink on ink.
+    rules = re.findall(r"([^{}]+)\{([^{}]*)\}", css(theme))
+    ink = TOKENS[theme]["ink"]
+    inked = " ".join(sel for sel, body in rules if f"color: {ink}" in body)
+    for selector in ("p", ".stMarkdown", '[data-testid="stHeader"] button'):
+        assert selector in inked, selector
+
+
 def test_dark_tokens_differ():
     assert TOKENS["dark"]["ground"] != TOKENS["light"]["ground"]
     assert TOKENS["dark"]["ink"] != TOKENS["light"]["ink"]
