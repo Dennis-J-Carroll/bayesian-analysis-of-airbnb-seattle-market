@@ -86,12 +86,13 @@ def render() -> None:
             rank_plot(d["rank"][name], name, theme),
             use_container_width=True,
             config=CHART_CONFIG,
+            theme=None,
             key=f"rank_{name}",
         )
 
     st.subheader("Does the model reproduce the data?")
     fig = ppc_plot(d["ppc"], theme)
-    st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG)
+    st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG, theme=None)
     st.caption(
         "Posterior predictive check: bars are the observed price counts, the "
         "band is where simulated listings from the fitted model land (94%). "

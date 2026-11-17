@@ -118,20 +118,40 @@ def test_no_nan_in_figure_data(nb, hyper, diag, theme):
                     assert np.isfinite(v), name
 
 
-def test_hyper_hist_uniform_bar_width(hyper):
+def _is_step(trace):
+    return trace.type == "scatter" and trace.line.shape == "hv"
+
+
+def test_hyper_hist_is_uniform_step_outline(hyper):
     s = hyper["mu_alpha"]
     fig = charts.hyper_hist(s, "mu_alpha", "light")
-    bar = fig.data[0]
+    step = fig.data[0]
+    assert _is_step(step) and step.fill in (None, "none")
     n = len(s["hist"]["counts"])
     width = (s["hist"]["edges"][-1] - s["hist"]["edges"][0]) / n
-    assert bar.width == pytest.approx(width)
-    centers = s["hist"]["edges"][0] + width * (np.arange(n) + 0.5)
-    assert np.allclose(bar.x, centers)
+    edges = s["hist"]["edges"][0] + width * np.arange(n + 1)
+    assert np.allclose(step.x[1:-1], edges)  # uniform, despite rounded edges
+    assert list(step.y[1:-2]) == list(s["hist"]["counts"])
+
+
+@pytest.mark.parametrize("theme", THEMES)
+def test_histograms_are_ink_outlines_not_gray_fills(nb, hyper, diag, theme):
+    ink = TOKENS[theme]["ink"]
+    for name, fig in _all_figures(nb, hyper, diag, theme).items():
+        assert not [t for t in fig.data if t.type == "bar"], name
+    for name in ("price", "hyper", "rank", "ppc"):
+        fig = _all_figures(nb, hyper, diag, theme)[name]
+        steps = [t for t in fig.data if _is_step(t)]
+        assert steps and all(t.line.color == ink for t in steps), name
 
 
 def test_rank_plot_one_panel_per_chain(diag):
     fig = charts.rank_plot(diag["rank"]["mu_beta"], "mu_beta", "light")
-    assert len([t for t in fig.data if t.type == "bar"]) == 4
+    steps = [t for t in fig.data if _is_step(t)]
+    assert len(steps) == 4
+    assert [list(t.y[1:-2]) for t in steps] == [
+        list(r) for r in diag["rank"]["mu_beta"]
+    ]
 
 
 def test_rank_plot_annotation_uses_actual_bin_count(diag):
@@ -153,10 +173,13 @@ def test_ppc_notes_mass_outside_range(diag):
 def test_price_histogram_spans_zero_to_1000_and_counts_all_in_range():
     prices = pd.Series([0.0, 10.0, 24.9, 25.0, 999.0, 1000.0, 50.0, np.nan])
     fig = charts.price_histogram(prices, "light", "Price")
-    bar = fig.data[0]
-    assert bar.x[0] == 12.5 and bar.x[-1] == 987.5  # bins tile $0 to $1,000
-    assert len(bar.x) == 40
-    assert sum(bar.y) == 7  # every in-range price counted once, NaN dropped
+    step = fig.data[0]
+    assert _is_step(step) and step.fill in (None, "none")
+    assert step.x[0] == 0 and step.x[-1] == 1000  # bins tile $0 to $1,000
+    counts = list(step.y[1:-2])
+    assert len(counts) == 40
+    assert sum(counts) == 7  # every in-range price counted once, NaN dropped
+    assert step.y[0] == 0 and step.y[-1] == 0  # outline closes on the baseline
 
 
 @pytest.mark.parametrize("theme", THEMES)

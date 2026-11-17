@@ -95,3 +95,42 @@ def test_predict_page_renders_component_and_explainer():
     assert "partial pooling" in text
     # Counts come from the artifacts: 4 chains x 2,000 draws, 1,000-draw sample.
     assert "8,000" in text and "1,000" in text
+
+
+def _named_page(module_name):
+    import importlib
+
+    from dashboard.theme import apply_theme
+    from dashboard.utils.session_manager import AppState
+
+    AppState.init()
+    apply_theme(AppState.theme())
+    importlib.import_module(f"dashboard.pages.{module_name}").render()
+
+
+@pytest.mark.parametrize("module_name", ["neighborhoods", "model", "diagnostics"])
+def test_plotly_charts_keep_their_own_template(module_name):
+    # theme="streamlit" overrides plotly_template (gray #808495 axis titles).
+    at = AppTest.from_function(_named_page, args=(module_name,), default_timeout=60)
+    at.run()
+    assert not at.exception, at.exception
+    charts = at.get("plotly_chart")
+    assert charts, module_name
+    assert all(c.proto.theme == "" for c in charts), [c.proto.theme for c in charts]
+
+
+def test_every_plotly_chart_call_passes_theme_none():
+    # Covers charts AppTest cannot reach, such as the upload histogram.
+    from pathlib import Path
+
+    pages = Path(__file__).resolve().parents[1] / "dashboard" / "pages"
+    for path in pages.glob("*.py"):
+        text = path.read_text()
+        calls = text.split("st.plotly_chart(")[1:]
+        for call in calls:
+            depth, end = 1, 0
+            for end, ch in enumerate(call):
+                depth += {"(": 1, ")": -1}.get(ch, 0)
+                if depth == 0:
+                    break
+            assert "theme=None" in call[:end], f"{path.name}: {call[:end]}"

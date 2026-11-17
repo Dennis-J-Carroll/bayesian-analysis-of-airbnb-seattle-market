@@ -2,7 +2,8 @@
 
 Marks match the Predict page: ink hairline curves, a light ink fill for 94%
 bands, dashed strokes where a neighborhood has fewer than 10 listings, hollow
-dots for raw medians, and vermilion only for the selection. Figures carry no
+dots for raw medians, and vermilion only for the selection. Histograms are
+ink step outlines closed on the baseline, never flat gray bars. Figures carry no
 title and no legend unless two series need one; pages supply the headings.
 """
 
@@ -46,6 +47,31 @@ def _base(fig: go.Figure, theme: str, height: int) -> go.Figure:
             automargin=True,
         )
     return fig
+
+
+def _step(edges, counts) -> tuple[list[float], list[float]]:
+    """Outline of a histogram for a `line_shape="hv"` trace.
+
+    Returns x = [e0, e0..en, en] and y = [0, c0..c(n-1), c(n-1), 0]: the
+    outline rises from the baseline at the first edge, steps across every
+    bin and drops back at the last edge. Bin counts are `y[1:-2]`.
+    """
+    edges = [float(e) for e in edges]
+    counts = [float(c) for c in counts]
+    x = [edges[0], *edges, edges[-1]]
+    y = [0.0, *counts, counts[-1], 0.0]
+    return x, y
+
+
+def _step_trace(edges, counts, color: str, width: float = 1, **kw) -> go.Scatter:
+    x, y = _step(edges, counts)
+    return go.Scatter(
+        x=x,
+        y=y,
+        mode="lines",
+        line=dict(color=color, width=width, shape="hv"),
+        **kw,
+    )
 
 
 def _line(fig, x0, y0, x1, y1, color, width=1, dash=None, **kw):
@@ -225,18 +251,12 @@ def price_histogram(prices: pd.Series, theme: str, title: str) -> go.Figure:
     t = TOKENS[theme]
     values = pd.to_numeric(prices, errors="coerce").dropna().to_numpy(dtype=float)
     counts, edges = np.histogram(values, bins=np.arange(0, 1001, 25))
-    centers = (edges[:-1] + edges[1:]) / 2
     fig = go.Figure(
-        go.Bar(
-            x=centers,
-            y=counts,
-            width=float(edges[1] - edges[0]),
-            marker=dict(
-                color=t["ink"],
-                opacity=0.12,
-                line=dict(color=t["ink"], width=1),
-            ),
-            hovertemplate="$%{x:,.0f}<br>%{y:,} listings<extra></extra>",
+        _step_trace(
+            edges,
+            counts,
+            t["ink"],
+            hovertemplate="from $%{x:,.0f}<br>%{y:,} listings<extra></extra>",
         )
     )
     _base(fig, theme, 320)
@@ -246,25 +266,20 @@ def price_histogram(prices: pd.Series, theme: str, title: str) -> go.Figure:
 
 
 def hyper_hist(summary: dict, label: str, theme: str) -> go.Figure:
-    """Posterior histogram of one parameter with its 94% band and mean.
+    """Posterior histogram of one parameter, as an ink step outline, with its
+    94% band and mean.
 
-    Bars sit at bin centers with one width taken from the first and last edge:
-    the stored edges are rounded to 4 decimals and look uneven bin to bin.
+    Steps use uniform edges taken from the first and last stored edge: the
+    stored edges are rounded to 4 decimals and look uneven bin to bin.
     """
     t = TOKENS[theme]
     edges = summary["hist"]["edges"]
     counts = summary["hist"]["counts"]
     n = len(counts)
     width = (edges[-1] - edges[0]) / n
-    centers = [edges[0] + width * (k + 0.5) for k in range(n)]
+    uniform = [edges[0] + width * k for k in range(n + 1)]
     fig = go.Figure(
-        go.Bar(
-            x=centers,
-            y=counts,
-            width=width,
-            marker=dict(color=t["ink"], opacity=0.3, line=dict(width=0)),
-            hovertemplate="%{x:.4f}<extra></extra>",
-        )
+        _step_trace(uniform, counts, t["ink"], hovertemplate="%{x:.4f}<extra></extra>")
     )
     fig.add_vrect(
         x0=summary["lo"],
@@ -284,8 +299,9 @@ def hyper_hist(summary: dict, label: str, theme: str) -> go.Figure:
 
 
 def rank_plot(rank: list[list[int]], label: str, theme: str) -> go.Figure:
-    """Rank histograms, one panel per chain. Flat bars at the dashed expected
-    count mean the chains agree; a tilt or hump signals poor mixing."""
+    """Rank histograms as step outlines, one panel per chain. A flat outline
+    on the dashed expected count means the chains agree; a tilt or hump
+    signals poor mixing."""
     t = TOKENS[theme]
     n_chains = len(rank)
     expected = float(np.mean(rank))
@@ -299,11 +315,11 @@ def rank_plot(rank: list[list[int]], label: str, theme: str) -> go.Figure:
     )
     for c, counts in enumerate(rank, start=1):
         fig.add_trace(
-            go.Bar(
-                x=list(range(len(counts))),
-                y=counts,
-                marker=dict(color=t["ink"], opacity=0.3, line=dict(width=0)),
-                hovertemplate="rank bin %{x}<br>%{y} draws<extra></extra>",
+            _step_trace(
+                [k - 0.5 for k in range(len(counts) + 1)],
+                counts,
+                t["ink"],
+                hovertemplate="%{y} draws<extra></extra>",
             ),
             row=1,
             col=c,
@@ -347,21 +363,10 @@ def ppc_plot(ppc: dict, theme: str) -> go.Figure:
     t = TOKENS[theme]
     edges = np.asarray(ppc["edges"], dtype=float)
     centers = (edges[:-1] + edges[1:]) / 2
-    width = float((edges[-1] - edges[0]) / len(centers))
     observed = np.asarray(ppc["observed"], dtype=float)
     outside = max(0.0, 1 - float(np.sum(ppc["rep_mean"])) / float(observed.sum()))
 
     fig = go.Figure()
-    fig.add_trace(
-        go.Bar(
-            x=centers,
-            y=observed,
-            width=width,
-            name="Observed listings",
-            marker=dict(color=t["ink"], opacity=0.12, line=dict(width=0)),
-            hovertemplate="observed %{y:,.0f}<extra></extra>",
-        )
-    )
     fig.add_trace(
         go.Scatter(
             x=centers,
@@ -389,9 +394,19 @@ def ppc_plot(ppc: dict, theme: str) -> go.Figure:
             x=centers,
             y=ppc["rep_mean"],
             mode="lines",
-            line=dict(color=t["ink"], width=1),
+            line=dict(color=t["muted"], width=1, dash="dot"),
             name="Replicated mean",
             hovertemplate="replicated mean %{y:,.0f}<extra></extra>",
+        )
+    )
+    fig.add_trace(
+        _step_trace(
+            edges,
+            observed,
+            t["ink"],
+            width=1.25,
+            name="Observed listings",
+            hovertemplate="observed %{y:,.0f}<extra></extra>",
         )
     )
     ticks = [10, 25, 50, 100, 200, 400, 800]

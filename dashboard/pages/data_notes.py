@@ -160,6 +160,7 @@ def _upload_section(theme: str) -> None:
         price_histogram(out["prices"], theme, "Your uploaded nightly price"),
         use_container_width=True,
         config=CHART_CONFIG,
+        theme=None,
         key="upload_hist",
     )
     for w in out["warnings"]:

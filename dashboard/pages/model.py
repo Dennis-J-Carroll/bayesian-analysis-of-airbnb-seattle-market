@@ -128,6 +128,7 @@ def render() -> None:
                 hyper_hist(s, label, theme),
                 use_container_width=True,
                 config=CHART_CONFIG,
+                theme=None,
                 key=f"hyper_{key}",
             )
 

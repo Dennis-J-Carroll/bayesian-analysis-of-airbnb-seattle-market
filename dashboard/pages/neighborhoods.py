@@ -119,6 +119,7 @@ def render() -> None:
         price_histogram(prices, theme, "Nightly price, all sizes"),
         use_container_width=True,
         config=CHART_CONFIG,
+        theme=None,
     )
 
     st.subheader(f"Typical price at {guests} guests, all {len(nbhds)} neighborhoods")
@@ -132,9 +133,10 @@ def render() -> None:
         forest_plot(nbhds, guests, selected, theme, city_median=city),
         use_container_width=True,
         config=CHART_CONFIG,
+        theme=None,
     )
 
     st.subheader("Raw medians against the model")
     fig = shrinkage_plot(nbhds, guests, theme, city_median=city)
-    st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG)
+    st.plotly_chart(fig, use_container_width=True, config=CHART_CONFIG, theme=None)
     st.caption(_shrinkage_caption(art, guests, fig.layout.meta["omitted"]))
