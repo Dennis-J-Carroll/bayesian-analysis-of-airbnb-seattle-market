@@ -33,7 +33,7 @@ def _base(fig: go.Figure, theme: str, height: int) -> go.Figure:
         template=plotly_template(theme),
         paper_bgcolor=t["ground"],
         plot_bgcolor=t["ground"],
-        title=None,
+        title=dict(text=""),
         showlegend=False,
         height=height,
         margin=dict(l=8, r=8, t=12, b=8),
@@ -121,8 +121,12 @@ def forest_plot(
     if city_median is not None:
         fig.add_vline(x=city_median, line=dict(color=t["muted"], width=1))
     _base(fig, theme, max(360, 17 * len(rows) + 60))
+    # Shapes do not count toward autorange, so pad the range to hold every interval.
+    lo_all = min(n["typical"]["lo"][i] for n in rows)
+    hi_all = max(n["typical"]["hi"][i] for n in rows)
     fig.update_xaxes(
         type="log",
+        range=[math.log10(lo_all * 0.9), math.log10(hi_all * 1.1)],
         tickvals=_PRICE_TICKS,
         ticktext=[_money(v) for v in _PRICE_TICKS],
         showgrid=True,
@@ -219,7 +223,7 @@ def price_histogram(prices: pd.Series, theme: str, title: str) -> go.Figure:
     """Distribution of nightly prices; `title` labels the x axis, not the figure."""
     t = TOKENS[theme]
     values = pd.to_numeric(prices, errors="coerce").dropna().to_numpy(dtype=float)
-    counts, edges = np.histogram(values, bins=np.arange(0, 1050, 25))
+    counts, edges = np.histogram(values, bins=np.arange(0, 1001, 25))
     centers = (edges[:-1] + edges[1:]) / 2
     fig = go.Figure(
         go.Bar(

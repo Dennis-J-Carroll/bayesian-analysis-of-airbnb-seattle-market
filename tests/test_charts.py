@@ -141,3 +141,24 @@ def test_ppc_notes_mass_outside_range(diag):
     assert outside > 0.005
     assert fig.layout.meta["outside_share"] == pytest.approx(outside)
     assert "outside" in fig.layout.meta["note"]
+
+
+def test_price_histogram_spans_zero_to_1000_and_counts_all_in_range():
+    prices = pd.Series([0.0, 10.0, 24.9, 25.0, 999.0, 1000.0, 50.0, np.nan])
+    fig = charts.price_histogram(prices, "light", "Price")
+    bar = fig.data[0]
+    assert bar.x[0] == 12.5 and bar.x[-1] == 987.5  # bins tile $0 to $1,000
+    assert len(bar.x) == 40
+    assert sum(bar.y) == 7  # every in-range price counted once, NaN dropped
+
+
+@pytest.mark.parametrize("theme", THEMES)
+def test_forest_range_holds_every_interval_and_no_title(nb, theme):
+    ns = nb["neighborhoods"]
+    fig = charts.forest_plot(ns, 4, "Broadway", theme, 150.0)
+    lo, hi = fig.layout.xaxis.range
+    assert 10**lo <= min(n["typical"]["lo"][3] for n in ns)
+    assert 10**hi >= max(n["typical"]["hi"][3] for n in ns)
+    assert fig.layout.title.text == ""
+    rows = {s.y0 for s in fig.layout.shapes if isinstance(s.y0, str)}
+    assert len(rows) == 88  # one interval line per neighborhood row
