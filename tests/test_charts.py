@@ -134,6 +134,13 @@ def test_rank_plot_one_panel_per_chain(diag):
     assert len([t for t in fig.data if t.type == "bar"]) == 4
 
 
+def test_rank_plot_annotation_uses_actual_bin_count(diag):
+    rank = [[5] * 12 for _ in range(4)]
+    fig = charts.rank_plot(rank, "mu_beta", "light")
+    texts = " ".join(a.text for a in fig.layout.annotations)
+    assert "12 bins" in texts and "20 bins" not in texts
+
+
 def test_ppc_notes_mass_outside_range(diag):
     fig = charts.ppc_plot(diag["ppc"], "light")
     p = diag["ppc"]

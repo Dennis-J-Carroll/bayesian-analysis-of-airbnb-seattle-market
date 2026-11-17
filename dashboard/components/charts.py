@@ -325,15 +325,16 @@ def rank_plot(rank: list[list[int]], label: str, theme: str) -> go.Figure:
     fig.update_yaxes(showgrid=True, gridcolor=t["rule"], row=1, col=1)
     fig.update_annotations(font=dict(family=_MONO, size=11, color=t["muted"]))
     fig.add_annotation(
-        text=f"{label}: rank of each draw among all chains, 20 bins",
+        text=f"{label}<br>rank among all chains, {len(rank[0])} bins",
         xref="paper",
         yref="paper",
         x=0.5,
-        y=-0.08,
+        y=-0.12,
+        yanchor="top",
         showarrow=False,
         font=dict(family=_MONO, size=11, color=t["muted"]),
     )
-    fig.update_layout(margin=dict(l=8, r=8, t=28, b=36))
+    fig.update_layout(margin=dict(l=8, r=8, t=28, b=60))
     return fig
 
 
@@ -403,7 +404,12 @@ def ppc_plot(ppc: dict, theme: str) -> go.Figure:
     fig.update_yaxes(showgrid=True, gridcolor=t["rule"], title_text="Listings")
     fig.update_layout(
         showlegend=True,
-        legend=dict(orientation="h", y=1.08, x=0, font=dict(family=_MONO, size=11)),
+        legend=dict(
+            orientation="h",
+            y=1.08,
+            x=0,
+            font=dict(family=_MONO, size=11, color=t["ink"]),
+        ),
         margin=dict(l=8, r=8, t=36, b=8),
         meta={
             "outside_share": outside,
