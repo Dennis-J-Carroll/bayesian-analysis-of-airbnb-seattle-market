@@ -45,8 +45,9 @@ def test_payload_has_all_neighborhoods_in_fixed_order(art):
     cells = payload["cells"]
     assert len(cells) == 88
     assert {c["index"] for c in cells} == set(range(88))
-    at_two = [c["typical"]["median"][1] for c in cells]
-    assert at_two == sorted(at_two)
+    # R14: priciest first by the same quantity each cell shows (predictive q50).
+    at_two = [c["predictive"]["q50"][1] for c in cells]
+    assert at_two == sorted(at_two, reverse=True)
     assert payload["selected"] == "Broadway"
     assert payload["guests"] == 2
 
@@ -170,3 +171,67 @@ def test_missing_value_renders_em_dash(art):
         rf'data-testid="specimen-cell-{broadway}".*?</button>', markup, re.S
     ).group(0)
     assert '<span class="md">—</span>' in cell_html
+
+
+def test_cell_number_is_the_ordering_quantity(art, light_html):
+    payload = specimen_payload(art, "light")
+    shown = re.findall(r'<span class="md">([^<]*)</span>', light_html)
+    assert shown == [_dollars(c["predictive"]["q50"][1]) for c in payload["cells"]]
+
+
+def test_shared_x_axis_is_labelled(light_html):
+    # R15: explains why curves clip at high guest counts.
+    assert "$20 to $1,000, log scale" in light_html
+
+
+def _cell_html(html: str, index: int) -> str:
+    return re.search(
+        rf'<button[^>]*data-testid="specimen-cell-{index}".*?</button>', html, re.S
+    ).group(0)
+
+
+def test_sparse_cells_are_marked(art, light_html):
+    # Fewer than 10 listings: drawn tentatively (thin dashed, no band fill).
+    for n in art.neighborhoods["neighborhoods"]:
+        expected = "true" if n["n_listings"] < 10 else "false"
+        assert f'data-sparse="{expected}"' in _cell_html(light_html, n["index"])
+        assert f"n={n['n_listings']}" in _cell_html(light_html, n["index"])
+    assert len(re.findall(r'<button[^>]*data-sparse="true"', light_html)) == 3
+
+
+def test_raw_dots_only_where_raw_data_exists(art):
+    for guests in (2, 16):
+        html = specimen_html(specimen_payload(art, "light", "Broadway", guests))
+        for n in art.neighborhoods["neighborhoods"]:
+            raw = n["raw_median_by_guests"][str(guests)]
+            dot = re.search(
+                r'<span[^>]*data-testid="raw-dot"[^>]*>', _cell_html(html, n["index"])
+            )
+            assert dot, n["name"]
+            assert ("hidden" not in dot.group(0)) == (raw is not None), n["name"]
+
+
+def test_premium_vs_city_matches_artifacts(art, light_html):
+    broadway = neighborhood_by_name(art, "Broadway")
+    city = art.neighborhoods["city"]["typical"]["median"][1]
+    pct = int((broadway["typical"]["median"][1] / city - 1) * 100 + 0.5)
+    assert pct == 38
+    cell = _cell_html(light_html, broadway["index"])
+    assert re.search(r'<span class="pc up"[^>]*>\+38%</span>', cell)
+    # Below the city: muted class, true minus sign.
+    cheapest = specimen_payload(art, "light")["cells"][-1]
+    assert re.search(
+        r'<span class="pc"[^>]*>−\d+%</span>', _cell_html(light_html, cheapest["index"])
+    )
+
+
+def test_curve_peaks_sit_at_the_median_on_the_log_axis(art):
+    # Curves are drawn per log-dollar so the peak marks the median, and the
+    # raw-median dot's distance from it reads as shrinkage.
+    payload = specimen_payload(art, "light")
+    grid = payload["grid"]
+    for c in payload["cells"]:
+        row = c["density"][1]
+        peak = grid[row.index(max(row))]
+        q50 = c["predictive"]["q50"][1]
+        assert abs(peak / q50 - 1) < 0.08, (c["name"], peak, q50)

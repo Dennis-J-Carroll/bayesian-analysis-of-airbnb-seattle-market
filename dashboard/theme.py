@@ -13,7 +13,7 @@ TOKENS: dict[str, dict[str, str]] = {
         "ground": "#FBFBFA",
         "ink": "#111111",
         "accent": "#D6452B",
-        "muted": "#8A8A85",
+        "muted": "#6E6E69",
         "rule": "#D8D8D6",
     },
     "dark": {

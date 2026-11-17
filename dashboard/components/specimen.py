@@ -20,14 +20,26 @@ from dashboard.utils.artifacts import Artifacts, neighborhood_by_name
 
 TEMPLATE_PATH = Path(__file__).with_name("specimen_template.html")
 
-# Cells keep one layout while the slider moves: cheapest to priciest typical
-# price at this guest count.
+# Cells keep one layout while the slider moves: priciest first by the median
+# price of one listing at this guest count, the same number each cell shows.
 ORDER_GUESTS = 2
 
 # Curve box, in SVG user units. TOP leaves room so a peak is never clipped.
 WIDTH, HEIGHT, TOP = 100, 44, 2
 
+# components.html cannot size itself to its content in Streamlit 1.38 (the
+# iframe ignores streamlit:setFrameHeight), so the height is fixed. 1340 shows
+# the whole grid, worst-case extrapolation note included, in the 942px iframe
+# that layout="wide" gives at a 1440px viewport. Narrower iframes fall back to
+# scrolling the grid inside the frame. Measured worst case: 1327px.
+DEFAULT_HEIGHT = 1340
+
+# Fewer listings than this: the curve is drawn tentatively (thin, dashed, no
+# band fill), so partial pooling toward the city reads at a glance.
+SPARSE_BELOW = 10
+
 MISSING = "—"
+MINUS = "−"
 EN_DASH = "–"
 
 
@@ -45,9 +57,10 @@ def specimen_payload(
     k = guest_values.index(ORDER_GUESTS)
     ordered = sorted(
         art.neighborhoods["neighborhoods"],
-        key=lambda n: (n["typical"]["median"][k], n["index"]),
+        key=lambda n: (-n["predictive"]["q50"][k], n["index"]),
     )
     density = art.curves["density"]
+    grid = list(art.curves["grid"])
     cells = [
         {
             "name": n["name"],
@@ -56,7 +69,8 @@ def specimen_payload(
             "max_guests_observed": n["max_guests_observed"],
             "predictive": {q: list(n["predictive"][q]) for q in ("q03", "q50", "q97")},
             "typical": {q: list(n["typical"][q]) for q in ("median", "lo", "hi")},
-            "density": [list(row) for row in density[n["index"]]],
+            "density": [_per_log(row, grid) for row in density[n["index"]]],
+            "raw": [n["raw_median_by_guests"].get(str(g)) for g in guest_values],
         }
         for n in ordered
     ]
@@ -67,10 +81,20 @@ def specimen_payload(
         "guests": initial_guests,
         "guest_values": guest_values,
         "order_guests": ORDER_GUESTS,
+        "sparse_below": SPARSE_BELOW,
         "grid": list(art.curves["grid"]),
         "city_median": list(art.neighborhoods["city"]["typical"]["median"]),
         "cells": cells,
     }
+
+
+def _per_log(row: list, grid: list) -> list[float]:
+    """Stored curves are per-dollar densities. On the log price axis the
+    honest shape is density per log-dollar (pdf x price), whose peak sits at
+    the median rather than the lower mode. Rescaled to peak 1 for display."""
+    scaled = [0.0 if _missing(d) else d * x for d, x in zip(row, grid)]
+    top = max(scaled) or 1.0
+    return [round(v / top, 3) for v in scaled]
 
 
 # Formatting. Mirrored exactly by fmtDollars / fmtNum in the template script,
@@ -125,6 +149,25 @@ def _price_x(price, grid: list) -> str:
     return _num(min(max(x, 0.0), WIDTH))
 
 
+def _premium(value, city) -> tuple[str, bool]:
+    """Typical price against the city's, as "+38%" or "−21%" (half-up)."""
+    if _missing(value) or _missing(city) or not city:
+        return MISSING, False
+    pct = math.floor((value / city - 1) * 100 + 0.5)
+    if pct > 0:
+        return f"+{pct}%", True
+    return (f"{MINUS}{-pct}%" if pct < 0 else "0%"), False
+
+
+def _band(pred: dict, gi: int, grid: list) -> tuple[str, str]:
+    """Clip rect (x, width) covering the single-listing 94% range."""
+    lo = float(_price_x(pred["q03"][gi], grid))
+    hi = float(_price_x(pred["q97"][gi], grid))
+    if _missing(pred["q03"][gi]) or _missing(pred["q97"][gi]):
+        lo, hi = 0.0, 0.0
+    return _num(lo), _num(max(hi - lo, 0.0))
+
+
 def _guests_label(g: int) -> str:
     return f"{g} guest" if g == 1 else f"{g} guests"
 
@@ -140,25 +183,44 @@ def _cells_html(payload: dict, g: int, selected: str) -> str:
     xs = _x_positions(payload["grid"])
     gi = payload["guest_values"].index(g)
     city_x = _price_x(payload["city_median"][gi], payload["grid"])
+    city = payload["city_median"][gi]
     out = []
     for c in payload["cells"]:
         is_sel = c["name"] == selected
         beyond = g > c["max_guests_observed"]
+        sparse = c["n_listings"] < payload["sparse_below"]
         name = html.escape(c["name"])
         classes = "cell beyond" if beyond else "cell"
+        d = _curve_d(xs, c["density"][gi])
+        band_x, band_w = _band(c["predictive"], gi, payload["grid"])
+        raw = c["raw"][gi]
+        raw_attr = "" if not _missing(raw) else " hidden"
+        raw_x = _price_x(raw, payload["grid"]) if not _missing(raw) else "0.0"
+        prem, up = _premium(c["typical"]["median"][gi], city)
         out.append(
             f'<button type="button" class="{classes}" '
             f'data-testid="specimen-cell-{c["index"]}" data-index="{c["index"]}" '
             f'data-selected="{"true" if is_sel else "false"}" '
+            f'data-sparse="{"true" if sparse else "false"}" '
             f'aria-pressed="{"true" if is_sel else "false"}" title="{name}">'
+            f'<span class="plot">'
             f'<svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none" '
             f'aria-hidden="true" focusable="false">'
+            f'<clipPath id="band-{c["index"]}"><rect class="clip" x="{band_x}" '
+            f'y="0" width="{band_w}" height="{HEIGHT}"/></clipPath>'
             f'<line class="city" x1="{city_x}" x2="{city_x}" y1="0" y2="{HEIGHT}"/>'
-            f'<path class="curve" data-testid="curve" '
-            f'd="{_curve_d(xs, c["density"][gi])}"/>'
+            f'<path class="band" clip-path="url(#band-{c["index"]})" d="{d}"/>'
+            f'<path class="curve" data-testid="curve" d="{d}"/>'
             f"</svg>"
+            f'<span class="raw" data-testid="raw-dot" style="left:{raw_x}%"'
+            f"{raw_attr}></span>"
+            f"</span>"
             f'<span class="nm">{name}</span>'
+            f'<span class="row">'
             f'<span class="md">{_dollars(c["predictive"]["q50"][gi])}</span>'
+            f'<span class="pc{" up" if up else ""}">{prem}</span>'
+            f'<span class="n">n={c["n_listings"]}</span>'
+            f"</span>"
             f"</button>"
         )
     return "\n".join(out)
@@ -225,7 +287,7 @@ def specimen_html(payload: dict) -> str:
     return page
 
 
-def render_specimen(art: Artifacts, theme: str, height: int = 980) -> None:
+def render_specimen(art: Artifacts, theme: str, height: int = DEFAULT_HEIGHT) -> None:
     """Render the Live Specimen hero into the current Streamlit page."""
     components.html(
         specimen_html(specimen_payload(art, theme)), height=height, scrolling=False
