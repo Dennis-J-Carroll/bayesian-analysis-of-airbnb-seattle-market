@@ -1,4 +1,0 @@
-build-essential
-libblas-dev
-liblapack-dev
-libhdf5-dev

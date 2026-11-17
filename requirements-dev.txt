@@ -1,0 +1,4 @@
+-r requirements-model.txt
+pytest==8.3.3
+playwright==1.47.0
+black==23.7.0

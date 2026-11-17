@@ -28,7 +28,8 @@ class TestDataLoading:
     def test_load_data_file_exists(self, sample_data_path):
         """Test that data file loads successfully."""
         model = HierarchicalBayesianPriceModel(sample_data_path)
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
 
         assert df is not None
         assert len(df) > 0
@@ -37,7 +38,8 @@ class TestDataLoading:
     def test_price_cleaning(self, sample_data_path):
         """Test that prices are properly cleaned and converted."""
         model = HierarchicalBayesianPriceModel(sample_data_path)
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
 
         # Check price_clean exists and is numeric
         assert "price_clean" in df.columns
@@ -52,7 +54,8 @@ class TestDataLoading:
     def test_outlier_filtering(self, sample_data_path):
         """Test that outliers are properly filtered."""
         model = HierarchicalBayesianPriceModel(sample_data_path)
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
 
         # Check price bounds
         assert df["price_clean"].min() >= 10
@@ -61,7 +64,8 @@ class TestDataLoading:
     def test_neighborhood_indexing(self, sample_data_path):
         """Test that neighborhoods are properly indexed."""
         model = HierarchicalBayesianPriceModel(sample_data_path)
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
 
         # Check neighborhood_idx exists
         assert "neighborhood_idx" in df.columns
@@ -76,7 +80,8 @@ class TestDataLoading:
     def test_required_columns_present(self, sample_data_path):
         """Test that all required columns are present after cleaning."""
         model = HierarchicalBayesianPriceModel(sample_data_path)
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
 
         required_columns = [
             "price_clean",
@@ -91,12 +96,14 @@ class TestDataLoading:
 class TestModelBuilding:
     """Test model construction and structure."""
 
+    @pytest.mark.slow
     def test_model_creation(self, fitted_model):
         """Test that model is created successfully."""
         model = fitted_model
         assert model.model is not None
         assert isinstance(model.model, pm.Model)
 
+    @pytest.mark.slow
     def test_model_parameters(self, fitted_model):
         """Test that model has all required parameters."""
         model = fitted_model
@@ -115,6 +122,7 @@ class TestModelBuilding:
         for param in required_params:
             assert param in model.model.named_vars, f"Missing parameter: {param}"
 
+    @pytest.mark.slow
     def test_hierarchical_structure(self, fitted_model):
         """Test that hierarchical structure is correct."""
         model = fitted_model
@@ -126,6 +134,7 @@ class TestModelBuilding:
         assert alpha_shape == (model.n_neighborhoods,)
         assert beta_shape == (model.n_neighborhoods,)
 
+    @pytest.mark.slow
     def test_prior_distributions(self, fitted_model):
         """Test that priors are correctly specified."""
         model = fitted_model
@@ -140,11 +149,13 @@ class TestModelBuilding:
 class TestModelFitting:
     """Test model fitting and MCMC sampling."""
 
+    @pytest.mark.slow
     def test_trace_exists(self, fitted_model):
         """Test that trace is created after fitting."""
         model = fitted_model
         assert model.trace is not None
 
+    @pytest.mark.slow
     def test_convergence_diagnostics(self, fitted_model):
         """Test that convergence diagnostics can be computed."""
         model = fitted_model
@@ -153,6 +164,7 @@ class TestModelFitting:
         assert rhat is not None
         assert ess is not None
 
+    @pytest.mark.slow
     def test_posterior_samples(self, fitted_model):
         """Test that posterior samples have correct shape."""
         model = fitted_model
@@ -169,6 +181,7 @@ class TestModelFitting:
 class TestPredictions:
     """Test prediction functionality."""
 
+    @pytest.mark.slow
     def test_predict_prices_valid_neighborhood(self, fitted_model):
         """Test predictions for a valid neighborhood."""
         model = fitted_model
@@ -186,6 +199,7 @@ class TestPredictions:
             assert "ci_95" in predictions[acc]
             assert predictions[acc]["mean"] > 0
 
+    @pytest.mark.slow
     def test_predict_prices_invalid_neighborhood(self, fitted_model):
         """Test predictions for invalid neighborhood."""
         model = fitted_model
@@ -193,6 +207,7 @@ class TestPredictions:
 
         assert predictions is None
 
+    @pytest.mark.slow
     def test_prediction_uncertainty(self, fitted_model):
         """Test that predictions include uncertainty."""
         model = fitted_model
@@ -210,6 +225,7 @@ class TestPredictions:
         assert ci_width > 0
         assert ci_width < pred["mean"] * 5  # CI shouldn't be more than 5x the mean
 
+    @pytest.mark.slow
     def test_accommodates_effect(self, fitted_model):
         """Test that predictions increase with accommodates."""
         model = fitted_model
@@ -230,6 +246,7 @@ class TestPredictions:
 class TestNeighborhoodComparison:
     """Test neighborhood comparison functionality."""
 
+    @pytest.mark.slow
     def test_compare_neighborhoods(self, fitted_model):
         """Test neighborhood comparison."""
         model = fitted_model
@@ -239,6 +256,7 @@ class TestNeighborhoodComparison:
         assert isinstance(comparison, pd.DataFrame)
         assert len(comparison) == model.n_neighborhoods
 
+    @pytest.mark.slow
     def test_comparison_columns(self, fitted_model):
         """Test that comparison has all required columns."""
         model = fitted_model
@@ -254,6 +272,7 @@ class TestNeighborhoodComparison:
         for col in required_cols:
             assert col in comparison.columns
 
+    @pytest.mark.slow
     def test_comparison_sorted(self, fitted_model):
         """Test that comparison is sorted by mean price."""
         model = fitted_model
@@ -262,6 +281,7 @@ class TestNeighborhoodComparison:
         # Should be sorted descending
         assert (comparison["mean_price"].diff().dropna() <= 0).all()
 
+    @pytest.mark.slow
     def test_comparison_prices_positive(self, fitted_model):
         """Test that all predicted prices are positive."""
         model = fitted_model
@@ -275,6 +295,7 @@ class TestNeighborhoodComparison:
 class TestEdgeCases:
     """Test edge cases and error handling."""
 
+    @pytest.mark.slow
     def test_single_accommodates_prediction(self, fitted_model):
         """Test prediction with minimum accommodates value."""
         model = fitted_model
@@ -284,6 +305,7 @@ class TestEdgeCases:
         assert predictions is not None
         assert 1 in predictions
 
+    @pytest.mark.slow
     def test_large_accommodates_prediction(self, fitted_model):
         """Test prediction with large accommodates value."""
         model = fitted_model
@@ -296,6 +318,7 @@ class TestEdgeCases:
         assert predictions is not None
         assert max_acc in predictions
 
+    @pytest.mark.slow
     def test_empty_accommodates_list(self, fitted_model):
         """Test prediction with empty accommodates list."""
         model = fitted_model
@@ -311,7 +334,7 @@ class TestEdgeCases:
 @pytest.fixture(scope="session")
 def sample_data_path():
     """Provide path to sample data."""
-    return "/home/user/bayesian-analysis-of-airbnb-seattle-market/data/raw/listings.csv"
+    return str(Path(__file__).resolve().parent.parent / "data" / "raw" / "listings.csv")
 
 
 @pytest.fixture(scope="session")
@@ -340,13 +363,15 @@ def sample_predictions(fitted_model):
 class TestIntegration:
     """Integration tests for full workflow."""
 
+    @pytest.mark.slow
     def test_full_pipeline(self, sample_data_path):
         """Test complete pipeline from data to predictions."""
         # Initialize
         model = HierarchicalBayesianPriceModel(sample_data_path)
 
         # Load data
-        df = model.load_and_clean_data()
+        model.load_and_clean_data()
+        df = model.data
         assert len(df) > 0
 
         # Build model
