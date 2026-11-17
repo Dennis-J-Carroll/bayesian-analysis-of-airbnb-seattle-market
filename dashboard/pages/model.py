@@ -21,9 +21,9 @@ HYPERS = [
 ]
 
 
-def _spread_pct(log_sd: float) -> str:
-    """A log-scale standard deviation as a rough percent price spread."""
-    return f"{math.expm1(log_sd):.0%}"
+def _spread_range(log_sd: float) -> str:
+    """One log-scale standard deviation as a below-to-above percent range."""
+    return f"{1 - math.exp(-log_sd):.0%} below to {math.expm1(log_sd):.0%} above"
 
 
 def _reading(key: str, mean: float) -> str:
@@ -34,8 +34,9 @@ def _reading(key: str, mean: float) -> str:
         ),
         "sigma_alpha": (
             "How much neighborhood baselines differ from each other. A typical "
-            f"neighborhood sits roughly {_spread_pct(mean)} above or below the "
-            "city baseline."
+            f"neighborhood sits about {_spread_range(mean)} the city "
+            "baseline (one standard deviation, roughly two thirds of "
+            "neighborhoods)."
         ),
         "mu_beta": (
             "The citywide rise in log price for each extra guest. The next "
@@ -47,8 +48,8 @@ def _reading(key: str, mean: float) -> str:
         ),
         "sigma": (
             "Listing-to-listing scatter that no neighborhood or guest count "
-            f"explains: roughly {_spread_pct(mean)} either way around the "
-            "typical price."
+            f"explains: about {_spread_range(mean)} the typical price (one "
+            "standard deviation, roughly two thirds of listings)."
         ),
     }[key]
 

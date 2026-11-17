@@ -76,3 +76,15 @@ def test_no_unescaped_dollar_pairs_in_prose():
         if "<style>" in m.value:
             continue
         assert len(re.findall(r"(?<!\\)\$", m.value)) < 2, m.value
+
+
+def test_sigma_readouts_state_both_sides_from_artifact():
+    import math
+
+    at = _run()
+    text = _text(at)
+    h = load_artifacts().hyper
+    for key in ("sigma", "sigma_alpha"):
+        m = h[key]["mean"]
+        assert f"{1 - math.exp(-m):.0%} below to {math.expm1(m):.0%} above" in text
+    assert "either way" not in text and "above or below" not in text

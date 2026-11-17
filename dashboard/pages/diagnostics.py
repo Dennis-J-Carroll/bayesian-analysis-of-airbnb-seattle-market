@@ -39,19 +39,22 @@ def render() -> None:
             Readout(
                 "Max R-hat",
                 f"{d['max_rhat']:.3f}",
-                f"Chains agree when this is near 1.00 (worst: {worst_rhat}).",
+                f"Chains agree when this is near 1.00; below 1.01 is the usual bar "
+                f"(worst: {worst_rhat}).",
                 "max-rhat",
             ),
             Readout(
                 "Min bulk ESS",
                 f"{d['min_ess_bulk']:,.0f}",
-                f"Independent-draw equivalent of {total:,} draws (worst: {worst_ess}).",
+                f"Effective independent draws out of {total:,}; a few hundred is "
+                f"a common minimum (worst: {worst_ess}).",
                 "min-ess",
             ),
             Readout(
                 "Min tail ESS",
                 f"{d['min_ess_tail']:,.0f}",
-                "Same idea for the interval ends, which is what the app reports.",
+                "The same count for the distribution tails (5% and 95%), which "
+                "matter most for interval ends.",
                 "min-tail-ess",
             ),
             Readout(
@@ -93,7 +96,8 @@ def render() -> None:
         "Posterior predictive check: bars are the observed price counts, the "
         "band is where simulated listings from the fitted model land (94%). "
         "Observed bars inside the band mean the model reproduces the overall "
-        "price shape. " + fig.layout.meta["note"].replace("$", "\\$")
+        "price shape. It uses the same data the model was fitted on, so it is "
+        "an in-sample check. " + fig.layout.meta["note"].replace("$", "\\$")
     )
 
     st.subheader("Every parameter")
