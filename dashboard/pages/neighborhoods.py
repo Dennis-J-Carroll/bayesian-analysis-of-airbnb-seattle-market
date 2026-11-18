@@ -8,11 +8,16 @@ from dashboard.components.charts import forest_plot, neighborhood_lead, shrinkag
 from dashboard.components.readouts import MISSING, Fact, render_readout_line
 from dashboard.utils.artifacts import load_artifacts, neighborhood_by_name
 from dashboard.utils.data_loader import load_listings
+from dashboard.theme import DISPLAY_FONT, MONO_FONT, TOKENS
 from dashboard.utils.session_manager import AppState
 
 CHART_CONFIG = {"displayModeBar": False}
 DEFAULT_NEIGHBORHOOD = "Broadway"
 DEFAULT_GUESTS = 2
+GUEST_MIN, GUEST_MAX = 1, 16
+GUESTS_KEY = "nbhd_guests"
+# Measured in Streamlit 1.50: the BaseWeb thumb's centre runs edge to edge
+# of the slider (value 1 at 0%, 16 at 100%), so ticks need no inset.
 SHOWCASE = "Holly Park"  # two listings: the clearest case of pooling
 
 
@@ -68,6 +73,51 @@ def _shrinkage_caption(art, guests: int, omitted: int) -> str:
     return base + holly_txt + omit
 
 
+def _guest_control_css(theme: str) -> str:
+    """The Predict specimen's slider look, scoped to this page's slider: mono
+    label, large Archivo readout at the right, a 1 to 16 tick row. The stock
+    floating value and 1/16 end labels are hidden; the accent stays on the
+    thumb and filled track only."""
+    t = TOKENS[theme]
+    key = f".st-key-{GUESTS_KEY}"
+    return (
+        f'{key} [data-testid="stSliderThumbValue"],'
+        f'{key} [data-testid="stSliderTickBar"]{{display:none;}}'
+        f'{key} [data-testid="stSlider"]{{padding:0;}}'
+        f".g-head{{display:flex;justify-content:space-between;align-items:baseline;"
+        f"margin-bottom:-6px;}}"
+        # Same face, size and colour as the Neighborhood select's label.
+        f".g-lab{{font-family:{MONO_FONT};font-size:14px;letter-spacing:0.06em;"
+        f"text-transform:uppercase;color:{t['ink']};}}"
+        f".g-out{{font-family:{DISPLAY_FONT};font-weight:800;font-size:30px;line-height:1;"
+        f"letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:{t['ink']};}}"
+        f".g-ticks{{position:relative;height:14px;margin:-18px 0 0;}}"
+        f".g-ticks span{{position:absolute;top:0;transform:translateX(-50%);"
+        f"font-family:{MONO_FONT};font-size:11px;line-height:14px;color:{t['muted']};"
+        f"font-variant-numeric:tabular-nums;}}"
+        f".g-ticks span.on{{color:{t['ink']};font-weight:600;}}"
+    )
+
+
+def _guest_head_html(guests: int, theme: str) -> str:
+    return (
+        f"<style>{_guest_control_css(theme)}</style>"
+        f'<div class="g-head"><span class="g-lab">Guests &middot; drag to remap</span>'
+        f'<span class="g-out">{guests}</span></div>'
+    )
+
+
+def _guest_ticks_html(guests: int) -> str:
+    span = GUEST_MAX - GUEST_MIN
+    on = ' class="on"'
+    ticks = "".join(
+        f'<span{on if g == guests else ""} '
+        f'style="left:{100 * (g - GUEST_MIN) / span:.4f}%">{g}</span>'
+        for g in range(GUEST_MIN, GUEST_MAX + 1)
+    )
+    return f'<div class="g-ticks" aria-hidden="true">{ticks}</div>'
+
+
 def render() -> None:
     art = load_artifacts()
     theme = AppState.theme()
@@ -79,7 +129,20 @@ def render() -> None:
     selected = c1.selectbox(
         "Neighborhood", names, index=names.index(DEFAULT_NEIGHBORHOOD), key="nbhd"
     )
-    guests = c2.slider("Guests", 1, 16, DEFAULT_GUESTS, key="nbhd_guests")
+    with c2:
+        # Streamlit stores the new value before the rerun, so the readout
+        # drawn above the slider already shows it.
+        current = st.session_state.get(GUESTS_KEY, DEFAULT_GUESTS)
+        st.markdown(_guest_head_html(current, theme), unsafe_allow_html=True)
+        guests = st.slider(
+            "Guests",
+            GUEST_MIN,
+            GUEST_MAX,
+            DEFAULT_GUESTS,
+            key=GUESTS_KEY,
+            label_visibility="collapsed",
+        )
+        st.markdown(_guest_ticks_html(guests), unsafe_allow_html=True)
 
     i = guests - 1
     n = neighborhood_by_name(art, selected)

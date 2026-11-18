@@ -127,3 +127,33 @@ def test_readout_line_carries_listings_median_and_ratio_from_artifacts():
     assert f"{b['typical']['median'][3] / city:.2f}x" in text
     lo, hi = b["predictive"]["q03"][3], b["predictive"]["q97"][3]
     assert f"${lo:,.0f}" in text and f"${hi:,.0f}" in text
+
+
+@pytest.mark.parametrize("guests", [2, 7, 16])
+def test_guest_control_has_specimen_readout_and_tick_row(guests):
+    at = _run(guests=guests)
+    text = " ".join(m.value for m in at.markdown)
+    assert f'class="g-out">{guests}<' in text  # large readout of the value
+    ticks = re.findall(r'<span( class="on")? style="left:[\d.]+%">(\d+)</span>', text)
+    assert [int(v) for _, v in ticks] == list(range(1, 17))
+    assert [int(v) for on, v in ticks if on] == [guests]  # only the current one
+    assert at.slider[0].value == guests
+
+
+def test_guest_control_styling_is_scoped_to_this_slider():
+    at = _run()
+    text = " ".join(m.value for m in at.markdown)
+    # Hiding the stock value and end labels must touch only this slider.
+    hidden = [
+        sel
+        for sel, body in re.findall(r"([^{}]+)\{([^{}]*)\}", text)
+        if "display:none" in body.replace(" ", "") and "stSlider" in sel
+    ]
+    assert hidden
+    for sel in hidden:
+        parts = [x for x in sel.split(",") if "stSlider" in x]
+        assert all(".st-key-nbhd_guests" in x for x in parts), sel
+    from dashboard.theme import TOKENS
+
+    head = text[text.index("g-head") :]
+    assert TOKENS["light"]["accent"] not in head.split("</div>")[0]
