@@ -12,7 +12,6 @@ colors:
   dark-ink: "#ECEBE6"
   dark-muted: "#9A9CA0"
   dark-rule: "#2A2B2E"
-  on-accent: "#FFFFFF"
 typography:
   display:
     fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
@@ -80,7 +79,6 @@ components:
     rounded: "{rounded.hairline}"
   button-primary:
     backgroundColor: "{colors.vermilion}"
-    textColor: "{colors.on-accent}"
     rounded: "{rounded.hairline}"
   nav-item:
     textColor: "{colors.ink}"
@@ -97,14 +95,10 @@ components:
     textColor: "{colors.muted}"
     typography: "{typography.data}"
     height: "44px"
-    width: "minmax(124px, 1fr)"
-  specimen-cell-selected:
-    textColor: "{colors.vermilion}"
   readout:
     textColor: "{colors.ink}"
     typography: "{typography.headline}"
     padding: "8px 0 4px"
-    width: "minmax(150px, 1fr)"
   readout-line:
     textColor: "{colors.muted}"
     typography: "{typography.caption}"
@@ -133,16 +127,15 @@ Density is high and quiet. Hierarchy comes from scale contrast (a 150px numeral 
 A near-achromatic paper-and-ink palette with a single warm vermilion that only ever marks the visitor's current choice.
 
 ### Primary
-- **Survey Vermilion** (vermilion): the selected neighborhood's curve (1.5px stroke, 16% fill) and name, the slider thumb, the native slider's filled track, and the primary button. It never marks a category, a status, a heading or a link.
+- **Survey Vermilion** (vermilion): the selected neighborhood's curve (1.5px stroke, 16% fill), the slider thumb, the native slider's filled track, and the primary button. It never marks a category, a status, a heading or a link.
 
 ### Neutral
 - **Specimen Paper** (paper): page, sidebar, chart plot and paper grounds in light mode; also the ground of every input, select, popover and button so native widgets never show Streamlit's own fills.
-- **Paper Shade** (paper-secondary): Streamlit's secondary background in light mode (native slider rail and other widget chrome). Not used by custom components.
+- **Paper Shade** (paper-secondary): set in the Streamlit config as the secondary background for native widget chrome in light mode. Not used by custom components.
 - **Press Ink** (ink): all type, curves, axis lines and ticks, the sidebar's right rule, the ink rule under the specimen band and above every readout, select borders, focus outlines, selection highlight.
 - **Margin Grey** (muted): labels, captions, cell names, tick numbers, the city-typical line, extrapolated curves and track. At 11px on paper it holds AA.
 - **Hairline** (rule): cell top borders, table row rules, plot gridlines, expander and widget borders, the active nav pill and popover hover.
 - **Night Ground / Night Ink / Night Grey / Night Hairline** (dark-ground, dark-ink, dark-muted, dark-rule): the same roles in dark mode. Ink is warm off-white rather than pure white; vermilion is unchanged across themes.
-- **On-Accent White** (on-accent): text on the primary button only.
 
 ### Named Rules
 **The One Selection Rule.** Vermilion marks what the visitor chose or is manipulating: the selected neighborhood, the slider thumb and fill, the primary action. Nothing else. The active nav item is ink on a hairline pill, and the theme toggle runs ink-on-ground, so neither borrows the accent.
@@ -168,7 +161,7 @@ A near-achromatic paper-and-ink palette with a single warm vermilion that only e
 - **Data** (JetBrains Mono 11px, tabular): cell names, cell prices and counts, slider ticks, chart tick labels and axis titles.
 
 ### Named Rules
-**The 11px Floor Rule.** No functional text goes below 11px: cell names, ticks, legend, axis ticks and labels all sit at exactly 11px. The specimen grid's minimum cell width is set so that names fit at this size; when space runs short the grid loses columns, the type does not shrink.
+**The 11px Floor Rule.** No functional text goes below 11px: cell names, ticks, legend, axis ticks and labels all sit at exactly 11px. When space runs short the specimen grid drops columns and long names truncate with an ellipsis; the type does not shrink.
 
 **The Tabular Figures Rule.** Every number that can change (prices, guest counts, percentages, n) uses tabular figures so a live remap never makes columns jitter.
 
@@ -191,14 +184,14 @@ Fully flat. There are no shadows anywhere; Streamlit's widget, expander and slid
 
 ## Shapes
 
-Rectangular with a 2px maximum corner (hairline) on every box: selects, buttons, inputs, expanders, the upload dropzone, the active nav pill, scrollbar thumbs. Circles appear in exactly two places: the 18px slider thumb and the 6px hollow raw-median dot (with the 9px marker in the neighborhood chart). Specimen cells have no corners at all; each is defined only by its top border.
+Rectangular with a 2px maximum corner (hairline) on every box: selects, buttons, inputs, expanders, the upload dropzone, the active nav pill, scrollbar thumbs. Round forms are reserved for handles and point marks: the 18px slider thumb, the Dark toggle, the 6px hollow raw-median dot and chart point markers. Specimen cells have no corners at all; each is defined only by its top border.
 
 ## Components
 
 ### Buttons
 - **Shape:** hairline corners (2px), 1px hairline border, no shadow.
 - **Default:** paper ground, ink text.
-- **Primary:** vermilion ground and border, white text. Styled in the theme but not currently instanced by any page; when used it is the one primary action on a surface.
+- **Primary:** vermilion ground and border. Styled in the theme but not instanced by any page.
 - **Upload dropzone:** paper ground, 1px dashed muted border, its button with a 1px ink border.
 
 ### Inputs / Fields
@@ -224,7 +217,7 @@ Rectangular with a 2px maximum corner (hairline) on every box: selects, buttons,
 ### The Specimen Cell (signature)
 - A borderless button with a 1px hairline top border (ink on hover), a 44px SVG plot, then the name (11px muted, ellipsis) and a row of price, percent versus city (ink when above the city) and n (muted).
 - Curve: 1px ink stroke over an 8% ink band clipped to the 94% range; a muted vertical at the city typical price; a hollow raw-median dot on the baseline.
-- Under 10 listings: 0.75px stroke dashed 3/2 with no band. Extrapolated beyond observed sizes: curve and band in muted. Selected: 1.5px vermilion stroke, 16% vermilion band, vermilion name.
+- Under 10 listings: 0.75px stroke dashed 3/2 with no band. Extrapolated beyond observed sizes: curve and band in muted. Selected: 1.5px vermilion stroke and 16% vermilion band.
 - Motion: curve, band and clip ease over 120ms on cubic-bezier(0.22, 1, 0.36, 1); disabled under reduced motion.
 
 ## Do's and Don'ts
@@ -240,6 +233,6 @@ Rectangular with a 2px maximum corner (hairline) on every box: selects, buttons,
 - **Don't** use vermilion for anything other than the selected neighborhood, the slider thumb and fill, and the primary action.
 - **Don't** use dashes on neighborhood curves or intervals for anything but the under-10-listings state.
 - **Don't** add shadows, blur, gradients or tinted cards; separate with 1px rules.
-- **Don't** round rectangles beyond 2px; reserve circles for the slider thumb and the raw-median dot.
+- **Don't** round boxes beyond 2px; round forms are for handles and point marks (slider thumb, toggle, raw-median dot, chart markers).
 - **Don't** use Streamlit metric tiles or a KPI tile row; use the readout row or readout line.
 - **Don't** use emojis anywhere in the UI; the few icons the build draws itself (select chevron, legend keys) are inline SVG strokes in ink.

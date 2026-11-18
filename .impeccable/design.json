@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-18T05:34:49+00:00",
+  "generatedAt": "2026-11-18T05:36:53+00:00",
   "title": "Design System: Seattle Airbnb, Bayesian price model",
   "extensions": {
     "colorMeta": {
@@ -153,21 +153,6 @@
           "#C8C9CD",
           "#EDEEF2"
         ]
-      },
-      "on-accent": {
-        "role": "neutral",
-        "displayName": "On-Accent White",
-        "canonical": "#FFFFFF",
-        "tonalRamp": [
-          "#0B0B0B",
-          "#252525",
-          "#424242",
-          "#616161",
-          "#828282",
-          "#A5A5A5",
-          "#C9C9C9",
-          "#EEEEEE"
-        ]
       }
     },
     "typographyMeta": {
@@ -234,14 +219,6 @@
   },
   "components": [
     {
-      "name": "Primary Button",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "The one primary action on a surface; vermilion is reserved for it, the selection and the slider. Styled in the theme, not yet instanced.",
-      "html": "<button class=\"ds-btn-primary\">Run model</button>",
-      "css": ".ds-btn-primary { background: #D6452B; color: #FFFFFF; border: 1px solid #D6452B; border-radius: 2px; padding: 6px 12px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; box-shadow: none; cursor: pointer; } .ds-btn-primary:hover { background: #C23C24; border-color: #C23C24; } .ds-btn-primary:focus-visible { outline: 1px solid #111111; outline-offset: 2px; }"
-    },
-    {
       "name": "Default Button",
       "kind": "button",
       "refersTo": "button-default",
@@ -295,7 +272,7 @@
       "refersTo": "specimen-cell",
       "description": "Signature: hairline-topped posterior curve with 94% band, city line and hollow raw-median dot; dashed when under 10 listings; vermilion when selected.",
       "html": "<div class=\"ds-grid\"><button class=\"ds-cell\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><path class=\"ds-fill\" d=\"M38 44 C44 44 46 6 52 6 C58 6 60 44 66 44 Z\"/><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C30 44 40 6 52 6 C64 6 74 44 100 44\"/></svg><span class=\"ds-nm\">Belltown</span><span class=\"ds-row\"><span>$182</span><span class=\"ds-pc\">+52%</span><span class=\"ds-n\">n=328</span></span></button><button class=\"ds-cell\" data-selected=\"true\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><path class=\"ds-fill\" d=\"M40 44 C46 44 48 4 54 4 C60 4 62 44 68 44 Z\"/><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C32 44 42 4 54 4 C66 4 76 44 100 44\"/></svg><span class=\"ds-nm\">Broadway</span><span class=\"ds-row\"><span>$164</span><span class=\"ds-pc\">+38%</span><span class=\"ds-n\">n=359</span></span></button><button class=\"ds-cell\" data-sparse=\"true\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C30 44 40 4 54 4 C68 4 78 44 100 44\"/></svg><span class=\"ds-nm\">Industrial District</span><span class=\"ds-row\"><span>$140</span><span class=\"ds-pc\">+19%</span><span class=\"ds-n\">n=1</span></span></button></div>",
-      "css": ".ds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 3px 10px; width: 420px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; } .ds-cell { display: grid; padding: 3px 0 0; text-align: left; font: inherit; color: #111111; background: none; border: 0; border-top: 1px solid #D8D8D6; border-radius: 0; cursor: pointer; } .ds-cell:hover { border-top-color: #111111; } .ds-cell:focus-visible { outline: 1px solid #111111; outline-offset: 2px; } .ds-cell svg { display: block; width: 100%; height: 44px; overflow: visible; } .ds-fill { fill: #111111; fill-opacity: 0.08; } .ds-city { stroke: #6E6E69; stroke-width: 1; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; } .ds-curve { fill: none; stroke: #111111; stroke-width: 1; vector-effect: non-scaling-stroke; transition: d 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-cell[data-sparse=\"true\"] .ds-curve { stroke-width: 0.75; stroke-dasharray: 3 2; } .ds-cell[data-selected=\"true\"] .ds-curve { stroke: #D6452B; stroke-width: 1.5; } .ds-cell[data-selected=\"true\"] .ds-fill { fill: #D6452B; fill-opacity: 0.16; } .ds-nm, .ds-row { font-size: 11px; line-height: 13px; white-space: nowrap; } .ds-nm { margin-top: 4px; color: #6E6E69; overflow: hidden; text-overflow: ellipsis; } .ds-cell[data-selected=\"true\"] .ds-nm { color: #D6452B; } .ds-row { display: flex; gap: 6px; font-variant-numeric: tabular-nums; } .ds-pc { color: #111111; } .ds-n { margin-left: auto; color: #6E6E69; }"
+      "css": ".ds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 3px 10px; width: 420px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; } .ds-cell { display: grid; padding: 3px 0 0; text-align: left; font: inherit; color: #111111; background: none; border: 0; border-top: 1px solid #D8D8D6; border-radius: 0; cursor: pointer; } .ds-cell:hover { border-top-color: #111111; } .ds-cell:focus-visible { outline: 1px solid #111111; outline-offset: 2px; } .ds-cell svg { display: block; width: 100%; height: 44px; overflow: visible; } .ds-fill { fill: #111111; fill-opacity: 0.08; } .ds-city { stroke: #6E6E69; stroke-width: 1; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; } .ds-curve { fill: none; stroke: #111111; stroke-width: 1; vector-effect: non-scaling-stroke; transition: d 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-cell[data-sparse=\"true\"] .ds-curve { stroke-width: 0.75; stroke-dasharray: 3 2; } .ds-cell[data-selected=\"true\"] .ds-curve { stroke: #D6452B; stroke-width: 1.5; } .ds-cell[data-selected=\"true\"] .ds-fill { fill: #D6452B; fill-opacity: 0.16; } .ds-nm, .ds-row { font-size: 11px; line-height: 13px; white-space: nowrap; } .ds-nm { margin-top: 4px; color: #6E6E69; overflow: hidden; text-overflow: ellipsis; } .ds-row { display: flex; gap: 6px; font-variant-numeric: tabular-nums; } .ds-pc { color: #111111; } .ds-n { margin-left: auto; color: #6E6E69; }"
     }
   ],
   "narrative": {
@@ -321,7 +298,7 @@
       },
       {
         "name": "The 11px Floor Rule",
-        "body": "No functional text goes below 11px: cell names, ticks, legend, axis ticks and labels all sit at exactly 11px. The specimen grid's minimum cell width is set so that names fit at this size; when space runs short the grid loses columns, the type does not shrink.",
+        "body": "No functional text goes below 11px: cell names, ticks, legend, axis ticks and labels all sit at exactly 11px. When space runs short the specimen grid drops columns and long names truncate with an ellipsis; the type does not shrink.",
         "section": "typography"
       },
       {
@@ -351,7 +328,7 @@
       "**Don't** use vermilion for anything other than the selected neighborhood, the slider thumb and fill, and the primary action.",
       "**Don't** use dashes on neighborhood curves or intervals for anything but the under-10-listings state.",
       "**Don't** add shadows, blur, gradients or tinted cards; separate with 1px rules.",
-      "**Don't** round rectangles beyond 2px; reserve circles for the slider thumb and the raw-median dot.",
+      "**Don't** round boxes beyond 2px; round forms are for handles and point marks (slider thumb, toggle, raw-median dot, chart markers).",
       "**Don't** use Streamlit metric tiles or a KPI tile row; use the readout row or readout line.",
       "**Don't** use emojis anywhere in the UI; the few icons the build draws itself (select chevron, legend keys) are inline SVG strokes in ink."
     ]
