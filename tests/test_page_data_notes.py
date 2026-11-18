@@ -117,3 +117,28 @@ def test_upload_random_bytes_never_raise():
 def test_upload_empty_and_all_unparseable_prices():
     assert _summarize("")["ok"] is False
     assert _summarize("price\nabc\ndef\n")["ok"] is False
+
+
+@pytest.mark.parametrize("bad", ["inf", "-inf", "1e400", "-1e400", "0", "-25"])
+def test_upload_rejects_non_finite_and_non_positive_prices(bad):
+    out = _summarize(f"price\n$100.00\n$300.00\n{bad}\n")
+    assert out["ok"] is True
+    assert out["median_price"] == 200.0
+    assert out["prices"].tolist() == [100.0, 300.0]
+    assert out["warnings"][0].startswith("1 row has no usable price")
+
+
+def test_upload_counts_every_rejected_row_and_pluralizes():
+    out = _summarize("price\n$100.00\ninf\n-5\nabc\n")
+    assert out["warnings"][0].startswith("3 rows have no usable price")
+    assert "1 rows" not in " ".join(out["warnings"])
+
+
+def test_upload_all_infinite_is_an_error():
+    assert _summarize("price\ninf\n1e400\n")["ok"] is False
+
+
+def test_upload_price_above_histogram_range_warns_singular():
+    out = _summarize("price\n$100.00\n$5000.00\n")
+    assert out["median_price"] == 2550.0
+    assert any(w.startswith("1 price falls above") for w in out["warnings"])

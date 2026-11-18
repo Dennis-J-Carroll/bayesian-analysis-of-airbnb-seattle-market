@@ -9,7 +9,7 @@ headingFont = "Archivo:https://fonts.googleapis.com/css2?family=Archivo:wght@400
 
 [server]
 headless = true
-enableCORS = false
+maxUploadSize = 100
 
 [client]
 toolbarMode = "viewer"

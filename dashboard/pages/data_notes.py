@@ -4,6 +4,7 @@ the model cannot say, and a small descriptive CSV upload (never refit)."""
 import html
 from typing import BinaryIO
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -51,7 +52,10 @@ def summarize_upload(file: BinaryIO, filename: str) -> dict:
                 "error": f"No price column found. Name one of: {names}.",
             }
         parsed = parse_price(df["price"])
-        prices = parsed.dropna().reset_index(drop=True)
+        # NaN, +-inf (a "1e400" string overflows to inf) and non-positive
+        # values are not prices: counting them would put "$inf" in the median.
+        usable = np.isfinite(parsed) & (parsed > 0)
+        prices = parsed[usable].reset_index(drop=True)
         if prices.empty:
             return {"ok": False, "error": "The price column has no readable prices."}
     except Exception as exc:  # any parse failure becomes a message, never a crash
@@ -61,13 +65,18 @@ def summarize_upload(file: BinaryIO, filename: str) -> dict:
         }
 
     warnings = []
-    unreadable = int(parsed.isna().sum())
+    unreadable = int((~usable).sum())
     if unreadable:
-        warnings.append(f"{unreadable} rows have no readable price and are left out.")
-    outside = int(((prices < 0) | (prices > HIST_MAX)).sum())
+        warnings.append(
+            f"{unreadable} {'row has' if unreadable == 1 else 'rows have'} no "
+            "usable price (missing, unreadable, zero, negative or infinite) "
+            "and left out."
+        )
+    outside = int((prices > HIST_MAX).sum())
     if outside:
         warnings.append(
-            f"{outside} prices fall outside $0 to ${HIST_MAX:,} and are not drawn "
+            f"{outside} {'price falls' if outside == 1 else 'prices fall'} above "
+            f"${HIST_MAX:,} and {'is' if outside == 1 else 'are'} not drawn "
             "in the histogram (they still count toward the median)."
         )
     return {
@@ -220,7 +229,7 @@ def render() -> None:
         "model says nothing about the luxury end. "
         f"{c['above_max_hotel_rooms']:,} of them are hotel-room listings and "
         f"{c['above_max_10k_plus']:,} are priced at \\$10,000 or more "
-        "(\\$40,000 to \\$50,000 a night), which look like placeholders.\n"
+        "(\\$40,000 to \\$50,034 a night), which look like placeholders.\n"
         "- Neighborhoods with few listings have wide intervals; the model "
         "pulls them toward the city line rather than trusting a handful of "
         "prices.\n"
