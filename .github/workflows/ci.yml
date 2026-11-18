@@ -35,6 +35,22 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m pytest -q
 
+  slim:
+    name: Slim install boots the app
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: python -m pip install --upgrade pip
+      # Only what Streamlit Cloud installs: requirements.txt (no pymc, arviz, scipy).
+      - run: python -m pip install -r requirements.txt pytest==8.3.3
+      - run: python -m pytest tests/test_slim_boot.py -q
+
   model:
     name: Model tests (slow)
     runs-on: ubuntu-latest
