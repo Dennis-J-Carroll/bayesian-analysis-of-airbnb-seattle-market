@@ -116,7 +116,7 @@ output {
   font-variant-numeric: tabular-nums;
 }
 
-/* Slider: solid track over observed listing sizes, dashed beyond. */
+/* Slider: solid track over observed listing sizes, muted beyond. */
 .slider { position: relative; height: 22px; }
 .track {
   position: absolute;
@@ -193,12 +193,14 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
   gap: 3px 10px;
   align-content: start;
   padding: 0 1px 2px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--rule) transparent;
+  scrollbar-width: auto;
+  scrollbar-color: var(--muted) var(--rule);
 }
 .scroll-hint { display: none; }
-.grid::-webkit-scrollbar { width: 6px; }
-.grid::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+.scroll-hint.on { display: block; }
+.grid::-webkit-scrollbar { width: 8px; }
+.grid::-webkit-scrollbar-track { background: var(--rule); }
+.grid::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
 .cell {
   display: grid;
   min-width: 0;
@@ -250,7 +252,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
 .cell .pc { color: var(--muted); }
 .cell .pc.up { color: var(--ink); }
 .cell .n { margin-left: auto; color: var(--muted); }
-.cell[data-selected="true"] .nm { color: var(--accent); }
+.cell[data-selected="true"] .nm { color: var(--ink); font-weight: 600; }
 
 @media (max-width: 1080px) {
   .band { grid-template-columns: auto minmax(200px, 1fr); }
@@ -262,10 +264,6 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--i
   .controls { grid-template-columns: 1fr; row-gap: 16px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px 8px; }
   .cell .pc, .legend .key-pc { display: none; }
-  /* The grid scrolls inside the frame (it fills the space below the header
-     band); say so, and keep the scrollbar visible. */
-  .scroll-hint { display: block; }
-  .grid { scrollbar-width: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cell .curve, .cell .fill, .cell .clip { transition: none; }
@@ -462,6 +460,12 @@ __CELLS__
   }
 
   var grid = document.querySelector(".grid");
+  // The grid scrolls inside the frame whenever its cells do not all fit, at
+  // any width; say so only then.
+  var hint = document.querySelector(".scroll-hint");
+  function updateHint() {
+    hint.classList.toggle("on", grid.scrollHeight > grid.clientHeight + 1);
+  }
   function revealSelected() {
     var el = document.querySelector('.cell[data-selected="true"]');
     if (!el) return;
@@ -496,7 +500,8 @@ __CELLS__
     });
   });
   revealSelected();
-  window.addEventListener("resize", revealSelected);
+  updateHint();
+  window.addEventListener("resize", function () { revealSelected(); updateHint(); });
 })();
 </script>
 </body>

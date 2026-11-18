@@ -27,11 +27,11 @@ ORDER_GUESTS = 2
 # Curve box, in SVG user units. TOP leaves room so a peak is never clipped.
 WIDTH, HEIGHT, TOP = 100, 44, 2
 
-# components.html cannot size itself to its content in Streamlit 1.38 (the
-# iframe ignores streamlit:setFrameHeight), so the height is fixed. 1390 shows
-# the whole grid, worst-case extrapolation note included, in the 942px iframe
-# that layout="wide" gives at a 1440px viewport. Narrower iframes fall back to
-# scrolling the grid inside the frame. Measured worst case: 1380px.
+# components.html does not size itself to its content, so the height is fixed.
+# 1390 shows the whole grid, worst-case extrapolation note included, when the
+# iframe is about 940px wide (a 1440px viewport in wide layout). Narrower
+# iframes wrap the cells into more rows and the grid scrolls inside the frame;
+# the component then shows a scroll hint (measured worst case: 1380px).
 DEFAULT_HEIGHT = 1390
 
 # Fewer listings than this: the curve is drawn tentatively (thin, dashed, no

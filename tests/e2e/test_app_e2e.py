@@ -264,3 +264,30 @@ def test_js_matches_python_render(browser, artifacts, name, guests):
         assert got == exp
     finally:
         ctx.close()
+
+
+def test_laptop_width_fits_or_hints_at_scroll(browser, app_url):
+    # At 1280x800 the grid can be taller than the frame. Either every cell
+    # fits, or the visitor is told to scroll.
+    ctx = browser.new_context(viewport={"width": 1280, "height": 800})
+    try:
+        pg = ctx.new_page()
+        frame = open_specimen(pg, app_url)
+        metrics = frame.locator(".grid").evaluate(
+            "g => ({sh: g.scrollHeight, ch: g.clientHeight})"
+        )
+        hint = frame.locator("[data-testid=specimen-scroll-hint]")
+        if metrics["sh"] > metrics["ch"] + 1:
+            assert hint.is_visible(), metrics
+        else:
+            assert not hint.is_visible(), metrics
+    finally:
+        ctx.close()
+
+
+def test_selected_cell_name_is_ink_not_accent(page, app_url):
+    frame = open_specimen(page, app_url)
+    colors = frame.locator(".cell[data-selected=true] .nm").evaluate(
+        "el => [getComputedStyle(el).color, getComputedStyle(document.body).color]"
+    )
+    assert colors[0] == colors[1], colors
