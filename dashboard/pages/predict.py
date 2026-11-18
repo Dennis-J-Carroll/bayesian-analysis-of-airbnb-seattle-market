@@ -22,7 +22,7 @@ def render() -> None:
         f"are expected to fall, so it is wide on purpose: it includes the "
         f"ordinary listing-to-listing scatter. Neighborhoods with few listings "
         f"lean toward the citywide pattern (partial pooling), which keeps "
-        f"thin data from producing wild estimates. Every curve is summarized "
-        f"from {total_draws:,} posterior draws, shown here as a "
-        f"{N_DRAWS:,}-draw sample. Details are under **How the model works** in the sidebar."
+        f"thin data from producing wild estimates. The curves and numbers are "
+        f"computed from a seeded {N_DRAWS:,}-draw sample of the "
+        f"{total_draws:,} posterior draws. Details are under **How the model works** in the sidebar."
     )

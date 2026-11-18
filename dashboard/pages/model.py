@@ -70,7 +70,7 @@ def render() -> None:
     st.markdown(
         f"Each of the {n_nbhd} neighborhoods gets its own intercept (its "
         "baseline price) and its own slope (how much each extra guest adds). "
-        "A neighborhood's price is that intercept plus the slope times the "
+        "A neighborhood's log price is that intercept plus the slope times the "
         "number of guests the listing accommodates."
     )
     st.markdown(

@@ -60,7 +60,7 @@ def test_css_keeps_header_and_hides_footer(theme):
 
 @pytest.mark.parametrize("theme", THEMES)
 def test_css_does_not_box_every_block(theme):
-    # Streamlit 1.38 wraps every vertical block in this element, bordered or not.
+    # Streamlit wraps every vertical block in this element, bordered or not.
     assert "stVerticalBlockBorderWrapper" not in css(theme)
 
 

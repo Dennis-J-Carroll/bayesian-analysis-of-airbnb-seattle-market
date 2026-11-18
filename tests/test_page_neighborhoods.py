@@ -134,7 +134,10 @@ def test_guest_control_has_specimen_readout_and_tick_row(guests):
     at = _run(guests=guests)
     text = " ".join(m.value for m in at.markdown)
     assert f'class="g-out">{guests}<' in text  # large readout of the value
-    ticks = re.findall(r'<span( class="on")? style="left:[\d.]+%">(\d+)</span>', text)
+    ticks = re.findall(
+        r'<span( class="on")? style="left:[\d.]+%(?:;transform:[^"]+)?">(\d+)</span>',
+        text,
+    )
     assert [int(v) for _, v in ticks] == list(range(1, 17))
     assert [int(v) for on, v in ticks if on] == [guests]  # only the current one
     assert at.slider[0].value == guests
@@ -157,3 +160,18 @@ def test_guest_control_styling_is_scoped_to_this_slider():
 
     head = text[text.index("g-head") :]
     assert TOKENS["light"]["accent"] not in head.split("</div>")[0]
+
+
+def test_last_guest_tick_is_right_aligned_not_centred():
+    from dashboard.pages.neighborhoods import _guest_ticks_html
+
+    html = _guest_ticks_html(2)
+    last = html.split("<span")[-1]
+    assert "translateX(-100%)" in last and last.endswith(">16</span></div>")
+    assert html.count("translateX(-100%)") == 1
+
+
+def test_shrinkage_caption_mentions_slope_borrowing():
+    caption = " ".join(c.value for c in _run().caption)
+    assert "pulled mostly toward the citywide line" in caption
+    assert "slope also borrows from the neighborhood's other listing sizes" in caption

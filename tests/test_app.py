@@ -95,6 +95,9 @@ def test_predict_page_renders_component_and_explainer():
     assert "partial pooling" in text
     # Counts come from the artifacts: 4 chains x 2,000 draws, 1,000-draw sample.
     assert "8,000" in text and "1,000" in text
+    assert (
+        "computed from a seeded 1,000-draw sample of the 8,000 posterior draws" in text
+    )
 
 
 def _named_page(module_name):

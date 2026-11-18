@@ -53,9 +53,10 @@ def _shrinkage_caption(art, guests: int, omitted: int) -> str:
     base = (
         "Each circle is a neighborhood: its raw median price on the horizontal "
         "axis, the model's typical price on the vertical, and circle area grows "
-        "with listings. Circles off the diagonal were pulled toward the "
+        "with listings. Circles off the diagonal were pulled mostly toward the "
         f"citywide line (typical {_md(city)}) by partial pooling, thin "
-        "neighborhoods most of all. "
+        "neighborhoods most of all; the slope also borrows from the "
+        "neighborhood's other listing sizes. "
     )
     if raw is not None:
         holly_txt = (
@@ -110,9 +111,12 @@ def _guest_head_html(guests: int, theme: str) -> str:
 def _guest_ticks_html(guests: int) -> str:
     span = GUEST_MAX - GUEST_MIN
     on = ' class="on"'
+    # The last label is right-aligned to the row's edge instead of centred on
+    # its value, so the two-digit "16" does not overhang the slider.
     ticks = "".join(
         f'<span{on if g == guests else ""} '
-        f'style="left:{100 * (g - GUEST_MIN) / span:.4f}%">{g}</span>'
+        f'style="left:{100 * (g - GUEST_MIN) / span:.4f}%'
+        f'{";transform:translateX(-100%)" if g == GUEST_MAX else ""}">{g}</span>'
         for g in range(GUEST_MIN, GUEST_MAX + 1)
     )
     return f'<div class="g-ticks" aria-hidden="true">{ticks}</div>'

@@ -2,7 +2,7 @@
 
 This directory contains comprehensive Jupyter notebooks documenting the complete analytical workflow for the Bayesian Airbnb pricing analysis.
 
-## 📚 Notebook Sequence
+## Notebook Sequence
 
 ### 01-data-exploration-and-cleaning.ipynb
 **Data Preparation and Quality Assessment**
@@ -27,9 +27,9 @@ This directory contains comprehensive Jupyter notebooks documenting the complete
 - Property type and feature correlation analysis
 
 **Key Insights:**
-- Price distribution is approximately log-normal ✓
-- Significant variation in baseline prices across neighborhoods ✓
-- Accommodates effect varies by neighborhood (varying slopes) ✓
+- Price distribution is approximately log-normal
+- Significant variation in baseline prices across neighborhoods
+- Accommodates effect varies by neighborhood (varying slopes)
 
 ---
 
@@ -49,9 +49,9 @@ This directory contains comprehensive Jupyter notebooks documenting the complete
 - `outputs/neighborhood_map.csv` - Neighborhood index mapping
 
 **Model Performance:**
-- Converged chains (R̂ < 1.01) ✓
-- Effective sample size > 1000 ✓
-- Interpretable neighborhood-specific parameters ✓
+- Converged chains (R̂ < 1.01)
+- Effective sample size > 1000
+- Interpretable neighborhood-specific parameters
 
 ---
 
@@ -69,7 +69,7 @@ This directory contains comprehensive Jupyter notebooks documenting the complete
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -82,21 +82,21 @@ jupyter notebook
 jupyter lab
 ```
 
-## 📊 Expected Workflow
+## Expected Workflow
 
 1. **Start with notebook 01** - Clean and prepare the data
 2. **Run notebook 02** - Understand patterns and justify modeling approach
-3. **Execute notebook 03** - Build and fit the Bayesian model (⚠️ takes ~10-15 minutes)
+3. **Execute notebook 03** - Build and fit the Bayesian model (takes ~10-15 minutes)
 4. **Complete with notebook 04** - Validate performance and generate reports
 
-## ⚙️ Technical Requirements
+## Technical Requirements
 
 - **Python**: 3.9+
 - **Key Libraries**: PyMC 5.2+, ArviZ, Pandas, NumPy, Matplotlib, Seaborn
 - **Computational**: Bayesian sampling is CPU-intensive; recommend 4+ cores
 - **Memory**: ~4GB RAM for full dataset
 
-## 📝 Notes
+## Notes
 
 - All notebooks include detailed markdown explanations and interpretations
 - Code cells are designed to run sequentially (top to bottom)
@@ -104,7 +104,7 @@ jupyter lab
 - Outputs are saved to `data/processed/` and `outputs/` directories
 - Random seeds are set for reproducibility (RANDOM_SEED=42)
 
-## 🔗 Integration with Main Project
+## Integration with Main Project
 
 These notebooks complement the production Python modules in `src/`:
 - `src/hierarchical_bayesian_model.py` - Production model implementation
