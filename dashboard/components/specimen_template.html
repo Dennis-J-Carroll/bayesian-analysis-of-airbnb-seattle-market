@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="__FONTS_URL__">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  __TOKENS__
+  color-scheme: __SCHEME__;
+  --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --thumb: 18px;
+}
+html, body { height: 100%; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+::selection { background: var(--ink); color: var(--ground); }
+
+.specimen { display: flex; flex-direction: column; height: 100vh; padding: 2px 2px 0; }
+
+.lab {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Top band: price, its uncertainty, and the controls. */
+.band {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) minmax(300px, 400px);
+  column-gap: 40px;
+  row-gap: 20px;
+  align-items: end;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ink);
+}
+.lead .lab b { font-weight: 400; color: var(--ink); }
+.price {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(64px, 13vw, 150px);
+  line-height: 0.84;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  margin: 10px 0 0 -0.05em;
+  white-space: nowrap;
+}
+.lines { display: grid; row-gap: 12px; }
+.lines div { display: grid; row-gap: 3px; }
+.lines dd {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.note-slot { min-height: 46px; display: flex; align-items: flex-end; }
+.note { font-size: 11px; line-height: 1.4; max-width: 46ch; }
+.note::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  margin: 0 8px 0 0;
+  vertical-align: middle;
+  border-top: 2px solid var(--muted);
+}
+
+.controls { display: grid; row-gap: 18px; }
+.field { display: grid; row-gap: 7px; }
+.select-wrap { position: relative; }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--ground);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 8px 34px 8px 10px;
+  cursor: pointer;
+}
+select:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+.chev {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 10px;
+  height: 6px;
+  margin-top: -3px;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+.guests-head { display: flex; justify-content: space-between; align-items: baseline; }
+output {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Slider: solid track over observed listing sizes, muted beyond. */
+.slider { position: relative; height: 22px; }
+.track {
+  position: absolute;
+  left: calc(var(--thumb) / 2);
+  right: calc(var(--thumb) / 2);
+  top: 10px;
+  height: 2px;
+}
+.seen { position: absolute; left: 0; top: 0; height: 2px; background: var(--ink); }
+.past { position: absolute; right: 0; top: 0; height: 2px; background: var(--muted); }
+input[type="range"] {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 22px; background: transparent; }
+input[type="range"]::-moz-range-track { height: 22px; background: transparent; }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: 2px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+input[type="range"]::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+input[type="range"]:focus { outline: none; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 1px solid var(--ink); outline-offset: 3px; }
+input[type="range"]:focus-visible::-moz-range-thumb { outline: 1px solid var(--ink); outline-offset: 3px; }
+.ticks { position: relative; height: 14px; margin: 6px calc(var(--thumb) / 2) 0; }
+.ticks span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ticks span.on { color: var(--ink); font-weight: 600; }
+
+/* The board: every neighborhood on one log-price scale. */
+.board { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.board-head { display: grid; row-gap: 5px; padding: 8px 0 7px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; letter-spacing: 0.02em; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.legend svg { width: 22px; height: 10px; overflow: visible; }
+.key-axis { fill: none; stroke: var(--muted); stroke-width: 1; }
+.key-curve { fill: none; stroke: var(--ink); stroke-width: 1; }
+.key-city { stroke: var(--muted); stroke-width: 1; }
+.key-band { fill: var(--ink); fill-opacity: 0.1; stroke: none; }
+.key-dot { fill: var(--ground); stroke: var(--ink); stroke-width: 1; }
+.key-sparse { stroke: var(--ink); stroke-width: 0.75; stroke-dasharray: 3 2; }
+.key-past { stroke: var(--muted); stroke-width: 1.5; }
+.grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 3px 10px;
+  align-content: start;
+  padding: 0 1px 2px;
+  scrollbar-width: auto;
+  scrollbar-color: var(--muted) var(--rule);
+}
+.scroll-hint { display: none; }
+.scroll-hint.on { display: block; }
+.grid::-webkit-scrollbar { width: 8px; }
+.grid::-webkit-scrollbar-track { background: var(--rule); }
+.grid::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+.cell {
+  display: grid;
+  min-width: 0;
+  padding: 3px 0 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  border-radius: 0;
+  cursor: pointer;
+}
+.cell:hover { border-top-color: var(--ink); }
+.cell:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+.cell .plot { position: relative; display: block; }
+.cell svg { display: block; width: 100%; height: 44px; overflow: visible; }
+.cell .fill { fill: var(--ink); fill-opacity: 0.08; stroke: none; transition: d 120ms var(--ease); }
+.cell .clip { transition: x 120ms var(--ease), width 120ms var(--ease); }
+.cell .raw {
+  position: absolute;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ground);
+}
+.cell .raw[hidden] { display: none; }
+.cell .city { stroke: var(--muted); stroke-width: 1; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; }
+.cell .curve {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: d 120ms var(--ease);
+}
+.cell[data-sparse="true"] .curve { stroke-width: 0.75; stroke-dasharray: 3 2; }
+.cell[data-sparse="true"] .fill { display: none; }
+.cell.beyond .curve { stroke: var(--muted); }
+.cell.beyond .fill { fill: var(--muted); }
+.cell[data-selected="true"] .curve { stroke: var(--accent); stroke-width: 1.5; }
+.cell[data-selected="true"] .fill { fill: var(--accent); fill-opacity: 0.16; }
+.cell .nm, .cell .row { font-size: 11px; line-height: 13px; white-space: nowrap; }
+.cell .nm { margin-top: 4px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.cell .row { display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
+.cell .pc { color: var(--muted); }
+.cell .pc.up { color: var(--ink); }
+.cell .n { margin-left: auto; color: var(--muted); }
+.cell[data-selected="true"] .nm { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 1080px) {
+  .band { grid-template-columns: auto minmax(200px, 1fr); }
+  .note-slot { min-height: 0; }
+  .controls { grid-column: 1 / -1; grid-template-columns: minmax(200px, 1fr) minmax(260px, 1.4fr); column-gap: 32px; align-items: end; }
+}
+@media (max-width: 640px) {
+  .band { grid-template-columns: 1fr; row-gap: 16px; padding-bottom: 14px; }
+  .controls { grid-template-columns: 1fr; row-gap: 16px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px 8px; }
+  .cell .pc, .legend .key-pc { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell .curve, .cell .fill, .cell .clip { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="specimen">
+  <header class="band">
+    <div class="lead">
+      <p class="lab"><b data-role="name">__NAME__</b> &middot; <span data-role="guests-label">__GUESTS_LABEL__</span> &middot; median nightly price</p>
+      <p class="price" data-testid="specimen-price">__PRICE__</p>
+    </div>
+    <div class="lines">
+      <dl>
+        <div><dt class="lab">One listing, 94% range</dt><dd data-testid="specimen-range">__RANGE__</dd></div>
+      </dl>
+      <dl>
+        <div><dt class="lab">Typical price, 94% credible interval</dt><dd data-testid="specimen-typical">__TYPICAL__</dd></div>
+      </dl>
+      <div class="note-slot" aria-live="polite"><p class="note" data-testid="specimen-extrapolation"__EXTRAP_ATTR__>__EXTRAP_TEXT__</p></div>
+    </div>
+    <div class="controls">
+      <div class="field">
+        <label class="lab" for="specimen-nb">Neighborhood</label>
+        <div class="select-wrap">
+          <select id="specimen-nb" data-testid="specimen-select">__OPTIONS__</select>
+          <svg class="chev" viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="M0.5 0.5 L5 5 L9.5 0.5"/></svg>
+        </div>
+      </div>
+      <div class="field">
+        <div class="guests-head">
+          <label class="lab" for="specimen-g">Guests &middot; drag to remap all __COUNT__</label>
+          <output for="specimen-g" data-testid="specimen-guests">__GUEST_COUNT__</output>
+        </div>
+        <div class="slider">
+          <div class="track" aria-hidden="true"><div class="seen" style="width:__SEEN__"></div><div class="past" style="left:__SEEN__"></div></div>
+          <input id="specimen-g" type="range" min="__MIN__" max="__MAX__" step="1" value="__GUEST_COUNT__" data-testid="specimen-slider" aria-valuetext="__GUESTS_LABEL__">
+        </div>
+        <div class="ticks" aria-hidden="true">__TICKS__</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="board" aria-label="Posterior price curves for every neighborhood">
+    <div class="board-head">
+      <p class="lab">__COUNT__ neighborhoods, priciest first at __ORDER_GUESTS__</p>
+      <p class="lab scroll-hint" data-testid="specimen-scroll-hint">Scroll for all __COUNT__ neighborhoods</p>
+      <div class="legend lab">
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><path class="key-axis" d="M0.5 2 V8 M0.5 5 H21.5 M21.5 2 V8"/></svg>$20 to $1,000, log scale</span>
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><path class="key-band" d="M6 10 C8 10 9 1 11 1 C13 1 14 10 16 10 Z"/><path class="key-curve" d="M0 10 C6 10 7 1 11 1 C15 1 16 10 22 10"/></svg>94% range</span>
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><circle class="key-dot" cx="11" cy="6" r="3"/></svg>Raw median</span>
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><line class="key-sparse" x1="0" x2="22" y1="5" y2="5"/></svg>Under 10 listings</span>
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><line class="key-past" x1="0" x2="22" y1="5" y2="5"/></svg>Extrapolated</span>
+        <span><svg viewBox="0 0 22 10" aria-hidden="true" focusable="false"><line class="key-city" x1="11" x2="11" y1="0" y2="10"/></svg>City typical</span>
+        <span class="key-pc">+% vs city</span>
+      </div>
+    </div>
+    <div class="grid">
+__CELLS__
+    </div>
+  </section>
+</div>
+<script type="application/json" id="specimen-data">__PAYLOAD__</script>
+<script>
+(function () {
+  "use strict";
+  var data = JSON.parse(document.getElementById("specimen-data").textContent);
+  var W = 100, H = 44, TOP = 2;
+  var guestValues = data.guest_values;
+  var gMin = guestValues[0], gMax = guestValues[guestValues.length - 1];
+  var logLo = Math.log(data.grid[0]);
+  var logSpan = Math.log(data.grid[data.grid.length - 1]) - logLo;
+  var xs = data.grid.map(function (p) { return (Math.log(p) - logLo) / logSpan * W; });
+
+  var state = { guests: data.guests, selected: data.selected };
+  var cellsByName = {};
+  data.cells.forEach(function (c) { cellsByName[c.name] = c; });
+
+  // Formatting mirrors specimen.py (_dollars, _span, _num).
+  function missing(v) { return v === null || v === undefined || Number.isNaN(v); }
+  function fmtDollars(v) {
+    return missing(v) ? "—" : "$" + Math.floor(v + 0.5).toLocaleString("en-US");
+  }
+  function fmtSpan(lo, hi) {
+    return (missing(lo) || missing(hi)) ? "—" : fmtDollars(lo) + " – " + fmtDollars(hi);
+  }
+  function fmtNum(v) {
+    var t = Math.floor(v * 10 + 0.5);
+    return Math.floor(t / 10) + "." + (t % 10);
+  }
+  function curveD(dens) {
+    var base = fmtNum(H);
+    var parts = ["M" + fmtNum(xs[0]) + "," + base];
+    for (var i = 0; i < xs.length; i++) {
+      var d = dens[i];
+      d = missing(d) ? 0 : Math.min(Math.max(d, 0), 1);
+      parts.push("L" + fmtNum(xs[i]) + "," + fmtNum(TOP + (1 - d) * (H - TOP)));
+    }
+    parts.push("L" + fmtNum(xs[xs.length - 1]) + "," + base);
+    return parts.join(" ");
+  }
+  function priceX(p) {
+    if (missing(p)) return fmtNum(-10);
+    var x = (Math.log(p) - logLo) / logSpan * W;
+    return fmtNum(Math.min(Math.max(x, 0), W));
+  }
+  function premium(v, city) {
+    if (missing(v) || missing(city) || !city) return ["\u2014", false];
+    var pct = Math.floor((v / city - 1) * 100 + 0.5);
+    if (pct > 0) return ["+" + pct + "%", true];
+    return [pct < 0 ? "\u2212" + (-pct) + "%" : "0%", false];
+  }
+  function band(pred, gi) {
+    if (missing(pred.q03[gi]) || missing(pred.q97[gi])) return ["0.0", "0.0"];
+    var lo = parseFloat(priceX(pred.q03[gi])), hi = parseFloat(priceX(pred.q97[gi]));
+    return [fmtNum(lo), fmtNum(Math.max(hi - lo, 0))];
+  }
+  function guestsLabel(g) { return g === 1 ? "1 guest" : g + " guests"; }
+  function pct(g) {
+    var v = Math.min(Math.max(g, gMin), gMax);
+    return ((v - gMin) / (gMax - gMin) * 100).toFixed(4) + "%";
+  }
+
+  var q = function (id) { return document.querySelector('[data-testid="' + id + '"]'); };
+  var slider = q("specimen-slider");
+  var select = q("specimen-select");
+  var out = {
+    guests: q("specimen-guests"),
+    price: q("specimen-price"),
+    range: q("specimen-range"),
+    typical: q("specimen-typical"),
+    note: q("specimen-extrapolation"),
+    name: document.querySelector('[data-role="name"]'),
+    guestsLabel: document.querySelector('[data-role="guests-label"]'),
+    seen: document.querySelector(".seen"),
+    past: document.querySelector(".past")
+  };
+  var ticks = Array.prototype.slice.call(document.querySelectorAll(".ticks span"));
+  var cellEls = Array.prototype.slice.call(document.querySelectorAll(".cell"));
+  var byIndex = {};
+  data.cells.forEach(function (c) { byIndex[c.index] = c; });
+
+  function render() {
+    var g = state.guests;
+    var gi = guestValues.indexOf(g);
+    var sel = cellsByName[state.selected];
+    var pred = sel.predictive, typ = sel.typical;
+
+    out.guests.textContent = String(g);
+    out.guestsLabel.textContent = guestsLabel(g);
+    slider.setAttribute("aria-valuetext", guestsLabel(g));
+    out.name.textContent = sel.name;
+    out.price.textContent = fmtDollars(pred.q50[gi]);
+    out.range.textContent = fmtSpan(pred.q03[gi], pred.q97[gi]);
+    out.typical.textContent = fmtSpan(typ.lo[gi], typ.hi[gi]);
+    if (g > sel.max_guests_observed) {
+      out.note.textContent = "Beyond the largest " + sel.name + " listing in the data (" +
+        sel.max_guests_observed + " guests): extrapolated.";
+      out.note.hidden = false;
+    } else {
+      out.note.textContent = "";
+      out.note.hidden = true;
+    }
+    var seen = pct(sel.max_guests_observed);
+    out.seen.style.width = seen;
+    out.past.style.left = seen;
+    ticks.forEach(function (t, i) { t.className = guestValues[i] === g ? "on" : ""; });
+
+    var cityX = priceX(data.city_median[gi]);
+    cellEls.forEach(function (el) {
+      var c = byIndex[el.getAttribute("data-index")];
+      var isSel = c.name === state.selected;
+      el.classList.toggle("beyond", g > c.max_guests_observed);
+      el.setAttribute("data-selected", isSel ? "true" : "false");
+      el.setAttribute("aria-pressed", isSel ? "true" : "false");
+      var d = curveD(c.density[gi]);
+      el.querySelector(".curve").setAttribute("d", d);
+      el.querySelector(".fill").setAttribute("d", d);
+      var bw = band(c.predictive, gi), clip = el.querySelector(".clip");
+      clip.setAttribute("x", bw[0]);
+      clip.setAttribute("width", bw[1]);
+      var raw = el.querySelector(".raw"), rv = c.raw[gi];
+      raw.hidden = missing(rv);
+      if (!missing(rv)) raw.style.left = priceX(rv) + "%";
+      var pc = el.querySelector(".pc"), pr = premium(c.typical.median[gi], data.city_median[gi]);
+      pc.textContent = pr[0];
+      pc.className = pr[1] ? "pc up" : "pc";
+      var city = el.querySelector(".city");
+      city.setAttribute("x1", cityX);
+      city.setAttribute("x2", cityX);
+      el.querySelector(".md").textContent = fmtDollars(c.predictive.q50[gi]);
+    });
+  }
+
+  var grid = document.querySelector(".grid");
+  // The grid scrolls inside the frame whenever its cells do not all fit, at
+  // any width; say so only then.
+  var hint = document.querySelector(".scroll-hint");
+  function updateHint() {
+    hint.classList.toggle("on", grid.scrollHeight > grid.clientHeight + 1);
+  }
+  function revealSelected() {
+    var el = document.querySelector('.cell[data-selected="true"]');
+    if (!el) return;
+    var top = el.offsetTop - grid.offsetTop;
+    var bottom = top + el.offsetHeight;
+    // Out of view: bring its row to the top of the grid, where it lands
+    // inside the host page's first viewport rather than at the iframe's foot.
+    if (top < grid.scrollTop || bottom > grid.scrollTop + grid.clientHeight) grid.scrollTop = top;
+  }
+
+  function setGuests(v) {
+    var g = parseInt(v, 10);
+    if (Number.isNaN(g) || g === state.guests) return;
+    state.guests = Math.min(Math.max(g, gMin), gMax);
+    render();
+    revealSelected();
+  }
+  function setSelected(name) {
+    if (!cellsByName[name] || name === state.selected) return;
+    state.selected = name;
+    if (select.value !== name) select.value = name;
+    render();
+    revealSelected();
+  }
+
+  slider.addEventListener("input", function () { setGuests(slider.value); });
+  slider.addEventListener("change", function () { setGuests(slider.value); });
+  select.addEventListener("change", function () { setSelected(select.value); });
+  cellEls.forEach(function (el) {
+    el.addEventListener("click", function () {
+      setSelected(byIndex[el.getAttribute("data-index")].name);
+    });
+  });
+  revealSelected();
+  updateHint();
+  window.addEventListener("resize", function () { revealSelected(); updateHint(); });
+})();
+</script>
+</body>
+</html>

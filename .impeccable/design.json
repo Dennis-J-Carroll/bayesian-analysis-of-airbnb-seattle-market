@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T05:36:53+00:00",
+  "title": "Design System: Seattle Airbnb, Bayesian price model",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Specimen Paper",
+        "canonical": "#FBFBFA",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252524",
+          "#424241",
+          "#616160",
+          "#828281",
+          "#A5A5A4",
+          "#C9C9C8",
+          "#EEEEED"
+        ]
+      },
+      "paper-secondary": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#F0F0EE",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#252524",
+          "#424240",
+          "#616160",
+          "#828281",
+          "#A5A5A3",
+          "#C9C9C7",
+          "#EEEEEC"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Press Ink",
+        "canonical": "#111111",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "vermilion": {
+        "role": "primary",
+        "displayName": "Survey Vermilion",
+        "canonical": "#D6452B",
+        "tonalRamp": [
+          "#3C0000",
+          "#630000",
+          "#8B0000",
+          "#B31E00",
+          "#DB4A30",
+          "#FF7054",
+          "#FF9578",
+          "#FFBB9C"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Margin Grey",
+        "canonical": "#6E6E69",
+        "tonalRamp": [
+          "#0B0B08",
+          "#252521",
+          "#42423E",
+          "#62625D",
+          "#83837D",
+          "#A5A5A0",
+          "#C9C9C4",
+          "#EFEFE9"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#D8D8D6",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#252524",
+          "#424240",
+          "#61615F",
+          "#828281",
+          "#A5A5A3",
+          "#C9C9C7",
+          "#EEEEEC"
+        ]
+      },
+      "dark-ground": {
+        "role": "neutral",
+        "displayName": "Night Ground",
+        "canonical": "#111111",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "#ECEBE6",
+        "tonalRamp": [
+          "#0C0B08",
+          "#262521",
+          "#43423E",
+          "#62615D",
+          "#83827E",
+          "#A6A5A0",
+          "#CAC9C4",
+          "#F0EEE9"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Night Grey",
+        "canonical": "#9A9CA0",
+        "tonalRamp": [
+          "#0A0B0E",
+          "#232528",
+          "#404245",
+          "#5F6165",
+          "#808286",
+          "#A3A5A9",
+          "#C7C9CD",
+          "#ECEEF3"
+        ]
+      },
+      "dark-rule": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "canonical": "#2A2B2E",
+        "tonalRamp": [
+          "#0A0B0E",
+          "#242528",
+          "#414245",
+          "#606164",
+          "#818286",
+          "#A4A5A9",
+          "#C8C9CD",
+          "#EDEEF2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Predicted median price on Predict; one per page at most."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Readout values on Model, Diagnostics and Data notes."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Page titles and section subheaders at Streamlit native sizes."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Live guest count beside each slider."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "purpose": "Interval lines in the specimen band."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Prose, capped at 72ch."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Muted explanatory captions at 80ch, case preserved."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase tracked field, readout, table and legend labels."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Cell names and numbers, slider ticks, chart ticks."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-specimen",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Curve, band and clip remap when the guest count changes."
+      },
+      {
+        "name": "duration-remap",
+        "value": "120ms",
+        "purpose": "Specimen remap transition; set to none under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "tablet",
+        "value": "1080px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Paper ground, ink text, hairline border; every non-primary button.",
+      "html": "<button class=\"ds-btn\">Browse files</button>",
+      "css": ".ds-btn { background: #FBFBFA; color: #111111; border: 1px solid #D8D8D6; border-radius: 2px; padding: 6px 12px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; box-shadow: none; cursor: pointer; } .ds-btn:hover { border-color: #111111; } .ds-btn:focus-visible { outline: 1px solid #111111; outline-offset: 2px; }"
+    },
+    {
+      "name": "Neighborhood Select",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "Specimen select: 1px ink border, 2px corners, inline SVG chevron.",
+      "html": "<label class=\"ds-lab\" for=\"ds-nb\">Neighborhood</label><div class=\"ds-sel\"><select id=\"ds-nb\"><option>Broadway</option><option>Belltown</option></select><svg viewBox=\"0 0 10 6\" aria-hidden=\"true\"><path d=\"M0.5 0.5 L5 5 L9.5 0.5\"/></svg></div>",
+      "css": ".ds-lab { display: block; margin-bottom: 7px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E69; } .ds-sel { position: relative; width: 280px; } .ds-sel select { appearance: none; -webkit-appearance: none; width: 100%; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; color: #111111; background: #FBFBFA; border: 1px solid #111111; border-radius: 2px; padding: 8px 34px 8px 10px; cursor: pointer; } .ds-sel select:focus-visible { outline: 1px solid #111111; outline-offset: 2px; } .ds-sel svg { position: absolute; right: 12px; top: 50%; width: 10px; height: 6px; margin-top: -3px; fill: none; stroke: #111111; stroke-width: 1.25; pointer-events: none; }"
+    },
+    {
+      "name": "Guest Slider",
+      "kind": "input",
+      "refersTo": "slider-thumb",
+      "description": "2px track, ink over observed sizes and muted beyond; 18px vermilion thumb; mono ticks with the current value in ink.",
+      "html": "<div class=\"ds-g\"><div class=\"ds-g-head\"><span class=\"ds-g-lab\">Guests &middot; drag to remap all 88</span><output class=\"ds-g-out\">2</output></div><div class=\"ds-g-sl\"><div class=\"ds-g-seen\"></div><div class=\"ds-g-past\"></div><input type=\"range\" min=\"1\" max=\"16\" value=\"2\" aria-label=\"Guests\"></div><div class=\"ds-g-ticks\"><span>1</span><span class=\"on\">2</span><span>4</span><span>8</span><span>12</span><span>16</span></div></div>",
+      "css": ".ds-g { width: 360px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; } .ds-g-head { display: flex; justify-content: space-between; align-items: baseline; } .ds-g-lab { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E69; } .ds-g-out { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; font-size: 30px; line-height: 1; letter-spacing: -0.02em; color: #111111; } .ds-g-sl { position: relative; height: 22px; } .ds-g-seen { position: absolute; left: 9px; top: 10px; height: 2px; width: 80%; background: #111111; } .ds-g-past { position: absolute; right: 9px; top: 10px; height: 2px; width: calc(20% - 18px); background: #6E6E69; } .ds-g-sl input { position: relative; width: 100%; height: 22px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; } .ds-g-sl input::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 50%; background: #D6452B; } .ds-g-sl input::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: #D6452B; } .ds-g-sl input:focus { outline: none; } .ds-g-sl input:focus-visible::-webkit-slider-thumb { outline: 1px solid #111111; outline-offset: 3px; } .ds-g-ticks { display: flex; justify-content: space-between; margin: 6px 9px 0; font-size: 11px; color: #6E6E69; font-variant-numeric: tabular-nums; } .ds-g-ticks .on { color: #111111; font-weight: 600; }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Mono uppercase 12px ink entries; active page is 600 weight on a hairline pill.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Predict</a><a href=\"#\">Neighborhoods</a><a href=\"#\">How the model works</a><a href=\"#\">Diagnostics</a><a href=\"#\">Data notes</a></nav>",
+      "css": ".ds-nav { display: grid; row-gap: 2px; width: 195px; padding-right: 16px; border-right: 1px solid #111111; } .ds-nav a { display: block; padding: 4px 8px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #111111; text-decoration: none; border-radius: 2px; } .ds-nav a:hover { text-decoration: underline; text-underline-offset: 3px; } .ds-nav a[aria-current=\"page\"] { background: #D8D8D6; font-weight: 600; } .ds-nav a:focus-visible { outline: 1px solid #111111; outline-offset: 2px; }"
+    },
+    {
+      "name": "Readout Row",
+      "kind": "card",
+      "refersTo": "readout",
+      "description": "Label over an Archivo numeral under a 1px ink rule; replaces metric tiles.",
+      "html": "<div class=\"ds-rd-row\"><div class=\"ds-rd\"><div class=\"ds-rd-lab\">R-hat, worst</div><div class=\"ds-rd-val\">1.00</div><div class=\"ds-rd-sub\">all parameters</div></div><div class=\"ds-rd\"><div class=\"ds-rd-lab\">Effective draws, lowest</div><div class=\"ds-rd-val\">2,140</div><div class=\"ds-rd-sub\">of 8,000</div></div></div>",
+      "css": ".ds-rd-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 24px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; } .ds-rd { border-top: 1px solid #111111; padding: 8px 0 4px; } .ds-rd-lab { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E69; } .ds-rd-val { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; font-size: clamp(34px, 5vw, 56px); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: #111111; } .ds-rd-sub { font-size: 11px; color: #6E6E69; min-height: 15px; }"
+    },
+    {
+      "name": "Readout Line",
+      "kind": "custom",
+      "refersTo": "readout-line",
+      "description": "One mono line of facts under an ink rule; values ink 600, words muted.",
+      "html": "<div class=\"ds-rl\"><span><b>359</b> listings</span><span>typical <b>$164</b> (94% $158-$171)</span><span>one listing <b>$79-$334</b></span><span>raw median <b>$165</b></span></div>",
+      "css": ".ds-rl { display: flex; flex-wrap: wrap; gap: 4px 28px; padding-top: 10px; border-top: 1px solid #111111; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; line-height: 1.5; color: #6E6E69; font-variant-numeric: tabular-nums; } .ds-rl b { font-weight: 600; color: #111111; }"
+    },
+    {
+      "name": "Specimen Cell",
+      "kind": "custom",
+      "refersTo": "specimen-cell",
+      "description": "Signature: hairline-topped posterior curve with 94% band, city line and hollow raw-median dot; dashed when under 10 listings; vermilion when selected.",
+      "html": "<div class=\"ds-grid\"><button class=\"ds-cell\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><path class=\"ds-fill\" d=\"M38 44 C44 44 46 6 52 6 C58 6 60 44 66 44 Z\"/><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C30 44 40 6 52 6 C64 6 74 44 100 44\"/></svg><span class=\"ds-nm\">Belltown</span><span class=\"ds-row\"><span>$182</span><span class=\"ds-pc\">+52%</span><span class=\"ds-n\">n=328</span></span></button><button class=\"ds-cell\" data-selected=\"true\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><path class=\"ds-fill\" d=\"M40 44 C46 44 48 4 54 4 C60 4 62 44 68 44 Z\"/><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C32 44 42 4 54 4 C66 4 76 44 100 44\"/></svg><span class=\"ds-nm\">Broadway</span><span class=\"ds-row\"><span>$164</span><span class=\"ds-pc\">+38%</span><span class=\"ds-n\">n=359</span></span></button><button class=\"ds-cell\" data-sparse=\"true\"><svg viewBox=\"0 0 100 44\" preserveAspectRatio=\"none\"><line class=\"ds-city\" x1=\"45\" x2=\"45\" y1=\"0\" y2=\"44\"/><path class=\"ds-curve\" d=\"M0 44 C30 44 40 4 54 4 C68 4 78 44 100 44\"/></svg><span class=\"ds-nm\">Industrial District</span><span class=\"ds-row\"><span>$140</span><span class=\"ds-pc\">+19%</span><span class=\"ds-n\">n=1</span></span></button></div>",
+      "css": ".ds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 3px 10px; width: 420px; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; } .ds-cell { display: grid; padding: 3px 0 0; text-align: left; font: inherit; color: #111111; background: none; border: 0; border-top: 1px solid #D8D8D6; border-radius: 0; cursor: pointer; } .ds-cell:hover { border-top-color: #111111; } .ds-cell:focus-visible { outline: 1px solid #111111; outline-offset: 2px; } .ds-cell svg { display: block; width: 100%; height: 44px; overflow: visible; } .ds-fill { fill: #111111; fill-opacity: 0.08; } .ds-city { stroke: #6E6E69; stroke-width: 1; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; } .ds-curve { fill: none; stroke: #111111; stroke-width: 1; vector-effect: non-scaling-stroke; transition: d 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-cell[data-sparse=\"true\"] .ds-curve { stroke-width: 0.75; stroke-dasharray: 3 2; } .ds-cell[data-selected=\"true\"] .ds-curve { stroke: #D6452B; stroke-width: 1.5; } .ds-cell[data-selected=\"true\"] .ds-fill { fill: #D6452B; fill-opacity: 0.16; } .ds-nm, .ds-row { font-size: 11px; line-height: 13px; white-space: nowrap; } .ds-nm { margin-top: 4px; color: #6E6E69; overflow: hidden; text-overflow: ellipsis; } .ds-row { display: flex; gap: 6px; font-variant-numeric: tabular-nums; } .ds-pc { color: #111111; } .ds-n { margin-left: auto; color: #6E6E69; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Live Specimen",
+    "overview": "**Creative North Star: \"The Live Specimen\"**\n\nThe app is set like a type-specimen sheet whose specimens are posterior distributions. One enormous Archivo numeral states a price; beneath it, every neighborhood's price curve sits in a dense grid of hairline cells, all on one log-price axis, so the eye compares 88 shapes the way it compares weights of a typeface. A single guest-count control remaps every specimen at once. The page is paper and ink; colour appears only where the visitor has made a choice.\n\nDensity is high and quiet. Hierarchy comes from scale contrast (a 150px numeral against 11px mono labels) and weight (Archivo 800 against JetBrains Mono 400), never from boxes, shadows or tinted panels. Uncertainty is drawn, not decorated: bands are a faint ink wash under a 1px curve, sparse evidence is a thinner dashed stroke, and the raw data is a hollow dot. Light and dark are two inkings of the same sheet, not two designs.",
+    "keyCharacteristics": [
+      "Paper ground, ink type and curves, one vermilion accent for the selection, the slider thumb and the primary action.",
+      "Archivo 800 for numerals and headings; JetBrains Mono for everything that is read as data or label.",
+      "1px rules and hairline cell borders do all the structural work; no shadows, blur or gradients.",
+      "Every interval shown is the equal-tailed 94% interval (3rd to 97th percentile).",
+      "Mark grammar is fixed across pages: band = 94% range, dashed = under 10 listings, hollow dot = raw median, muted vertical = city typical."
+    ],
+    "rules": [
+      {
+        "name": "The One Selection Rule",
+        "body": "Vermilion marks what the visitor chose or is manipulating: the selected neighborhood, the slider thumb and fill, the primary action. Nothing else. The active nav item is ink on a hairline pill, and the theme toggle runs ink-on-ground, so neither borrows the accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Same Sheet Rule",
+        "body": "Dark mode swaps the four neutral tokens and nothing else. Every component reads its colours from the active theme's tokens; no component hard-codes a light value.",
+        "section": "colors"
+      },
+      {
+        "name": "The 11px Floor Rule",
+        "body": "No functional text goes below 11px: cell names, ticks, legend, axis ticks and labels all sit at exactly 11px. When space runs short the specimen grid drops columns and long names truncate with an ellipsis; the type does not shrink.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Every number that can change (prices, guest counts, percentages, n) uses tabular figures so a live remap never makes columns jitter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tracked-Labels-Only Rule",
+        "body": "Uppercase with 0.06em tracking is for short labels only. Captions and prose keep their case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ruled Sheet Rule",
+        "body": "Separation is a line, never a lifted surface: 1px ink to close a section or head a readout, 1px hairline between peers. No cards, no tinted panels, no blur, no gradients.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use the equal-tailed 94% interval (3rd to 97th percentile) for every band, range and interval, and say \"94%\" in its label.",
+      "**Do** keep the mark grammar identical on every page: light ink band = 94% range, dashed thinner stroke = fewer than 10 listings, hollow dot = raw median, muted vertical = city typical.",
+      "**Do** keep functional text at 11px or larger and let the grid drop columns before type shrinks.",
+      "**Do** read every colour from the active theme's tokens so light and dark stay one system.",
+      "**Do** head readouts with a 1px ink rule and set changing numbers in tabular figures."
+    ],
+    "donts": [
+      "**Don't** use vermilion for anything other than the selected neighborhood, the slider thumb and fill, and the primary action.",
+      "**Don't** use dashes on neighborhood curves or intervals for anything but the under-10-listings state.",
+      "**Don't** add shadows, blur, gradients or tinted cards; separate with 1px rules.",
+      "**Don't** round boxes beyond 2px; round forms are for handles and point marks (slider thumb, toggle, raw-median dot, chart markers).",
+      "**Don't** use Streamlit metric tiles or a KPI tile row; use the readout row or readout line.",
+      "**Don't** use emojis anywhere in the UI; the few icons the build draws itself (select chevron, legend keys) are inline SVG strokes in ink."
+    ]
+  }
+}
