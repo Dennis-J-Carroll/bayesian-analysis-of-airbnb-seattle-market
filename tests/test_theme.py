@@ -172,3 +172,10 @@ def test_accent_not_on_nav_or_toggle(theme):
 def test_prose_measure(theme):
     bodies = [b for s, b in _rules(theme) if "stMarkdownContainer" in s and " p" in s]
     assert any("max-width: 72ch" in b for b in bodies)
+
+
+@pytest.mark.parametrize("theme", THEMES)
+def test_slider_value_is_mono_ink_not_accent(theme):
+    bodies = [b for s, b in _rules(theme) if "stSliderThumbValue" in s]
+    assert bodies and TOKENS[theme]["ink"] in bodies[0]
+    assert TOKENS[theme]["accent"] not in bodies[0] and "JetBrains Mono" in bodies[0]
